@@ -1,0 +1,71 @@
+# Node modules
+node_modules/
+
+# Build directories
+android/app/build/
+ios/Pods/
+ios/DerivedData/
+build/
+dist/
+
+# OS files
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# React Native
+.expo/
+.expo-shared/
+.env
+.env.*
+
+# Misc
+*.keystore
+*.jks
+*.keystore.*
+
+# Android
+android/.gradle/
+android/.idea/
+android/app/.cxx/
+android/local.properties
+
+# iOS
+ios/build/
+ios/Pods/
+ios/*.xcworkspace
+ios/Podfile.lock
+
+# Fastlane
+fastlane/report.xml
+fastlane/screenshots
+fastlane/test_output
+
+# Ruby/Bundler
+vendor/
+.bundle/
+ios/vendor/
+ios/.bundle/
+android/vendor/
+android/.bundle/
+
+# Bundles
+*.jsbundle
+*.hmap
+*.xcuserstate
+
+# Firebase google-services files
+# ios
+ios/GoogleService-Info.plist
+ios/p2pfood/GoogleService-Info.plist
+# android
+android/app/google-services.json
+
+# firebase crashlytics
+.firebase/
+public/
