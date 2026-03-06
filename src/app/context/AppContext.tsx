@@ -7,10 +7,13 @@ export type OrderStatus = 'pending' | 'accepted' | 'preparing' | 'ready' | 'pick
 export interface Organization {
   id: string;
   ownerName: string;
+  ownerEmail?: string;
+  ownerPassword?: string;
   orgName: string;
   address: string;
   phone: string;
   type: OrgType;
+  verificationStatus?: 'pending' | 'verified';
   cnic?: string;
   ntn?: string;
   cnicFrontPhoto?: string;
@@ -23,8 +26,17 @@ export interface Branch {
   orgId: string;
   name: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
+  kitchenLogo?: string;
+  openingTime?: string;
+  closingTime?: string;
+  isDeliveryEnabled?: boolean;
+  deliveryPrice?: string;
+  deliveryTime?: string;
   managerName?: string;
   managerPhone?: string;
+  managerImage?: string;
   managerUsername?: string;
   managerPassword?: string;
 }
@@ -75,6 +87,8 @@ export interface Order {
   riderName?: string;
   riderAccepted?: boolean;
   riderAcceptedAt?: string;
+  paymentMethod?: string;
+  specialInstructions?: string;
   createdAt: string;
   deliveredAt?: string;
 }
@@ -125,7 +139,7 @@ interface AppContextType extends AppState {
   updateCartItem: (dishId: string, quantity: number) => void;
   removeFromCart: (dishId: string) => void;
   clearCart: () => void;
-  placeOrder: (buyerInfo: { name: string; phone: string; address: string; orgId: string }) => Order;
+  placeOrder: (buyerInfo: { name: string; phone: string; address: string; orgId: string; paymentMethod?: string; specialInstructions?: string }) => Order;
   createMockOrderForOrg: (orgId: string, count?: number) => Order[] | null;
   createMockOrdersForRider: (riderId: string, countPerTab?: number) => Order[] | null;
   createApplicationMockData: () => void;
@@ -134,7 +148,8 @@ interface AppContextType extends AppState {
   assignRiderToOrder: (orderId: string, riderId: string, riderName: string, branchId: string) => void;
   unassignRiderFromOrder: (orderId: string) => void;
   acceptAssignedOrder: (orderId: string) => void;
-  loginBranchManager: (username: string, password: string) => Branch | null;
+  loginKitchenOwner: (phone: string, password: string) => Organization | null;
+  loginBranchManager: (phone: string, password: string) => Branch | null;
   loginRider: (username: string, password: string) => Rider | null;
   sendChatMessage: (orderId: string, message: string, senderName: string, senderRole: UserRole) => void;
   isChatOpen: (order: Order) => boolean;
@@ -143,8 +158,31 @@ interface AppContextType extends AppState {
 const STORAGE_KEY = 'quickbite_app_state';
 
 const INITIAL_ORGS: Organization[] = [
-  { id: 'org-001', ownerName: 'Salman Khan', orgName: 'Karachi Grills', address: 'Block 5, Clifton, Karachi', phone: '0311-1234567', type: 'restaurant', ntn: '1234567-8' },
-  { id: 'org-002', ownerName: 'Amna Bibi', orgName: 'Home Spice by Amna', address: 'Street 4, Gulshan-e-Iqbal, Karachi', phone: '0300-9876543', type: 'homemade', cnic: '42101-1234567-8' },
+  {
+    id: 'org-001',
+    ownerName: 'Salman Khan',
+    ownerEmail: 'salman@karachigrills.pk',
+    ownerPassword: 'owner123',
+    orgName: 'Karachi Grills',
+    address: 'Block 5, Clifton, Karachi',
+    phone: '0311-1234567',
+    type: 'restaurant',
+    verificationStatus: 'verified',
+    ntn: '1234567-8',
+    cnic: '42101-1234567-8',
+  },
+  {
+    id: 'org-002',
+    ownerName: 'Amna Bibi',
+    ownerEmail: 'amna@homespice.pk',
+    ownerPassword: 'owner123',
+    orgName: 'Home Spice by Amna',
+    address: 'Street 4, Gulshan-e-Iqbal, Karachi',
+    phone: '0300-9876543',
+    type: 'homemade',
+    verificationStatus: 'verified',
+    cnic: '42101-1234567-8',
+  },
 ];
 
 const INITIAL_BRANCHES: Branch[] = [
@@ -262,14 +300,6 @@ function slugify(value: string, fallback: string): string {
   return cleaned || fallback;
 }
 
-function generateManagerUsername(seed: string): string {
-  return `${slugify(seed, 'kitchen_manager')}_${Math.floor(100 + Math.random() * 900)}`;
-}
-
-function generatePassword(prefix: string): string {
-  return `${prefix}${Math.floor(1000 + Math.random() * 9000)}`;
-}
-
 function loadState(): AppState {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -327,20 +357,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const registerOrganization = useCallback((data: Omit<Organization, 'id'>) => {
     const org: Organization = { ...data, id: `org-${generateId()}` };
-    const defaultBranch: Branch = {
-      id: `branch-${generateId()}`,
-      orgId: org.id,
-      name: data.type === 'restaurant' ? 'Main Kitchen' : `${data.orgName} Kitchen`,
-      address: data.address,
-      managerName: data.ownerName,
-      managerPhone: data.phone,
-      managerUsername: generateManagerUsername(data.ownerName || data.orgName),
-      managerPassword: generatePassword('kitchen'),
-    };
     setState(prev => ({
       ...prev,
       organizations: [...prev.organizations, org],
-      branches: [...prev.branches, defaultBranch],
     }));
     return org;
   }, []);
@@ -416,7 +435,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setState(prev => ({ ...prev, cart: [] }));
   }, []);
 
-  const placeOrder = useCallback((buyerInfo: { name: string; phone: string; address: string; orgId: string }) => {
+  const placeOrder = useCallback((buyerInfo: { name: string; phone: string; address: string; orgId: string; paymentMethod?: string; specialInstructions?: string }) => {
     let createdOrder: Order | null = null;
     setState(prev => {
       const availableRider = prev.riders.find(r => r.orgId === buyerInfo.orgId && r.isAvailable);
@@ -441,6 +460,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             ? { branchId: fallbackBranch.id }
             : {}),
         riderAccepted: false,
+        paymentMethod: buyerInfo.paymentMethod || 'cod',
+        specialInstructions: buyerInfo.specialInstructions,
         createdAt: new Date().toISOString(),
       };
       createdOrder = order;
@@ -691,7 +712,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       branches: INITIAL_BRANCHES,
       riders: INITIAL_RIDERS,
       dishes: INITIAL_DISHES,
-      orders: INITIAL_ORDERS,
+      orders: [], // Clear all orders instead of resetting to INITIAL_ORDERS
       cart: [],
       chatMessages: [],
     });
@@ -744,9 +765,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  const loginBranchManager = useCallback((username: string, password: string): Branch | null => {
+  const loginKitchenOwner = useCallback((phone: string, password: string): Organization | null => {
+    const found = state.organizations.find(
+      o => o.phone === phone && o.ownerPassword === password,
+    );
+    return found ?? null;
+  }, [state.organizations]);
+
+  const loginBranchManager = useCallback((phone: string, password: string): Branch | null => {
     const found = state.branches.find(
-      b => b.managerUsername === username && b.managerPassword === password,
+      b => b.managerPhone === phone && b.managerPassword === password,
     );
     return found ?? null;
   }, [state.branches]);
@@ -807,6 +835,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       assignRiderToOrder,
       unassignRiderFromOrder,
       acceptAssignedOrder,
+      loginKitchenOwner,
       loginBranchManager,
       loginRider,
       sendChatMessage,

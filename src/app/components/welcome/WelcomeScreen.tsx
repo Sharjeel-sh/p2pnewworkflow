@@ -26,7 +26,7 @@ export function WelcomeScreen() {
       setCurrentUser({ role: 'buyer', buyerName: 'Guest' });
       navigate('/buyer');
     } else if (selectedRole === 'kitchen') {
-      navigate('/signup');
+      navigate('/kitchen/onboarding');
     } else if (selectedRole === 'rider') {
       navigate('/rider/login');
     }

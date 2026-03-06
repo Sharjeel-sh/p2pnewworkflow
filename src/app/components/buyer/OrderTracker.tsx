@@ -5,6 +5,7 @@ import { MobileLayout } from '../shared/MobileLayout';
 import { StatusBadge } from '../shared/StatusBadge';
 import { useApp } from '../../context/AppContext';
 import type { OrderStatus } from '../../context/AppContext';
+import { BuyerBottomNav } from './BuyerBottomNav';
 
 const STATUS_STEPS: { status: OrderStatus; label: string; icon: React.ElementType; desc: string }[] = [
   { status: 'pending', label: 'Order Placed', icon: Clock, desc: 'Waiting for kitchen to accept' },
@@ -139,6 +140,12 @@ export function OrderTracker() {
               <span className="text-stone-700" style={{ fontWeight: 700 }}>Total</span>
               <span className="text-orange-600" style={{ fontWeight: 700 }}>Rs. {order.total + 50}</span>
             </div>
+            {order.paymentMethod && (
+              <div className="border-t border-gray-100 pt-2 flex justify-between">
+                <span className="text-stone-500 text-sm">Payment</span>
+                <span className="text-stone-600 text-sm capitalize">{order.paymentMethod.replace('cod', 'Cash on Delivery')}</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -149,6 +156,12 @@ export function OrderTracker() {
             <MapPin size={14} className="text-orange-400 mt-0.5 flex-shrink-0" />
             <p className="text-stone-600 text-sm">{order.buyerAddress}</p>
           </div>
+          {order.specialInstructions && (
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <p className="text-stone-700 text-sm font-semibold mb-1">Special Instructions:</p>
+              <p className="text-stone-600 text-sm">{order.specialInstructions}</p>
+            </div>
+          )}
         </div>
 
         {/* Chat Button */}
@@ -169,6 +182,7 @@ export function OrderTracker() {
           </div>
         ) : null}
       </div>
+      <BuyerBottomNav />
     </MobileLayout>
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { Home, UserCircle, UserCog, Bike, ClipboardList, UtensilsCrossed } from 'lucide-react';
+import { Home, UserCircle, ClipboardList, UtensilsCrossed, GitBranch, MessageCircle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export function KitchenBottomNav() {
@@ -8,24 +8,30 @@ export function KitchenBottomNav() {
   const location = useLocation();
   const { currentUser } = useApp();
   const isBranchManager = Boolean(currentUser?.branchId);
-  const navItems = isBranchManager
+  const isBranchScopeScreen = location.pathname.startsWith('/kitchen/branch/');
+  const useBranchNav = isBranchManager || isBranchScopeScreen;
+  const navItems = useBranchNav
     ? [
         { path: '/kitchen/orders', label: 'Orders', icon: ClipboardList },
-        { path: '/kitchen/dishes', label: 'Menu', icon: UtensilsCrossed },
-        { path: '/kitchen/rider', label: 'Riders', icon: Bike },
-        { path: '/kitchen/profile', label: 'Account', icon: UserCircle },
+        { path: '/kitchen/dishes', label: 'Dishes', icon: UtensilsCrossed },
+        { path: '/kitchen/chat-list', label: 'Chat List', icon: MessageCircle },
+        { path: '/kitchen/profile', label: 'Profile', icon: UserCircle },
       ]
     : [
         { path: '/kitchen', label: 'Home', icon: Home },
-        { path: '/kitchen/manager', label: 'Manager', icon: UserCog },
-        { path: '/kitchen/rider', label: 'Rider', icon: Bike },
+        { path: '/kitchen/branches', label: 'Branches', icon: GitBranch },
         { path: '/kitchen/profile', label: 'Profile', icon: UserCircle },
       ];
 
   return (
     <div className="border-t border-gray-200/70 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85 flex items-center sticky bottom-0 z-10 shadow-[0_-8px_20px_rgba(0,0,0,0.08)]">
       {navItems.map(item => {
-        const isActive = location.pathname === item.path;
+        const isActive = (() => {
+          if (location.pathname === item.path) return true;
+          if (isBranchScopeScreen && item.path === '/kitchen/orders') return true;
+          if (item.path !== '/kitchen' && location.pathname.startsWith(`${item.path}/`)) return true;
+          return false;
+        })();
         const Icon = item.icon;
         return (
           <button

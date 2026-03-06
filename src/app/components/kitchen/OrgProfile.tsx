@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Building2, Home, Phone, MapPin, User, Pencil, LogOut, Save, X, FileText, Image, CreditCard, Hash, CheckCircle2 } from 'lucide-react';
+import { Building2, Home, Phone, MapPin, User, Pencil, LogOut, Save, X, FileText, Image, CreditCard, Hash, CheckCircle2, UserCog, Bike, ChevronRight } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { KitchenBottomNav } from './KitchenBottomNav';
 import { useApp } from '../../context/AppContext';
@@ -30,6 +30,15 @@ export function OrgProfile() {
   }
 
   if (isBranchManager) {
+    const handleBackToOrganization = () => {
+      if (!currentUser?.orgId) return;
+      setCurrentUser({
+        role: 'kitchen',
+        orgId: currentUser.orgId,
+      });
+      navigate('/kitchen');
+    };
+
     const handleLogout = () => {
       setCurrentUser(null);
       navigate('/');
@@ -47,6 +56,21 @@ export function OrgProfile() {
             <p className="text-stone-400 mt-3" style={{ fontSize: '0.72rem' }}>Logged in as</p>
             <p className="text-stone-800" style={{ fontWeight: 600 }}>{currentUser?.managerName || 'Branch Manager'}</p>
           </div>
+          <button
+            onClick={handleBackToOrganization}
+            className="w-full bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center justify-between shadow-sm mt-3"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
+                <Building2 size={18} className="text-orange-500" />
+              </div>
+              <div className="text-left">
+                <p className="text-stone-800" style={{ fontWeight: 600, fontSize: '0.88rem' }}>Organization</p>
+                <p className="text-stone-400" style={{ fontSize: '0.75rem' }}>Back to organization main screen</p>
+              </div>
+            </div>
+            <ChevronRight size={16} className="text-stone-400" />
+          </button>
           <button
             onClick={handleLogout}
             className="w-full border-2 border-red-100 text-red-500 py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-50 transition-colors mt-6"
@@ -224,6 +248,45 @@ export function OrgProfile() {
                 </div>
               </div>
             )}
+
+            <div className="mt-2">
+              <p className="text-stone-500 mb-2 px-1" style={{ fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Manage
+              </p>
+              <div className="space-y-2">
+                <button
+                  onClick={() => navigate('/kitchen/manager')}
+                  className="w-full bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center justify-between shadow-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
+                      <UserCog size={18} className="text-orange-500" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-stone-800" style={{ fontWeight: 600, fontSize: '0.88rem' }}>Manager</p>
+                      <p className="text-stone-400" style={{ fontSize: '0.75rem' }}>Open manager credentials</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={16} className="text-stone-400" />
+                </button>
+
+                <button
+                  onClick={() => navigate('/kitchen/rider')}
+                  className="w-full bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center justify-between shadow-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                      <Bike size={18} className="text-green-600" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-stone-800" style={{ fontWeight: 600, fontSize: '0.88rem' }}>Rider</p>
+                      <p className="text-stone-400" style={{ fontSize: '0.75rem' }}>Open rider management</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={16} className="text-stone-400" />
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

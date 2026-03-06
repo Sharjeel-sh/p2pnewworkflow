@@ -4,6 +4,7 @@ import { Bike, Plus, Trash2, Eye, EyeOff, X, Copy, Check } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { TopBar } from '../shared/TopBar';
 import { KitchenBottomNav } from './KitchenBottomNav';
+import { Switch } from '../ui/switch';
 import { useApp } from '../../context/AppContext';
 
 interface RiderForm {
@@ -13,7 +14,26 @@ interface RiderForm {
   password: string;
 }
 
+interface BranchDetailsForm {
+  name: string;
+  address: string;
+  openingTime: string;
+  closingTime: string;
+  isDeliveryEnabled: boolean;
+  deliveryTime: string;
+  deliveryPrice: string;
+}
+
 const EMPTY_RIDER: RiderForm = { name: '', phone: '', username: '', password: '' };
+const EMPTY_BRANCH_DETAILS: BranchDetailsForm = {
+  name: '',
+  address: '',
+  openingTime: '',
+  closingTime: '',
+  isDeliveryEnabled: false,
+  deliveryTime: '',
+  deliveryPrice: '',
+};
 
 export function BranchManager() {
   const { branchId } = useParams<{ branchId: string }>();
@@ -23,12 +43,15 @@ export function BranchManager() {
   const [riderErrors, setRiderErrors] = useState<Partial<RiderForm>>({});
   const [showPassMap, setShowPassMap] = useState<Record<string, boolean>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [managerCopied, setManagerCopied] = useState(false);
   const [editManager, setEditManager] = useState(false);
   const [managerName, setManagerName] = useState('');
   const [managerPhone, setManagerPhone] = useState('');
-  const [managerUsername, setManagerUsername] = useState('');
   const [managerPassword, setManagerPassword] = useState('');
   const [editingRiderId, setEditingRiderId] = useState<string | null>(null);
+  const [editBranchDetails, setEditBranchDetails] = useState(false);
+  const [branchDetailsForm, setBranchDetailsForm] = useState<BranchDetailsForm>(EMPTY_BRANCH_DETAILS);
+  const [branchDetailsErrors, setBranchDetailsErrors] = useState<Partial<BranchDetailsForm>>({});
 
   const branch = branches.find(b => b.id === branchId);
   const branchRiders = riders.filter(r => r.branchId === branchId);
@@ -108,11 +131,53 @@ export function BranchManager() {
     updateBranch(branch.id, {
       managerName: managerName.trim(),
       managerPhone: managerPhone.trim(),
-      managerUsername: managerUsername.trim(),
       managerPassword: managerPassword.trim(),
     });
     setEditManager(false);
   };
+
+  const openBranchDetailsEdit = () => {
+    setEditBranchDetails(true);
+    setBranchDetailsErrors({});
+    setBranchDetailsForm({
+      name: branch.name || '',
+      address: branch.address || '',
+      openingTime: branch.openingTime || '',
+      closingTime: branch.closingTime || '',
+      isDeliveryEnabled: Boolean(branch.isDeliveryEnabled),
+      deliveryTime: branch.deliveryTime || '',
+      deliveryPrice: branch.deliveryPrice || '',
+    });
+  };
+
+  const handleSaveBranchDetails = () => {
+    const nextErrors: Partial<BranchDetailsForm> = {};
+    if (!branchDetailsForm.name.trim()) nextErrors.name = 'Branch name is required';
+    if (!branchDetailsForm.address.trim()) nextErrors.address = 'Address is required';
+    if (!branchDetailsForm.openingTime) nextErrors.openingTime = 'Opening time is required';
+    if (!branchDetailsForm.closingTime) nextErrors.closingTime = 'Closing time is required';
+    if (branchDetailsForm.isDeliveryEnabled) {
+      if (!branchDetailsForm.deliveryTime.trim()) nextErrors.deliveryTime = 'Delivery time is required';
+      if (!branchDetailsForm.deliveryPrice.trim()) nextErrors.deliveryPrice = 'Delivery charges are required';
+    }
+    if (Object.keys(nextErrors).length > 0) {
+      setBranchDetailsErrors(nextErrors);
+      return;
+    }
+
+    updateBranch(branch.id, {
+      name: branchDetailsForm.name.trim(),
+      address: branchDetailsForm.address.trim(),
+      openingTime: branchDetailsForm.openingTime,
+      closingTime: branchDetailsForm.closingTime,
+      isDeliveryEnabled: branchDetailsForm.isDeliveryEnabled,
+      deliveryTime: branchDetailsForm.isDeliveryEnabled ? branchDetailsForm.deliveryTime.trim() : '',
+      deliveryPrice: branchDetailsForm.isDeliveryEnabled ? branchDetailsForm.deliveryPrice.trim() : '',
+    });
+    setEditBranchDetails(false);
+    setBranchDetailsErrors({});
+  };
+
 
   const copyCredentials = async (rider: typeof branchRiders[0]) => {
     const text = `Username: ${rider.username}\nPassword: ${rider.password}`;
@@ -123,14 +188,205 @@ export function BranchManager() {
     } catch { }
   };
 
+  const copyManagerDetails = async () => {
+    if (!branch.managerName && !branch.managerPhone && !branch.managerUsername && !branch.managerPassword) return;
+    const text = [
+      `Manager Name: ${branch.managerName || 'Not set'}`,
+      `Phone: ${branch.managerPhone || 'Not set'}`,
+      `Username: ${branch.managerUsername || 'Not set'}`,
+      `Password: ${branch.managerPassword || 'Not set'}`,
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+      setManagerCopied(true);
+      setTimeout(() => setManagerCopied(false), 2000);
+    } catch { }
+  };
+
   return (
     <MobileLayout>
       <TopBar title={branch.name} backTo="/kitchen" />
 
       <div className="flex-1 overflow-y-auto">
-        {/* Branch Info */}
-        <div className="bg-orange-50 px-5 py-4 border-b border-orange-100">
-          <p className="text-stone-500" style={{ fontSize: '0.82rem' }}>{branch.address}</p>
+        {/* Branch Details Section */}
+        <div className="px-5 py-5 border-b border-gray-100">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-stone-700" style={{ fontWeight: 700 }}>Branch Details</h3>
+            <button
+              onClick={() => {
+                if (editBranchDetails) {
+                  setEditBranchDetails(false);
+                  setBranchDetailsErrors({});
+                } else {
+                  openBranchDetailsEdit();
+                }
+              }}
+              className="text-orange-500 text-sm"
+              style={{ fontWeight: 600 }}
+            >
+              {editBranchDetails ? 'Cancel' : 'Edit'}
+            </button>
+          </div>
+
+          {editBranchDetails ? (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Branch Name *</label>
+                <input
+                  type="text"
+                  value={branchDetailsForm.name}
+                  onChange={e => {
+                    setBranchDetailsForm(prev => ({ ...prev, name: e.target.value }));
+                    if (branchDetailsErrors.name) setBranchDetailsErrors(prev => ({ ...prev, name: '' }));
+                  }}
+                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
+                    branchDetailsErrors.name ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                  }`}
+                />
+                {branchDetailsErrors.name && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.name}</p>}
+              </div>
+
+              <div>
+                <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Address *</label>
+                <input
+                  type="text"
+                  value={branchDetailsForm.address}
+                  onChange={e => {
+                    setBranchDetailsForm(prev => ({ ...prev, address: e.target.value }));
+                    if (branchDetailsErrors.address) setBranchDetailsErrors(prev => ({ ...prev, address: '' }));
+                  }}
+                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
+                    branchDetailsErrors.address ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                  }`}
+                />
+                {branchDetailsErrors.address && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.address}</p>}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Opening Time *</label>
+                  <input
+                    type="time"
+                    value={branchDetailsForm.openingTime}
+                    onChange={e => {
+                      setBranchDetailsForm(prev => ({ ...prev, openingTime: e.target.value }));
+                      if (branchDetailsErrors.openingTime) setBranchDetailsErrors(prev => ({ ...prev, openingTime: '' }));
+                    }}
+                    className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
+                      branchDetailsErrors.openingTime ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                    }`}
+                  />
+                  {branchDetailsErrors.openingTime && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.openingTime}</p>}
+                </div>
+                <div>
+                  <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Closing Time *</label>
+                  <input
+                    type="time"
+                    value={branchDetailsForm.closingTime}
+                    onChange={e => {
+                      setBranchDetailsForm(prev => ({ ...prev, closingTime: e.target.value }));
+                      if (branchDetailsErrors.closingTime) setBranchDetailsErrors(prev => ({ ...prev, closingTime: '' }));
+                    }}
+                    className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
+                      branchDetailsErrors.closingTime ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                    }`}
+                  />
+                  {branchDetailsErrors.closingTime && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.closingTime}</p>}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-stone-700" style={{ fontSize: '0.82rem', fontWeight: 600 }}>Delivery</p>
+                    <p className="text-stone-400" style={{ fontSize: '0.72rem' }}>
+                      {branchDetailsForm.isDeliveryEnabled ? 'Enabled' : 'Disabled'}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={branchDetailsForm.isDeliveryEnabled}
+                    onCheckedChange={enabled => {
+                      setBranchDetailsForm(prev => ({
+                        ...prev,
+                        isDeliveryEnabled: enabled,
+                        deliveryTime: enabled ? prev.deliveryTime : '',
+                        deliveryPrice: enabled ? prev.deliveryPrice : '',
+                      }));
+                      if (!enabled) {
+                        setBranchDetailsErrors(prev => ({ ...prev, deliveryTime: '', deliveryPrice: '' }));
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
+              {branchDetailsForm.isDeliveryEnabled && (
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Delivery Time *</label>
+                    <input
+                      type="text"
+                      value={branchDetailsForm.deliveryTime}
+                      onChange={e => {
+                        setBranchDetailsForm(prev => ({ ...prev, deliveryTime: e.target.value }));
+                        if (branchDetailsErrors.deliveryTime) setBranchDetailsErrors(prev => ({ ...prev, deliveryTime: '' }));
+                      }}
+                      placeholder="30-40 min"
+                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
+                        branchDetailsErrors.deliveryTime ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                      }`}
+                    />
+                    {branchDetailsErrors.deliveryTime && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.deliveryTime}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Delivery Charges *</label>
+                    <input
+                      type="text"
+                      value={branchDetailsForm.deliveryPrice}
+                      onChange={e => {
+                        setBranchDetailsForm(prev => ({ ...prev, deliveryPrice: e.target.value }));
+                        if (branchDetailsErrors.deliveryPrice) setBranchDetailsErrors(prev => ({ ...prev, deliveryPrice: '' }));
+                      }}
+                      placeholder="150 PKR"
+                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
+                        branchDetailsErrors.deliveryPrice ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                      }`}
+                    />
+                    {branchDetailsErrors.deliveryPrice && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.deliveryPrice}</p>}
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={handleSaveBranchDetails}
+                className="w-full bg-orange-500 text-white py-2.5 rounded-xl text-sm hover:bg-orange-600 transition-colors"
+                style={{ fontWeight: 600 }}
+              >
+                Save Branch Details
+              </button>
+            </div>
+          ) : (
+            <div className="bg-orange-50 px-4 py-3 border border-orange-100 rounded-xl">
+              <p className="text-stone-700" style={{ fontWeight: 600 }}>{branch.name}</p>
+              <p className="text-stone-500 mt-0.5" style={{ fontSize: '0.82rem' }}>{branch.address}</p>
+              <p className="text-stone-500 mt-0.5" style={{ fontSize: '0.82rem' }}>
+                Kitchen Hours: {branch.openingTime || '--:--'} - {branch.closingTime || '--:--'}
+              </p>
+              <p className="text-stone-500 mt-0.5" style={{ fontSize: '0.82rem' }}>
+                Delivery: {branch.isDeliveryEnabled ? 'Enabled' : 'Disabled'}
+              </p>
+              {branch.isDeliveryEnabled && (
+                <>
+                  <p className="text-stone-500 mt-0.5" style={{ fontSize: '0.82rem' }}>
+                    Delivery Time: {branch.deliveryTime || '-'}
+                  </p>
+                  <p className="text-stone-500 mt-0.5" style={{ fontSize: '0.82rem' }}>
+                    Delivery Charges: {branch.deliveryPrice || '-'}
+                  </p>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Manager Section */}
@@ -142,7 +398,6 @@ export function BranchManager() {
                 setEditManager(!editManager);
                 setManagerName(branch.managerName || '');
                 setManagerPhone(branch.managerPhone || '');
-                setManagerUsername(branch.managerUsername || '');
                 setManagerPassword(branch.managerPassword || '');
               }}
               className="text-orange-500 text-sm" style={{ fontWeight: 600 }}>
@@ -167,13 +422,6 @@ export function BranchManager() {
               />
               <input
                 type="text"
-                value={managerUsername}
-                onChange={e => setManagerUsername(e.target.value)}
-                placeholder="Manager Username"
-                className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
-              />
-              <input
-                type="text"
                 value={managerPassword}
                 onChange={e => setManagerPassword(e.target.value)}
                 placeholder="Manager Password"
@@ -189,7 +437,16 @@ export function BranchManager() {
             <div className="bg-white border border-gray-100 rounded-xl p-4">
               {branch.managerName ? (
                 <>
-                  <p className="text-stone-800" style={{ fontWeight: 600 }}>{branch.managerName}</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-stone-800" style={{ fontWeight: 600 }}>{branch.managerName}</p>
+                    <button
+                      onClick={copyManagerDetails}
+                      className="flex items-center gap-1 text-orange-500"
+                      style={{ fontSize: '0.72rem', fontWeight: 600 }}
+                    >
+                      {managerCopied ? <><Check size={11} /> Copied!</> : <><Copy size={11} /> Copy</>}
+                    </button>
+                  </div>
                   {branch.managerPhone && (
                     <p className="text-stone-500 text-sm mt-0.5">{branch.managerPhone}</p>
                   )}
@@ -288,16 +545,24 @@ export function BranchManager() {
 
       {/* Add/Edit Rider Modal */}
       {(showAddRider || editingRiderId) && (
-        <div className="absolute inset-0 bg-black/50 flex items-end z-30">
-          <div className="bg-white w-full rounded-t-3xl p-6">
+        <div className="absolute inset-0 bg-white z-30 overflow-y-auto">
+          <div className="min-h-full px-6 pb-6 pt-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-stone-800" style={{ fontWeight: 700 }}>{editingRiderId ? 'Edit Rider' : 'Add Rider'}</h3>
-              <button onClick={() => {
-                if (editingRiderId) handleCancelEditRider();
-                else { setShowAddRider(false); setRiderForm(EMPTY_RIDER); setRiderErrors({}); }
-              }}
-                className="text-gray-400 p-1"><X size={20} /></button>
+              <h3 className="text-stone-800" style={{ fontWeight: 700, fontSize: '1.15rem' }}>
+                {editingRiderId ? 'Edit Rider' : 'Add Rider'}
+              </h3>
+              <button
+                onClick={() => {
+                  if (editingRiderId) handleCancelEditRider();
+                  else { setShowAddRider(false); setRiderForm(EMPTY_RIDER); setRiderErrors({}); }
+                }}
+                className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center"
+                aria-label="Close"
+              >
+                <X size={18} className="text-gray-500" />
+              </button>
             </div>
+
             <div className="space-y-3 mb-5">
               {[
                 { k: 'name' as const, label: 'Rider Name *', placeholder: 'e.g. Ali Hassan' },
@@ -308,7 +573,7 @@ export function BranchManager() {
                 <div key={f.k}>
                   <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>{f.label}</label>
                   <input
-                    type={f.k === 'password' ? 'text' : 'text'}
+                    type="text"
                     value={riderForm[f.k]}
                     onChange={e => updateRiderForm(f.k, e.target.value)}
                     placeholder={f.placeholder}
@@ -318,16 +583,21 @@ export function BranchManager() {
                 </div>
               ))}
             </div>
+
             {editingRiderId ? (
-              <button onClick={handleUpdateRider}
+              <button
+                onClick={handleUpdateRider}
                 className="w-full bg-blue-500 text-white py-3.5 rounded-xl hover:bg-blue-600 transition-colors"
-                style={{ fontWeight: 700 }}>
+                style={{ fontWeight: 700 }}
+              >
                 Update Rider
               </button>
             ) : (
-              <button onClick={handleAddRider}
+              <button
+                onClick={handleAddRider}
                 className="w-full bg-orange-500 text-white py-3.5 rounded-xl hover:bg-orange-600 transition-colors"
-                style={{ fontWeight: 700 }}>
+                style={{ fontWeight: 700 }}
+              >
                 Add Rider
               </button>
             )}

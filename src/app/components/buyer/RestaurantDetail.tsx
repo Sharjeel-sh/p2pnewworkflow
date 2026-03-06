@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import { ArrowLeft, ShoppingCart, Plus, Minus, Star, MapPin, Clock, UtensilsCrossed } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { useApp } from '../../context/AppContext';
+import { BuyerBottomNav } from './BuyerBottomNav';
 
 const ORG_IMG = 'https://images.unsplash.com/photo-1768314669089-480e608a0143?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwa2l0Y2hlbiUyMGNvb2tpbmclMjBmb29kfGVufDF8fHx8MTc3MjAyMjM5MHww&ixlib=rb-4.1.0&q=80&w=1080';
 const HOMEMADE_IMG = 'https://images.unsplash.com/photo-1672477179695-7276b0602fa9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiaXJ5YW5pJTIwcGFraXN0YW5pJTIwdHJhZGl0aW9uYWwlMjBmb29kfGVufDF8fHx8MTc3MjAyMjM5Mnww&ixlib=rb-4.1.0&q=80&w=1080';
@@ -183,6 +184,7 @@ export function RestaurantDetail() {
           </button>
         </div>
       )}
+      <BuyerBottomNav />
     </MobileLayout>
   );
 }

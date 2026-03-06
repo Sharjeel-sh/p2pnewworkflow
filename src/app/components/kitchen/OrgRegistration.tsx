@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router';
+import { useLocation } from 'react-router';
 import {
   Building2, Home, AlertCircle, CheckCircle2,
   Upload, X, FileText, Image, User, Phone, MapPin, CreditCard, Hash,
@@ -18,6 +19,8 @@ interface FileUploadState {
 
 interface FormData {
   ownerName: string;
+  ownerEmail: string;
+  ownerPassword: string;
   orgName: string;
   phone: string;
   address: string;
@@ -31,6 +34,8 @@ interface FormData {
 
 const EMPTY_FORM: FormData = {
   ownerName: '',
+  ownerEmail: '',
+  ownerPassword: '',
   orgName: '',
   phone: '',
   address: '',
@@ -228,13 +233,25 @@ function FormField({ label, icon, value, onChange, placeholder, error, type = 't
 }
 
 export function OrgRegistration() {
+  const location = useLocation();
+  const prefill = (
+    location.state as {
+      prefill?: { ownerName?: string; ownerEmail?: string; ownerPassword?: string; phone?: string };
+    } | null
+  )?.prefill;
   const [step, setStep] = useState<Step>(1);
-  const [form, setForm] = useState<FormData>(EMPTY_FORM);
+  const [form, setForm] = useState<FormData>(() => ({
+    ...EMPTY_FORM,
+    ownerName: prefill?.ownerName ?? '',
+    ownerEmail: prefill?.ownerEmail ?? '',
+    ownerPassword: prefill?.ownerPassword ?? '',
+    phone: prefill?.phone ?? '',
+  }));
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
-  const { registerOrganization, setCurrentUser } = useApp();
+  const { registerOrganization } = useApp();
 
   const update = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -263,6 +280,7 @@ export function OrgRegistration() {
       if (!form.cnicBack) e.cnicBack = 'CNIC back photo is required';
     } else {
       if (!form.ntn.trim()) e.ntn = 'NTN number is required';
+      if (!form.cnic.trim()) e.cnic = 'CNIC number is required for Restaurant';
       if (!form.legalDoc) e.legalDoc = 'Legal agreement document is required for Restaurants';
     }
     return e;
@@ -287,12 +305,15 @@ export function OrgRegistration() {
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
     setLoading(true);
     await new Promise(r => setTimeout(r, 900));
-    const org = registerOrganization({
+    registerOrganization({
       ownerName: form.ownerName.trim(),
+      ownerEmail: form.ownerEmail.trim() || undefined,
+      ownerPassword: form.ownerPassword.trim() || undefined,
       orgName: form.orgName.trim(),
       address: form.address.trim(),
       phone: form.phone.trim(),
       type: form.type,
+      verificationStatus: 'pending',
       ...(form.type === 'homemade'
         ? {
             cnic: form.cnic.trim(),
@@ -301,15 +322,14 @@ export function OrgRegistration() {
             legalAgreementDoc: form.legalDoc?.fileName,
           }
         : {
+            cnic: form.cnic.trim(),
             ntn: form.ntn.trim(),
             legalAgreementDoc: form.legalDoc?.fileName,
           }
       ),
     });
-    setCurrentUser({ role: 'kitchen', orgId: org.id });
     setLoading(false);
     setSuccess(true);
-    setTimeout(() => navigate('/kitchen'), 1400);
   };
 
   // ─── Success State ───────────────────────────────────────────────────────────
@@ -325,14 +345,28 @@ export function OrgRegistration() {
               Registration Successful!
             </h2>
             <p className="text-stone-500" style={{ fontSize: '0.87rem' }}>
-              Welcome to QuickBite. Default kitchen manager credentials were generated and are available in Manager tab.
+              Your organization registration has been submitted successfully.
+            </p>
+            <div className="mt-3 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
+              <p className="text-amber-700" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+                Organization Verification: Pending
+              </p>
+              <p className="text-amber-600 mt-0.5" style={{ fontSize: '0.75rem' }}>
+                Your documents have been submitted for government verification.
+              </p>
+            </div>
+            <p className="text-stone-400 mt-2" style={{ fontSize: '0.76rem' }}>
+              Next step: Continue to your kitchen dashboard.
             </p>
           </div>
-          <div className="flex gap-1.5 mt-2">
-            {[0, 1, 2].map(i => (
-              <div key={i} className={`rounded-full bg-green-400 animate-pulse`}
-                style={{ width: 8, height: 8, animationDelay: `${i * 0.15}s` }} />
-            ))}
+          <div className="w-full mt-3">
+            <button
+              onClick={() => navigate('/kitchen')}
+              className="w-full bg-teal-700 text-white py-3 rounded-xl hover:bg-teal-800 transition-colors"
+              style={{ fontWeight: 700, fontSize: '0.9rem' }}
+            >
+              Continue to Kitchen
+            </button>
           </div>
         </div>
       </MobileLayout>
@@ -392,92 +426,106 @@ export function OrgRegistration() {
         {/* ── STEP 1: Organization Type ─────────────────────────────────────── */}
         {step === 1 && (
           <div className="space-y-4">
-            <p className="text-stone-500" style={{ fontSize: '0.87rem' }}>
+            <p className="text-stone-500" style={{ fontSize: '0.87rem', lineHeight: 1.55 }}>
               Choose the type that best describes your food business.
             </p>
             <button
               onClick={() => update('type', 'restaurant')}
-              className={`w-full rounded-2xl p-5 border-2 text-left flex items-start gap-4 transition-all ${
-                form.type === 'restaurant' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 bg-white hover:border-orange-200'
+              className={`w-full rounded-2xl p-4 border text-left transition-all ${
+                form.type === 'restaurant'
+                  ? 'bg-white border-orange-400 ring-2 ring-orange-100 shadow-sm'
+                  : 'bg-white border-gray-200 hover:border-orange-200'
               }`}
             >
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                form.type === 'restaurant' ? 'bg-orange-500' : 'bg-gray-100'
-              }`}>
-                <Building2 size={26} color={form.type === 'restaurant' ? 'white' : '#9ca3af'} />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <p className={`${form.type === 'restaurant' ? 'text-orange-700' : 'text-stone-800'}`}
-                    style={{ fontWeight: 700, fontSize: '1rem' }}>
-                    Restaurant
+              <div className="flex items-start gap-3.5">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                  form.type === 'restaurant' ? 'bg-orange-500' : 'bg-gray-100'
+                }`}>
+                  <Building2 size={22} color={form.type === 'restaurant' ? 'white' : '#9ca3af'} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className={form.type === 'restaurant' ? 'text-orange-700' : 'text-stone-800'} style={{ fontWeight: 700, fontSize: '1rem' }}>
+                      Organization as a Restaurant
+                    </p>
+                    {form.type === 'restaurant' && (
+                      <span className="bg-orange-500 text-white px-2 py-0.5 rounded-full" style={{ fontSize: '0.64rem', fontWeight: 600 }}>
+                        Selected
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-stone-500" style={{ fontSize: '0.8rem', lineHeight: 1.55 }}>
+                    Formal food business with NTN, owner CNIC, and legal documents for verification.
                   </p>
-                  {form.type === 'restaurant' && (
-                    <span className="bg-orange-500 text-white px-2 py-0.5 rounded-full" style={{ fontSize: '0.65rem', fontWeight: 600 }}>
-                      SELECTED
-                    </span>
-                  )}
+                  <div className="flex flex-wrap gap-1.5 mt-2.5">
+                    {['NTN Required', 'Owner CNIC Required', 'Legal Docs Required'].map(tag => (
+                      <span
+                        key={tag}
+                        className={`px-2 py-0.5 rounded-full ${
+                          form.type === 'restaurant' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-stone-500'
+                        }`}
+                        style={{ fontSize: '0.68rem', fontWeight: 600 }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-stone-500 mt-1" style={{ fontSize: '0.82rem', lineHeight: 1.5 }}>
-                  Formal food business with NTN registration. Legal Agreement document is <strong>required</strong>.
-                </p>
-                <div className="flex flex-wrap gap-1.5 mt-2.5">
-                  {['NTN Required', 'Legal Doc Required'].map(tag => (
-                    <span key={tag} className={`px-2 py-0.5 rounded-full ${
-                      form.type === 'restaurant' ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-stone-500'
-                    }`} style={{ fontSize: '0.7rem', fontWeight: 500 }}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 ${
-                form.type === 'restaurant' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
-              }`}>
-                {form.type === 'restaurant' && <div className="w-2 h-2 bg-white rounded-full" />}
+                {form.type === 'restaurant' ? (
+                  <CheckCircle2 size={18} className="text-orange-500 mt-0.5 flex-shrink-0" />
+                ) : (
+                  <div className="w-[18px] h-[18px] rounded-full border-2 border-gray-300 mt-0.5 flex-shrink-0" />
+                )}
               </div>
             </button>
 
             <button
               onClick={() => update('type', 'homemade')}
-              className={`w-full rounded-2xl p-5 border-2 text-left flex items-start gap-4 transition-all ${
-                form.type === 'homemade' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 bg-white hover:border-orange-200'
+              className={`w-full rounded-2xl p-4 border text-left transition-all ${
+                form.type === 'homemade'
+                  ? 'bg-white border-orange-400 ring-2 ring-orange-100 shadow-sm'
+                  : 'bg-white border-gray-200 hover:border-orange-200'
               }`}
             >
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                form.type === 'homemade' ? 'bg-orange-500' : 'bg-gray-100'
-              }`}>
-                <Home size={26} color={form.type === 'homemade' ? 'white' : '#9ca3af'} />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <p className={`${form.type === 'homemade' ? 'text-orange-700' : 'text-stone-800'}`}
-                    style={{ fontWeight: 700, fontSize: '1rem' }}>
-                    Home-Made Kitchen
+              <div className="flex items-start gap-3.5">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                  form.type === 'homemade' ? 'bg-orange-500' : 'bg-gray-100'
+                }`}>
+                  <Home size={22} color={form.type === 'homemade' ? 'white' : '#9ca3af'} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className={form.type === 'homemade' ? 'text-orange-700' : 'text-stone-800'} style={{ fontWeight: 700, fontSize: '1rem' }}>
+                      Organization as a Home Chef
+                    </p>
+                    {form.type === 'homemade' && (
+                      <span className="bg-orange-500 text-white px-2 py-0.5 rounded-full" style={{ fontSize: '0.64rem', fontWeight: 600 }}>
+                        Selected
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-stone-500" style={{ fontSize: '0.8rem', lineHeight: 1.55 }}>
+                    Home-based kitchen verified with CNIC and supporting documents (legal docs optional when applicable).
                   </p>
-                  {form.type === 'homemade' && (
-                    <span className="bg-orange-500 text-white px-2 py-0.5 rounded-full" style={{ fontSize: '0.65rem', fontWeight: 600 }}>
-                      SELECTED
-                    </span>
-                  )}
+                  <div className="flex flex-wrap gap-1.5 mt-2.5">
+                    {['CNIC Required', 'CNIC Photos Required', 'Legal Docs Optional'].map(tag => (
+                      <span
+                        key={tag}
+                        className={`px-2 py-0.5 rounded-full ${
+                          form.type === 'homemade' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-stone-500'
+                        }`}
+                        style={{ fontSize: '0.68rem', fontWeight: 600 }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-stone-500 mt-1" style={{ fontSize: '0.82rem', lineHeight: 1.5 }}>
-                  Home-based food business verified by CNIC. Legal Agreement document is <strong>optional</strong>.
-                </p>
-                <div className="flex flex-wrap gap-1.5 mt-2.5">
-                  {['CNIC Required', 'CNIC Photos Required', 'Legal Doc Optional'].map(tag => (
-                    <span key={tag} className={`px-2 py-0.5 rounded-full ${
-                      form.type === 'homemade' ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-stone-500'
-                    }`} style={{ fontSize: '0.7rem', fontWeight: 500 }}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 ${
-                form.type === 'homemade' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
-              }`}>
-                {form.type === 'homemade' && <div className="w-2 h-2 bg-white rounded-full" />}
+                {form.type === 'homemade' ? (
+                  <CheckCircle2 size={18} className="text-orange-500 mt-0.5 flex-shrink-0" />
+                ) : (
+                  <div className="w-[18px] h-[18px] rounded-full border-2 border-gray-300 mt-0.5 flex-shrink-0" />
+                )}
               </div>
             </button>
 
@@ -597,6 +645,17 @@ export function OrgRegistration() {
               </>
             ) : (
               <>
+                {/* Restaurant Owner CNIC Number */}
+                <FormField
+                  label="Restaurant Owner CNIC Number"
+                  icon={<CreditCard size={16} />}
+                  value={form.cnic}
+                  onChange={v => update('cnic', v)}
+                  placeholder="XXXXX-XXXXXXX-X"
+                  error={errors.cnic}
+                  required
+                />
+
                 {/* NTN Number */}
                 <FormField
                   label="NTN Number"
@@ -636,32 +695,6 @@ export function OrgRegistration() {
               </>
             )}
 
-            {/* Summary box */}
-            <div className="bg-orange-50 border border-orange-100 rounded-xl p-4">
-              <p className="text-orange-700 mb-2" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
-                Registration Summary
-              </p>
-              <div className="space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-stone-500" style={{ fontSize: '0.78rem' }}>Type</span>
-                  <span className="text-stone-700" style={{ fontSize: '0.78rem', fontWeight: 500 }}>
-                    {form.type === 'restaurant' ? '🏪 Restaurant' : '🏠 Home-Made Kitchen'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-stone-500" style={{ fontSize: '0.78rem' }}>Owner</span>
-                  <span className="text-stone-700" style={{ fontSize: '0.78rem', fontWeight: 500 }}>{form.ownerName || '—'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-stone-500" style={{ fontSize: '0.78rem' }}>Organization</span>
-                  <span className="text-stone-700" style={{ fontSize: '0.78rem', fontWeight: 500 }}>{form.orgName || '—'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-stone-500" style={{ fontSize: '0.78rem' }}>Phone</span>
-                  <span className="text-stone-700" style={{ fontSize: '0.78rem', fontWeight: 500 }}>{form.phone || '—'}</span>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 
