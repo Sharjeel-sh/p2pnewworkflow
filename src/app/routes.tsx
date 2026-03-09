@@ -25,6 +25,7 @@ import { BranchManager } from './components/kitchen/BranchManager';
 import { KitchenOrders } from './components/kitchen/KitchenOrders';
 import { KitchenChatListScreen } from './components/kitchen/KitchenChatListScreen';
 import { OrgProfile, OrgEdit } from './components/kitchen/OrgProfile';
+import { OrgOrgEdit } from './components/kitchen/OrgOrgEdit';
 import { OrgInfo } from './components/kitchen/OrgInfo';
 import { OrgDashboard } from './components/kitchen/OrgDashboard';
 import { RiderOrders } from './components/rider/RiderOrders';
@@ -65,6 +66,7 @@ export const router = createBrowserRouter([
       { path: 'kitchen/chat-list', element: <KitchenChatListScreen /> },
       { path: 'kitchen/profile', element: <OrgProfile /> },
       { path: 'kitchen/profile/info', element: <OrgInfo /> },
+      { path: 'kitchen/profile/org-edit', element: <OrgOrgEdit /> },
       { path: 'kitchen/profile/edit', element: <OrgEdit /> },
       { path: 'rider/orders', element: <RiderOrders /> },
       { path: 'rider/order/:orderId', element: <RiderOrderDetails /> },

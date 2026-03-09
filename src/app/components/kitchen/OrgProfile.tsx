@@ -86,7 +86,8 @@ export function OrgProfile() {
         <div className="space-y-3">
           {([
                 { icon: FileText, label: 'Organization Registration Details', action: () => navigate('/kitchen/profile/info') },
-              { icon: Building2, label: 'Edit Organization information', action: () => navigate('/kitchen/profile/edit') },
+                { icon: Building2, label: 'Edit Organization information', action: () => navigate('/kitchen/profile/org-edit') },
+              { icon: Building2, label: 'Edit owner profile information', action: () => navigate('/kitchen/profile/edit') },
               { icon: UserCog,   label: 'Manager',                       action: () => navigate('/kitchen/manager') },
               { icon: Bike,      label: 'Rider',                         action: () => navigate('/kitchen/rider') },
               { icon: Bell,      label: 'Help & Support',               action: () => navigate('/help') },
@@ -120,7 +121,8 @@ export function OrgEdit() {
   const navigate = useNavigate();
   const org = organizations.find(o => o.id === currentUser?.orgId);
   const [form, setForm] = useState({
-    orgName: org?.orgName || '',
+    ownerName: org?.ownerName || '',
+    ownerEmail: org?.ownerEmail || '',
     password: '',
     confirmPassword: '',
   });
@@ -139,7 +141,11 @@ export function OrgEdit() {
     if (form.password && form.password !== form.confirmPassword) {
       return;
     }
-    const updates: any = { orgName: form.orgName.trim() };
+    if (form.ownerEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.ownerEmail)) {
+      return;
+    }
+    const updates: any = { ownerName: form.ownerName.trim() };
+    if (form.ownerEmail) updates.ownerEmail = form.ownerEmail.trim();
     if (form.password) updates.ownerPassword = form.password.trim();
     updateOrganization(org.id, updates);
     navigate('/kitchen/profile');
@@ -158,11 +164,20 @@ export function OrgEdit() {
       <div className="flex-1 overflow-y-auto px-5 py-5">
         <div className="space-y-4">
           <div>
-            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Organization Name</label>
+            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Owner Name</label>
             <input
               type="text"
-              value={form.orgName}
-              onChange={e => setForm(prev => ({ ...prev, orgName: e.target.value }))}
+              value={form.ownerName}
+              onChange={e => setForm(prev => ({ ...prev, ownerName: e.target.value }))}
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
+            />
+          </div>
+          <div>
+            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Email</label>
+            <input
+              type="email"
+              value={form.ownerEmail}
+              onChange={e => setForm(prev => ({ ...prev, ownerEmail: e.target.value }))}
               className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
             />
           </div>
