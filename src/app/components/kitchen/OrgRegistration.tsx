@@ -251,7 +251,7 @@ export function OrgRegistration() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
-  const { registerOrganization } = useApp();
+  const { registerOrganization, setCurrentUser } = useApp();
 
   const update = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -305,7 +305,7 @@ export function OrgRegistration() {
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
     setLoading(true);
     await new Promise(r => setTimeout(r, 900));
-    registerOrganization({
+    const org = registerOrganization({
       ownerName: form.ownerName.trim(),
       ownerEmail: form.ownerEmail.trim() || undefined,
       ownerPassword: form.ownerPassword.trim() || undefined,
@@ -328,6 +328,10 @@ export function OrgRegistration() {
           }
       ),
     });
+    // immediately sign in so the kitchen screens have context
+    if (org) {
+      setCurrentUser({ role: 'kitchen', orgId: org.id });
+    }
     setLoading(false);
     setSuccess(true);
   };

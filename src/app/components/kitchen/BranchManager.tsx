@@ -10,7 +10,8 @@ import { useApp } from '../../context/AppContext';
 interface RiderForm {
   name: string;
   phone: string;
-  username: string;
+  // username field retained for backwards compatibility but not used for login
+  username?: string;
   password: string;
 }
 
@@ -78,7 +79,6 @@ export function BranchManager() {
     setRiderForm({
       name: rider.name,
       phone: rider.phone,
-      username: rider.username,
       password: rider.password,
     });
     setRiderErrors({});
@@ -89,13 +89,11 @@ export function BranchManager() {
     if (!editingRiderId) return;
     const errs: Partial<RiderForm> = {};
     if (!riderForm.name.trim()) errs.name = 'Name required';
-    if (!riderForm.username.trim()) errs.username = 'Username required';
     if (!riderForm.password.trim()) errs.password = 'Password required';
     if (Object.keys(errs).length > 0) { setRiderErrors(errs); return; }
     updateRider(editingRiderId, {
       name: riderForm.name.trim(),
       phone: riderForm.phone.trim(),
-      username: riderForm.username.trim(),
       password: riderForm.password.trim(),
     });
     setEditingRiderId(null);
@@ -111,7 +109,6 @@ export function BranchManager() {
   const handleAddRider = () => {
     const errs: Partial<RiderForm> = {};
     if (!riderForm.name.trim()) errs.name = 'Name required';
-    if (!riderForm.username.trim()) errs.username = 'Username required';
     if (!riderForm.password.trim()) errs.password = 'Password required';
     if (Object.keys(errs).length > 0) { setRiderErrors(errs); return; }
     addRider({
@@ -119,7 +116,7 @@ export function BranchManager() {
       branchId: branch.id,
       name: riderForm.name.trim(),
       phone: riderForm.phone.trim(),
-      username: riderForm.username.trim(),
+      // keep username for legacy but not required
       password: riderForm.password.trim(),
       isAvailable: true,
     });
@@ -180,7 +177,7 @@ export function BranchManager() {
 
 
   const copyCredentials = async (rider: typeof branchRiders[0]) => {
-    const text = `Username: ${rider.username}\nPassword: ${rider.password}`;
+    const text = `Phone: ${rider.phone}\nPassword: ${rider.password}`;
     try {
       await navigator.clipboard.writeText(text);
       setCopiedId(rider.id);
@@ -509,7 +506,7 @@ export function BranchManager() {
                           </button>
                         </div>
                         <p className="text-stone-600" style={{ fontSize: '0.8rem' }}>
-                          <span className="text-stone-400">User: </span>{rider.username}
+                          <span className="text-stone-400">Phone: </span>{rider.phone}
                         </p>
                         <div className="flex items-center gap-1">
                           <p className="text-stone-600" style={{ fontSize: '0.8rem' }}>
@@ -566,8 +563,7 @@ export function BranchManager() {
             <div className="space-y-3 mb-5">
               {[
                 { k: 'name' as const, label: 'Rider Name *', placeholder: 'e.g. Ali Hassan' },
-                { k: 'phone' as const, label: 'Phone Number', placeholder: 'Optional' },
-                { k: 'username' as const, label: 'Username *', placeholder: 'Login username' },
+                { k: 'phone' as const, label: 'Phone Number *', placeholder: '03XX-XXXXXXX' },
                 { k: 'password' as const, label: 'Password *', placeholder: 'Login password' },
               ].map(f => (
                 <div key={f.k}>

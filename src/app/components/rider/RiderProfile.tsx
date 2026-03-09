@@ -73,7 +73,7 @@ export function RiderProfile() {
           </div>
           <div>
             <p className="text-white" style={{ fontWeight: 700, fontSize: '1.05rem' }}>{rider.name}</p>
-            <p className="text-green-100" style={{ fontSize: '0.78rem' }}>{rider.username}</p>
+            <p className="text-green-100" style={{ fontSize: '0.78rem' }}>{rider.phone}</p>
           </div>
         </div>
       </div>

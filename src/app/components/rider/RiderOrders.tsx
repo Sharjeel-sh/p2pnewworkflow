@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Package, CheckCircle, MessageCircle, MapPin, ClipboardList, BellRing } from 'lucide-react';
+import { Package, CheckCircle, MessageCircle, MapPin, ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
 import { MobileLayout } from '../shared/MobileLayout';
 import { StatusBadge } from '../shared/StatusBadge';
@@ -11,7 +11,7 @@ import type { Order } from '../../context/AppContext';
 export function RiderOrders() {
   const { currentUser, orders, riders, updateOrderStatus, acceptAssignedOrder, createMockOrdersForRider, isChatOpen } = useApp();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'assigned' | 'pickup' | 'delivery'>('assigned');
+  const [activeTab, setActiveTab] = useState<'pickup' | 'delivery'>('pickup');
 
   const rider = riders.find(r => r.id === currentUser?.riderId);
 
@@ -29,11 +29,7 @@ export function RiderOrders() {
   const deliveryOrders = assignedOrders.filter(o => o.status === 'picked_up');
   const previousAssignedIdsRef = useRef<string[]>([]);
 
-  const displayList = activeTab === 'assigned'
-    ? pendingAssignedOrders
-    : activeTab === 'pickup'
-      ? pickupOrders
-      : deliveryOrders;
+  const displayList = activeTab === 'pickup' ? pickupOrders : deliveryOrders;
 
   useEffect(() => {
     const currentIds = pendingAssignedOrders.map(o => o.id);
@@ -42,16 +38,16 @@ export function RiderOrders() {
 
     if (newIds.length > 0) {
       toast.success(`New order${newIds.length > 1 ? 's' : ''} assigned`, {
-        description: `${newIds.length} order${newIds.length > 1 ? 's are' : ' is'} waiting for your acceptance.`,
+        description: `${newIds.length} order${newIds.length > 1 ? 's are' : ' is'} automatically accepted and will appear under Pickup once ready.`,
       });
     }
 
-    previousAssignedIdsRef.current = currentIds;
-  }, [pendingAssignedOrders]);
+    // auto accept any new pending orders so rider doesn't have to click
+    newIds.forEach(id => acceptAssignedOrder(id));
 
-  const handleAccept = (order: Order) => {
-    acceptAssignedOrder(order.id);
-  };
+    previousAssignedIdsRef.current = currentIds;
+  }, [pendingAssignedOrders, acceptAssignedOrder]);
+
 
   const handlePickup = (order: Order) => {
     updateOrderStatus(order.id, 'picked_up');
@@ -98,13 +94,6 @@ export function RiderOrders() {
         </div>
 
         <div className="flex gap-2 mt-3 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('assigned')}
-            className={`px-4 py-1.5 rounded-full text-sm transition-all whitespace-nowrap ${activeTab === 'assigned' ? 'bg-white text-green-600' : 'bg-green-400 text-white'}`}
-            style={{ fontWeight: 600 }}
-          >
-            Assigned ({pendingAssignedOrders.length})
-          </button>
           <button
             onClick={() => setActiveTab('pickup')}
             className={`px-4 py-1.5 rounded-full text-sm transition-all whitespace-nowrap ${activeTab === 'pickup' ? 'bg-white text-green-600' : 'bg-green-400 text-white'}`}

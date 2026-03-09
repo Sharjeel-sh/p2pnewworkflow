@@ -247,7 +247,7 @@ export function KitchenOrders() {
                     </div>
                     <div>
                       <p className="text-stone-800 text-sm" style={{ fontWeight: 600 }}>{rider.name}</p>
-                      <p className="text-stone-400 text-xs">{rider.phone || rider.username}</p>
+                      <p className="text-stone-400 text-xs">{rider.phone}</p>
                     </div>
                     <ChevronRight size={16} className="text-gray-400 ml-auto" />
                   </button>

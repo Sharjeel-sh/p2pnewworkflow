@@ -56,10 +56,6 @@ export function KitchenRiderScreen() {
     return branch?.name ?? 'Unknown Branch';
   };
 
-  const generateRiderUsername = (name: string) => {
-    const base = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'rider';
-    return `${base}_${Math.floor(100 + Math.random() * 900)}`;
-  };
 
   const getInitials = (name: string) =>
     name
@@ -143,7 +139,7 @@ export function KitchenRiderScreen() {
         profilePicture: form.profilePicture.trim(),
         name: form.name.trim(),
         phone: form.phone.trim(),
-        username: generateRiderUsername(form.name),
+        // username is optional and not used for login
         password: form.password.trim(),
         isAvailable: true,
       });
@@ -162,7 +158,7 @@ export function KitchenRiderScreen() {
     const reader = new FileReader();
     reader.onloadend = () => {
       if (typeof reader.result !== 'string') return;
-      setForm(prev => ({ ...prev, profilePicture: reader.result }));
+      setForm(prev => ({ ...prev, profilePicture: String(reader.result) }));
       if (errors.profilePicture) setErrors(prev => ({ ...prev, profilePicture: '' }));
     };
     reader.readAsDataURL(file);

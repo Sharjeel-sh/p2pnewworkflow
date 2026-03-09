@@ -47,7 +47,8 @@ export interface Rider {
   branchId: string;
   name: string;
   phone: string;
-  username: string;
+  // legacy field, kept for backwards compatibility with older data
+  username?: string;
   password: string;
   isAvailable: boolean;
   profilePicture?: string;
@@ -150,7 +151,7 @@ interface AppContextType extends AppState {
   acceptAssignedOrder: (orderId: string) => void;
   loginKitchenOwner: (phone: string, password: string) => Organization | null;
   loginBranchManager: (phone: string, password: string) => Branch | null;
-  loginRider: (username: string, password: string) => Rider | null;
+  loginRider: (phone: string, password: string) => Rider | null;
   sendChatMessage: (orderId: string, message: string, senderName: string, senderRole: UserRole) => void;
   isChatOpen: (order: Order) => boolean;
 }
@@ -192,9 +193,9 @@ const INITIAL_BRANCHES: Branch[] = [
 ];
 
 const INITIAL_RIDERS: Rider[] = [
-  { id: 'rider-001', orgId: 'org-001', branchId: 'branch-001', name: 'Ali Hassan', phone: '0312-9876543', username: 'ali123', password: 'pass123', isAvailable: true },
-  { id: 'rider-002', orgId: 'org-001', branchId: 'branch-002', name: 'Bilal Sheikh', phone: '0333-2345678', username: 'bilal123', password: 'pass123', isAvailable: true },
-  { id: 'rider-003', orgId: 'org-002', branchId: 'branch-003', name: 'Zubair Ahmad', phone: '0344-5678901', username: 'zubair123', password: 'pass123', isAvailable: true },
+  { id: 'rider-001', orgId: 'org-001', branchId: 'branch-001', name: 'Ali Hassan', phone: '0312-9876543', password: 'pass123', isAvailable: true },
+  { id: 'rider-002', orgId: 'org-001', branchId: 'branch-002', name: 'Bilal Sheikh', phone: '0333-2345678', password: 'pass123', isAvailable: true },
+  { id: 'rider-003', orgId: 'org-002', branchId: 'branch-003', name: 'Zubair Ahmad', phone: '0344-5678901', password: 'pass123', isAvailable: true },
 ];
 
 const INITIAL_DISHES: Dish[] = [
@@ -594,9 +595,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
 
     const ridersToAdd: Rider[] = [
-      { id: rider1Id, orgId, branchId, name: 'Mock Rider 1', phone: '0321-1110001', username: 'mockrider1', password: 'pass123', isAvailable: true },
-      { id: rider2Id, orgId, branchId, name: 'Mock Rider 2', phone: '0321-1110002', username: 'mockrider2', password: 'pass123', isAvailable: true },
-      { id: rider3Id, orgId, branchId, name: 'Mock Rider 3', phone: '0321-1110003', username: 'mockrider3', password: 'pass123', isAvailable: true },
+      { id: rider1Id, orgId, branchId, name: 'Mock Rider 1', phone: '0321-1110001', password: 'pass123', isAvailable: true },
+      { id: rider2Id, orgId, branchId, name: 'Mock Rider 2', phone: '0321-1110002', password: 'pass123', isAvailable: true },
+      { id: rider3Id, orgId, branchId, name: 'Mock Rider 3', phone: '0321-1110003', password: 'pass123', isAvailable: true },
     ];
 
     const dish1: Dish = { id: `dish-${generateId()}`, orgId, name: 'Mock Chicken Karahi', price: 750, description: 'Mock spicy chicken karahi', category: 'Main Course', isAvailable: true };
@@ -779,9 +780,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return found ?? null;
   }, [state.branches]);
 
-  const loginRider = useCallback((username: string, password: string): Rider | null => {
+  const loginRider = useCallback((phone: string, password: string): Rider | null => {
     const found = state.riders.find(
-      r => r.username === username && r.password === password && r.isAvailable,
+      r => r.phone === phone && r.password === password && r.isAvailable,
     );
     return found ?? null;
   }, [state.riders]);

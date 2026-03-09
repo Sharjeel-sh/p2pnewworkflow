@@ -6,7 +6,7 @@ import { TopBar } from '../shared/TopBar';
 import { useApp } from '../../context/AppContext';
 
 export function RiderLoginScreen() {
-  const [username, setUsername] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
@@ -15,17 +15,17 @@ export function RiderLoginScreen() {
   const { loginRider, setCurrentUser, riders } = useApp();
 
   const handleLogin = async () => {
-    if (!username.trim() || !password.trim()) {
-      setError('Please enter both username and password.');
+    if (!phone.trim() || !password.trim()) {
+      setError('Please enter both phone number and password.');
       return;
     }
     setLoading(true);
     setError('');
     await new Promise(r => setTimeout(r, 600));
     const credentialsMatch = riders.find(
-      r => r.username === username.trim() && r.password === password.trim(),
+      r => r.phone === phone.trim() && r.password === password.trim(),
     );
-    const rider = loginRider(username.trim(), password.trim());
+    const rider = loginRider(phone.trim(), password.trim());
     setLoading(false);
     if (rider) {
       setCurrentUser({ role: 'rider', riderId: rider.id, orgId: rider.orgId });
@@ -58,7 +58,7 @@ export function RiderLoginScreen() {
         {/* Demo credentials hint */}
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-6">
           <p className="text-blue-600" style={{ fontSize: '0.78rem', fontWeight: 600 }}>Demo Credentials:</p>
-          <p className="text-blue-500" style={{ fontSize: '0.75rem' }}>Username: ali123 / bilal123 / zubair123</p>
+          <p className="text-blue-500" style={{ fontSize: '0.75rem' }}>Phone: 0312-9876543 / 0333-2345678 / 0344-5678901</p>
           <p className="text-blue-500" style={{ fontSize: '0.75rem' }}>Password: pass123</p>
         </div>
 
@@ -74,13 +74,13 @@ export function RiderLoginScreen() {
         <div className="space-y-4 mb-8">
           <div>
             <label className="block text-stone-600 mb-2" style={{ fontSize: '0.85rem', fontWeight: 500 }}>
-              Username
+              Phone Number
             </label>
             <input
-              type="text"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              type="tel"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              placeholder="03XX-XXXXXXX"
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-green-400 bg-gray-50"
               style={{ fontSize: '0.95rem' }}
             />

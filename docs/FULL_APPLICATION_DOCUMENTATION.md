@@ -114,7 +114,7 @@ Access:
 Auth path:
 
 1. `/kitchen/manager/login`
-2. Auth checks `managerUsername` + `managerPassword` against branch records
+2. Auth checks **phone number** + `managerPassword` against branch records
 
 Session model:
 
@@ -132,7 +132,7 @@ Access:
 
 Access:
 
-1. Login with username/password provided by kitchen
+1. Login with phone number/password provided by kitchen
 2. View assigned orders
 3. Accept assigned order
 4. Mark pickup and delivery
