@@ -18,6 +18,7 @@ export interface Organization {
   ntn?: string;
   cnicFrontPhoto?: string;
   cnicBackPhoto?: string;
+  profilePicture?: string;
   legalAgreementDoc?: string;
 }
 
@@ -171,6 +172,7 @@ const INITIAL_ORGS: Organization[] = [
     verificationStatus: 'verified',
     ntn: '1234567-8',
     cnic: '42101-1234567-8',
+    profilePicture: '',
   },
   {
     id: 'org-002',
@@ -183,6 +185,7 @@ const INITIAL_ORGS: Organization[] = [
     type: 'homemade',
     verificationStatus: 'verified',
     cnic: '42101-1234567-8',
+    profilePicture: '',
   },
 ];
 

@@ -18,27 +18,36 @@ const STATUS_NEXT_LABEL: Record<string, string> = {
 export function KitchenOrders() {
   const { currentUser, orders, riders, updateOrderStatus, assignRiderToOrder, unassignRiderFromOrder, createMockOrderForOrg, isChatOpen } = useApp();
   const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState<'active' | 'delivered'>('active');
+  // track which status tab is selected (pending, accepted, preparing, ready)
+  const [activeFilter, setActiveFilter] = useState<OrderStatus>('pending');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showRiderModal, setShowRiderModal] = useState(false);
 
   const managedBranchId = currentUser?.branchId;
   const orgOrders = orders.filter(o => o.orgId === currentUser?.orgId && (!managedBranchId || o.branchId === managedBranchId));
-  const activeOrders = orgOrders.filter(o => o.status !== 'delivered');
-  const deliveredOrders = orgOrders.filter(o => o.status === 'delivered');
-  const displayOrders = activeFilter === 'active' ? activeOrders : deliveredOrders;
-  const newOrdersCount = activeOrders.filter(o => o.status === 'pending').length;
+
+  // orders grouped by status
+  const statusTabs: OrderStatus[] = ['pending', 'accepted', 'preparing', 'ready', 'delivered'];
+  const displayOrders = activeFilter === 'delivered'
+    ? []
+    : orgOrders.filter(o => o.status === activeFilter);
+  const newOrdersCount = orgOrders.filter(o => o.status === 'pending').length;
   const orgRiders = riders.filter(r =>
     r.orgId === currentUser?.orgId &&
     r.isAvailable &&
     (!managedBranchId || r.branchId === managedBranchId),
   );
 
-  const handleNextStatus = (order: Order) => {
-    const idx = STATUS_FLOW.indexOf(order.status as OrderStatus);
-    if (idx < 0) return;
-    const next = STATUS_FLOW[idx + 1];
-    if (next) updateOrderStatus(order.id, next);
+  const handleStartPreparing = (order: Order) => {
+    updateOrderStatus(order.id, 'preparing');
+  };
+
+  const handleMarkReady = (order: Order) => {
+    updateOrderStatus(order.id, 'ready');
+  };
+
+  const handleReadyForPickup = (order: Order) => {
+    updateOrderStatus(order.id, 'picked_up');
   };
 
   const handleAssignRider = (rider: typeof orgRiders[0]) => {
@@ -69,37 +78,55 @@ export function KitchenOrders() {
     return d.toLocaleDateString('en-PK', { day: 'numeric', month: 'short' }) + ' ' + formatTime(iso);
   };
 
+  const getPrimaryAction = (order: Order) => {
+    switch (order.status) {
+      case 'pending':
+        return { label: 'Accept Order', handler: () => updateOrderStatus(order.id, 'accepted') };
+      case 'accepted':
+        return { label: 'Start Preparing', handler: () => handleStartPreparing(order) };
+      case 'preparing':
+        return { label: 'Mark as Ready', handler: () => handleMarkReady(order) };
+      case 'ready':
+        return { label: 'Ready for Pickup', handler: () => handleReadyForPickup(order) };
+      default:
+        return null;
+    }
+  };
+
   return (
     <MobileLayout>
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-600 to-orange-500 px-5 pt-10 pb-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-white text-2xl font-bold">Orders</h2>
-          <span className="bg-white text-orange-600 font-bold px-3 py-1 rounded-full shadow text-xs">
-            +{newOrdersCount} New
-          </span>
+          {newOrdersCount > 0 && (
+            <span className="bg-white text-orange-600 font-bold px-3 py-1 rounded-full shadow text-xs">
+              +{newOrdersCount} New
+            </span>
+          )}
         </div>
-        <div className="relative flex gap-2 mt-4">
-          <button
-            onClick={() => setActiveFilter('active')}
-            className={`px-4 py-2 rounded-full text-sm transition-all ${activeFilter === 'active' ? 'bg-white text-orange-600 shadow-lg' : 'bg-orange-200 text-orange-800'}`}
-            style={{ fontWeight: 600 }}
-          >
-            Active ({activeOrders.length})
-          </button>
-          <button
-            onClick={() => setActiveFilter('delivered')}
-            className={`px-4 py-2 rounded-full text-sm transition-all ${activeFilter === 'delivered' ? 'bg-white text-orange-600 shadow-lg' : 'bg-orange-200 text-orange-800'}`}
-            style={{ fontWeight: 600 }}
-          >
-            Delivered ({deliveredOrders.length})
-          </button>
+        <div className="relative flex flex-col gap-1 mt-4">
+          <div className="flex gap-2">
+            {statusTabs.map(status => {
+              const count = orgOrders.filter(o => o.status === status).length;
+              return (
+                <button
+                  key={status}
+                  onClick={() => setActiveFilter(status)}
+                  className={`px-4 py-2 rounded-full text-sm transition-all ${activeFilter === status ? 'bg-white text-orange-600 shadow-lg' : 'bg-orange-200 text-orange-800'}`}
+                  style={{ fontWeight: 600 }}
+                >
+                  {status.charAt(0).toUpperCase() + status.slice(1)} ({count})
+                </button>
+              );
+            })}
+          </div>
           {/* sliding indicator */}
           <div
             className="absolute bottom-0 h-0.5 bg-orange-600 transition-all"
             style={{
-              width: 'calc(50% - 0.5rem)',
-              left: activeFilter === 'active' ? '0.25rem' : 'calc(50% + 0.25rem)'
+              width: `calc(${100 / statusTabs.length}% - 0.5rem)`,
+              left: `calc(${statusTabs.indexOf(activeFilter) * (100 / statusTabs.length)}% + 0.25rem)`
             }}
           />
         </div>
@@ -110,22 +137,24 @@ export function KitchenOrders() {
           <div className="text-center py-16">
             <ClipboardList size={52} className="text-gray-200 mx-auto mb-3" />
             <p className="text-stone-400" style={{ fontWeight: 500 }}>
-              {activeFilter === 'active' ? 'No active orders' : 'No delivered orders'}
+              No {activeFilter} orders
             </p>
-            <p className="text-stone-400 mt-1" style={{ fontSize: '0.82rem' }}>
-              {activeFilter === 'active' ? 'New orders will appear here' : ''}
-            </p>
-            {activeFilter === 'active' && (
-              <button
-                onClick={() => {
-                  if (!currentUser?.orgId) return;
-                  createMockOrderForOrg(currentUser.orgId, 3);
-                }}
-                className="mt-4 bg-orange-500 text-white px-5 py-2.5 rounded-xl hover:bg-orange-600 transition-colors"
-                style={{ fontSize: '0.86rem', fontWeight: 600 }}
-              >
-                Create 3 Mock Orders
-              </button>
+            {activeFilter === 'pending' && (
+              <>
+                <p className="text-stone-400 mt-1" style={{ fontSize: '0.82rem' }}>
+                  New orders will appear here
+                </p>
+                <button
+                  onClick={() => {
+                    if (!currentUser?.orgId) return;
+                    createMockOrderForOrg(currentUser.orgId, 3);
+                  }}
+                  className="mt-4 bg-orange-500 text-white px-5 py-2.5 rounded-xl hover:bg-orange-600 transition-colors"
+                  style={{ fontSize: '0.86rem', fontWeight: 600 }}
+                >
+                  Create 3 Mock Orders
+                </button>
+              </>
             )}
           </div>
         ) : (
@@ -172,16 +201,22 @@ export function KitchenOrders() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  {order.status !== 'delivered' && order.status !== 'picked_up' && order.status !== 'ready' && (
-                    <button
-                      onClick={() => handleNextStatus(order)}
-                      className="flex-1 bg-orange-500 text-white py-2 rounded-xl text-xs hover:bg-orange-600 transition-colors flex items-center justify-center gap-1"
-                      style={{ fontWeight: 600 }}
-                    >
-                      <Check size={13} />
-                      {STATUS_NEXT_LABEL[order.status] || 'Update'}
-                    </button>
-                  )}
+                  {(() => {
+                    const act = getPrimaryAction(order);
+                    if (act) {
+                      return (
+                        <button
+                          onClick={act.handler}
+                          className="flex-1 bg-orange-500 text-white py-2 rounded-xl text-xs hover:bg-orange-600 transition-colors flex items-center justify-center gap-1"
+                          style={{ fontWeight: 600 }}
+                        >
+                          <Check size={13} />
+                          {act.label}
+                        </button>
+                      );
+                    }
+                    return null;
+                  })()}
                   {order.status !== 'delivered' && (
                     <button
                       onClick={() => openAssignModal(order)}

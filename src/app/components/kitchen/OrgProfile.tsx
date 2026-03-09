@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { Building2, Home, Phone, MapPin, User, Pencil, LogOut, Save, X, FileText, Image, CreditCard, Hash, CheckCircle2, UserCog, Bike, ChevronRight } from 'lucide-react';
+import { Building2, Home, Phone, MapPin, User, Pencil, LogOut, Save, X, FileText, Image, CreditCard, Hash, CheckCircle2, UserCog, Bike, ChevronRight, ChevronLeft, GitBranch, UtensilsCrossed, Clock, Truck, BarChart2, Bell, ShieldCheck } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { KitchenBottomNav } from './KitchenBottomNav';
 import { useApp } from '../../context/AppContext';
@@ -10,14 +10,9 @@ export function OrgProfile() {
   const navigate = useNavigate();
   const org = organizations.find(o => o.id === currentUser?.orgId);
   const isBranchManager = Boolean(currentUser?.branchId);
-  const [editing, setEditing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
-    ownerName: org?.ownerName || '',
-    orgName: org?.orgName || '',
-    address: org?.address || '',
-    phone: org?.phone || '',
-    cnic: org?.cnic || '',
-    ntn: org?.ntn || '',
+    profilePicture: org?.profilePicture || '',
   });
 
   if (!org) {
@@ -29,76 +24,17 @@ export function OrgProfile() {
     );
   }
 
-  if (isBranchManager) {
-    const handleBackToOrganization = () => {
-      if (!currentUser?.orgId) return;
-      setCurrentUser({
-        role: 'kitchen',
-        orgId: currentUser.orgId,
-      });
-      navigate('/kitchen');
+
+  const handleImagePick: React.ChangeEventHandler<HTMLInputElement> = e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setForm(prev => ({ ...prev, profilePicture: String(reader.result) }));
+      }
     };
-
-    const handleLogout = () => {
-      setCurrentUser(null);
-      navigate('/');
-    };
-
-    return (
-      <MobileLayout>
-        <div className="bg-orange-500 px-5 pt-10 pb-8">
-          <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Manager Account</h2>
-        </div>
-        <div className="flex-1 overflow-y-auto px-5 py-5">
-          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
-            <p className="text-stone-400" style={{ fontSize: '0.72rem' }}>Organization</p>
-            <p className="text-stone-800" style={{ fontWeight: 600 }}>{org.orgName}</p>
-            <p className="text-stone-400 mt-3" style={{ fontSize: '0.72rem' }}>Logged in as</p>
-            <p className="text-stone-800" style={{ fontWeight: 600 }}>{currentUser?.managerName || 'Branch Manager'}</p>
-          </div>
-          <button
-            onClick={handleBackToOrganization}
-            className="w-full bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center justify-between shadow-sm mt-3"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
-                <Building2 size={18} className="text-orange-500" />
-              </div>
-              <div className="text-left">
-                <p className="text-stone-800" style={{ fontWeight: 600, fontSize: '0.88rem' }}>Organization</p>
-                <p className="text-stone-400" style={{ fontSize: '0.75rem' }}>Back to organization main screen</p>
-              </div>
-            </div>
-            <ChevronRight size={16} className="text-stone-400" />
-          </button>
-          <button
-            onClick={handleLogout}
-            className="w-full border-2 border-red-100 text-red-500 py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-50 transition-colors mt-6"
-            style={{ fontWeight: 600 }}
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
-        </div>
-        <KitchenBottomNav />
-      </MobileLayout>
-    );
-  }
-
-  const startEdit = () => {
-    setForm({ ownerName: org.ownerName, orgName: org.orgName, address: org.address, phone: org.phone, cnic: org.cnic || '', ntn: org.ntn || '' });
-    setEditing(true);
-  };
-
-  const handleSave = () => {
-    updateOrganization(org.id, {
-      ownerName: form.ownerName.trim(),
-      orgName: form.orgName.trim(),
-      address: form.address.trim(),
-      phone: form.phone.trim(),
-      ...(org.type === 'homemade' ? { cnic: form.cnic.trim() } : { ntn: form.ntn.trim() }),
-    });
-    setEditing(false);
+    reader.readAsDataURL(file);
   };
 
   const handleLogout = () => {
@@ -111,184 +47,64 @@ export function OrgProfile() {
       {/* Header */}
       <div className="bg-orange-500 px-5 pt-10 pb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Organization Profile</h2>
-          <button onClick={editing ? () => setEditing(false) : startEdit}
-            className="bg-white/20 text-white rounded-xl p-2 hover:bg-white/30 transition-colors">
-            {editing ? <X size={18} /> : <Pencil size={18} />}
+          <button onClick={() => navigate(-1)} className="text-white p-1.5 rounded-full bg-white/15 hover:bg-white/25 transition-colors">
+            <ChevronLeft size={22} />
           </button>
-        </div>
-        <div className="bg-white/20 rounded-2xl p-4 flex items-center gap-3">
-          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center">
-            {org.type === 'restaurant' ? (
-              <Building2 size={28} className="text-orange-500" />
-            ) : (
-              <Home size={28} className="text-orange-500" />
-            )}
-          </div>
-          <div>
-            <p className="text-white" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{org.orgName}</p>
-            <span className="text-orange-100 text-xs px-2 py-0.5 bg-orange-600/50 rounded-full" style={{ fontWeight: 500 }}>
-              {org.type === 'restaurant' ? 'Restaurant' : 'Home-Made'}
-            </span>
-          </div>
+          <h2 className="text-white flex-1 text-center" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Organization Profile</h2>
+          <div className="w-8" />
         </div>
       </div>
 
+ {/* Organization image */}
+      <div className="flex justify-center mt-4">
+        <div className="relative w-24 h-24 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="absolute inset-0 z-10"
+          />
+          {form.profilePicture ? (
+            <img src={form.profilePicture} alt="Org" className="w-full h-full object-cover" />
+          ) : (
+            <User size={40} className="text-gray-400" />
+          )}
+          <div className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md">
+            <Image size={16} className="text-orange-500" />
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImagePick}
+          />
+        </div>
+      </div>
       <div className="flex-1 overflow-y-auto px-5 py-5">
-        {editing ? (
-          <div className="space-y-4">
-            {[
-              { key: 'ownerName', label: 'Owner Name' },
-              { key: 'orgName', label: 'Organization Name' },
-              { key: 'address', label: 'Address' },
-              { key: 'phone', label: 'Phone Number' },
-            ].map(f => (
-              <div key={f.key}>
-                <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>{f.label}</label>
-                <input
-                  type="text"
-                  value={form[f.key as keyof typeof form]}
-                  onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
-                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
-                />
+        {/* list menu */}
+        <div className="space-y-3">
+          {[
+              { icon: Building2, label: 'Edit my profile information', action: () => navigate('/kitchen/profile/edit') },
+              { icon: UserCog,   label: 'Manager',                       action: () => navigate('/kitchen/manager') },
+              { icon: Bike,      label: 'Rider',                         action: () => navigate('/kitchen/rider') },
+              { icon: Bell,      label: 'Help & Support',               action: () => navigate('/help') },
+            ].map((item, idx) => (
+            <button
+              key={idx}
+              onClick={item.action}
+              className="w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                  <item.icon size={18} />
+                </div>
+                <span className="flex-1 text-left" style={{ fontWeight: 500 }}>{item.label}</span>
               </div>
-            ))}
-            {org.type === 'homemade' ? (
-              <div>
-                <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>CNIC</label>
-                <input
-                  type="text"
-                  value={form.cnic}
-                  onChange={e => setForm(prev => ({ ...prev, cnic: e.target.value }))}
-                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
-                />
-              </div>
-            ) : (
-              <div>
-                <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>NTN</label>
-                <input
-                  type="text"
-                  value={form.ntn}
-                  onChange={e => setForm(prev => ({ ...prev, ntn: e.target.value }))}
-                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
-                />
-              </div>
-            )}
-            <button onClick={handleSave}
-              className="w-full bg-orange-500 text-white py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-orange-600 transition-colors mt-2"
-              style={{ fontWeight: 700 }}>
-              <Save size={18} /> Save Changes
+              <ChevronRight size={16} className="text-gray-400" />
             </button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {[
-              { icon: User, label: 'Owner', value: org.ownerName },
-              { icon: Phone, label: 'Phone', value: org.phone },
-              { icon: MapPin, label: 'Address', value: org.address },
-              ...(org.type === 'homemade' && org.cnic ? [{ icon: CreditCard, label: 'CNIC', value: org.cnic }] : []),
-              ...(org.type === 'restaurant' && org.ntn ? [{ icon: Hash, label: 'NTN', value: org.ntn }] : []),
-            ].map((item, i) => (
-              <div key={i} className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
-                <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <item.icon size={18} className="text-orange-400" />
-                </div>
-                <div>
-                  <p className="text-stone-400" style={{ fontSize: '0.72rem' }}>{item.label}</p>
-                  <p className="text-stone-800" style={{ fontWeight: 500 }}>{item.value}</p>
-                </div>
-              </div>
-            ))}
-
-            {/* Documents Section */}
-            {(org.cnicFrontPhoto || org.cnicBackPhoto || org.legalAgreementDoc) && (
-              <div className="mt-2">
-                <p className="text-stone-500 mb-2 px-1" style={{ fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Uploaded Documents
-                </p>
-                <div className="space-y-2">
-                  {org.cnicFrontPhoto && (
-                    <div className="bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center gap-3 shadow-sm">
-                      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Image size={18} className="text-blue-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-stone-400" style={{ fontSize: '0.72rem' }}>CNIC Front Photo</p>
-                        <p className="text-stone-700 truncate" style={{ fontWeight: 500, fontSize: '0.85rem' }}>{org.cnicFrontPhoto}</p>
-                      </div>
-                      <CheckCircle2 size={16} className="text-green-500 flex-shrink-0" />
-                    </div>
-                  )}
-                  {org.cnicBackPhoto && (
-                    <div className="bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center gap-3 shadow-sm">
-                      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Image size={18} className="text-blue-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-stone-400" style={{ fontSize: '0.72rem' }}>CNIC Back Photo</p>
-                        <p className="text-stone-700 truncate" style={{ fontWeight: 500, fontSize: '0.85rem' }}>{org.cnicBackPhoto}</p>
-                      </div>
-                      <CheckCircle2 size={16} className="text-green-500 flex-shrink-0" />
-                    </div>
-                  )}
-                  {org.legalAgreementDoc && (
-                    <div className="bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center gap-3 shadow-sm">
-                      <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <FileText size={18} className="text-purple-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-stone-400" style={{ fontSize: '0.72rem' }}>
-                          Legal Agreement {org.type === 'restaurant' ? '(Required)' : '(Optional)'}
-                        </p>
-                        <p className="text-stone-700 truncate" style={{ fontWeight: 500, fontSize: '0.85rem' }}>{org.legalAgreementDoc}</p>
-                      </div>
-                      <CheckCircle2 size={16} className="text-green-500 flex-shrink-0" />
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="mt-2">
-              <p className="text-stone-500 mb-2 px-1" style={{ fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Manage
-              </p>
-              <div className="space-y-2">
-                <button
-                  onClick={() => navigate('/kitchen/manager')}
-                  className="w-full bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center justify-between shadow-sm"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
-                      <UserCog size={18} className="text-orange-500" />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-stone-800" style={{ fontWeight: 600, fontSize: '0.88rem' }}>Manager</p>
-                      <p className="text-stone-400" style={{ fontSize: '0.75rem' }}>Open manager credentials</p>
-                    </div>
-                  </div>
-                  <ChevronRight size={16} className="text-stone-400" />
-                </button>
-
-                <button
-                  onClick={() => navigate('/kitchen/rider')}
-                  className="w-full bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center justify-between shadow-sm"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
-                      <Bike size={18} className="text-green-600" />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-stone-800" style={{ fontWeight: 600, fontSize: '0.88rem' }}>Rider</p>
-                      <p className="text-stone-400" style={{ fontSize: '0.75rem' }}>Open rider management</p>
-                    </div>
-                  </div>
-                  <ChevronRight size={16} className="text-stone-400" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+          ))}
+        </div>
+      </div>
 
         <div className="mt-6">
           <button
@@ -300,8 +116,90 @@ export function OrgProfile() {
             Logout
           </button>
         </div>
-      </div>
 
+      <KitchenBottomNav />
+    </MobileLayout>
+  );
+}
+
+export function OrgEdit() {
+  const { currentUser, organizations, updateOrganization } = useApp();
+  const navigate = useNavigate();
+  const org = organizations.find(o => o.id === currentUser?.orgId);
+  const [form, setForm] = useState({
+    orgName: org?.orgName || '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  if (!org) {
+    return (
+      <MobileLayout>
+        <div className="flex-1 flex items-center justify-center"><p className="text-stone-500">Organization not found.</p></div>
+        <KitchenBottomNav />
+      </MobileLayout>
+    );
+  }
+
+  const handleSave = () => {
+    // validate password only if provided
+    if (form.password && form.password !== form.confirmPassword) {
+      return;
+    }
+    const updates: any = { orgName: form.orgName.trim() };
+    if (form.password) updates.ownerPassword = form.password.trim();
+    updateOrganization(org.id, updates);
+    navigate('/kitchen/profile');
+  };
+
+  return (
+    <MobileLayout>
+      <div className="bg-orange-500 px-5 pt-10 pb-8">
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="text-white p-1.5 rounded-full bg-white/15 hover:bg-white/25 transition-colors">
+            <ChevronLeft size={22} />
+          </button>
+          <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Edit Organization</h2>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto px-5 py-5">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Organization Name</label>
+            <input
+              type="text"
+              value={form.orgName}
+              onChange={e => setForm(prev => ({ ...prev, orgName: e.target.value }))}
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
+            />
+          </div>
+          <div>
+            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>New Password</label>
+            <input
+              type="password"
+              value={form.password}
+              onChange={e => setForm(prev => ({ ...prev, password: e.target.value }))}
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
+            />
+          </div>
+          <div>
+            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Confirm Password</label>
+            <input
+              type="password"
+              value={form.confirmPassword}
+              onChange={e => setForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
+            />
+          </div>
+          <button
+            onClick={handleSave}
+            className="w-full bg-orange-500 text-white py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-orange-600 transition-colors"
+            style={{ fontWeight: 700 }}
+          >
+            <Save size={18} /> Save Changes
+          </button>
+        </div>
+      </div>
       <KitchenBottomNav />
     </MobileLayout>
   );
