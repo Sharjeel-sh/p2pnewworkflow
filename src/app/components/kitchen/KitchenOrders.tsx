@@ -27,6 +27,7 @@ export function KitchenOrders() {
   const activeOrders = orgOrders.filter(o => o.status !== 'delivered');
   const deliveredOrders = orgOrders.filter(o => o.status === 'delivered');
   const displayOrders = activeFilter === 'active' ? activeOrders : deliveredOrders;
+  const newOrdersCount = activeOrders.filter(o => o.status === 'pending').length;
   const orgRiders = riders.filter(r =>
     r.orgId === currentUser?.orgId &&
     r.isAvailable &&
@@ -71,35 +72,36 @@ export function KitchenOrders() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-orange-500 px-5 pt-10 pb-5">
+      <div className="bg-gradient-to-r from-orange-600 to-orange-500 px-5 pt-10 pb-5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Orders</h2>
-          <button
-            onClick={() => {
-              if (!currentUser?.orgId) return;
-              createMockOrderForOrg(currentUser.orgId, 3);
-            }}
-            className="bg-white/20 text-white px-3 py-1.5 rounded-full text-xs hover:bg-white/30 transition-colors"
-            style={{ fontWeight: 600 }}
-          >
-            +3 Mock
-          </button>
+          <h2 className="text-white text-2xl font-bold">Orders</h2>
+          <span className="bg-white text-orange-600 font-bold px-3 py-1 rounded-full shadow text-xs">
+            +{newOrdersCount} New
+          </span>
         </div>
-        <div className="flex gap-2 mt-3">
+        <div className="relative flex gap-2 mt-4">
           <button
             onClick={() => setActiveFilter('active')}
-            className={`px-4 py-1.5 rounded-full text-sm transition-all ${activeFilter === 'active' ? 'bg-white text-orange-500' : 'bg-orange-400 text-white'}`}
+            className={`px-4 py-2 rounded-full text-sm transition-all ${activeFilter === 'active' ? 'bg-white text-orange-600 shadow-lg' : 'bg-orange-200 text-orange-800'}`}
             style={{ fontWeight: 600 }}
           >
             Active ({activeOrders.length})
           </button>
           <button
             onClick={() => setActiveFilter('delivered')}
-            className={`px-4 py-1.5 rounded-full text-sm transition-all ${activeFilter === 'delivered' ? 'bg-white text-orange-500' : 'bg-orange-400 text-white'}`}
+            className={`px-4 py-2 rounded-full text-sm transition-all ${activeFilter === 'delivered' ? 'bg-white text-orange-600 shadow-lg' : 'bg-orange-200 text-orange-800'}`}
             style={{ fontWeight: 600 }}
           >
             Delivered ({deliveredOrders.length})
           </button>
+          {/* sliding indicator */}
+          <div
+            className="absolute bottom-0 h-0.5 bg-orange-600 transition-all"
+            style={{
+              width: 'calc(50% - 0.5rem)',
+              left: activeFilter === 'active' ? '0.25rem' : 'calc(50% + 0.25rem)'
+            }}
+          />
         </div>
       </div>
 
@@ -129,7 +131,7 @@ export function KitchenOrders() {
         ) : (
           <div className="space-y-3">
             {displayOrders.map(order => (
-              <div key={order.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+              <div key={order.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-md">
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <p className="text-stone-800" style={{ fontWeight: 700 }}>#{order.id.slice(-6).toUpperCase()}</p>
@@ -139,10 +141,10 @@ export function KitchenOrders() {
                 </div>
 
                 {/* Buyer Info */}
-                <div className="bg-gray-50 rounded-xl p-2.5 mb-3">
-                  <p className="text-stone-700 text-sm" style={{ fontWeight: 600 }}>{order.buyerName}</p>
-                  <p className="text-stone-400 text-xs">{order.buyerPhone}</p>
-                  <p className="text-stone-400 text-xs mt-0.5">{order.buyerAddress}</p>
+                <div className="bg-[#F0F0F0] rounded-xl p-3 mb-3">
+                  <p className="text-stone-700 text-sm font-semibold">{order.buyerName}</p>
+                  <p className="text-stone-500 text-xs mt-0.5">{order.buyerPhone}</p>
+                  <p className="text-stone-500 text-xs mt-0.5">{order.buyerAddress}</p>
                 </div>
 
                 {/* Items */}
@@ -160,11 +162,11 @@ export function KitchenOrders() {
                 </div>
 
                 {order.riderName && (
-                  <div className="flex items-center gap-1.5 bg-green-50 px-2.5 py-1.5 rounded-lg mb-3">
-                    <Bike size={13} className="text-green-500" />
-                    <p className="text-green-700 text-xs" style={{ fontWeight: 500 }}>
-                      Rider: {order.riderName} {order.riderAccepted ? '(Accepted)' : '(Awaiting acceptance)'}
-                    </p>
+                  <div className="inline-flex items-center gap-1 bg-green-50 px-3 py-1.5 rounded-full mb-3">
+                    <Check size={12} className="text-green-500" />
+                    <span className="text-green-700 text-xs font-medium">
+                      {order.riderName}
+                    </span>
                   </div>
                 )}
 

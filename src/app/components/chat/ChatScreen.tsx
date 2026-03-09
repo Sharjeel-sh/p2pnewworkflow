@@ -135,27 +135,6 @@ export function ChatScreen() {
         </div>
       </div>
 
-      {/* Participants Info */}
-      <div className="px-4 py-2 bg-blue-50 border-b border-blue-100 flex items-center gap-3 overflow-x-auto">
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          <span className="text-xs">{ROLE_EMOJI.buyer}</span>
-          <span className="text-blue-700 text-xs" style={{ fontWeight: 500 }}>{order.buyerName}</span>
-        </div>
-        <span className="text-blue-300 text-xs">•</span>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          <span className="text-xs">{ROLE_EMOJI.kitchen}</span>
-          <span className="text-orange-700 text-xs" style={{ fontWeight: 500 }}>{org?.orgName || 'Kitchen'}</span>
-        </div>
-        {rider && (
-          <>
-            <span className="text-blue-300 text-xs">•</span>
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <span className="text-xs">{ROLE_EMOJI.rider}</span>
-              <span className="text-green-700 text-xs" style={{ fontWeight: 500 }}>{rider.name}</span>
-            </div>
-          </>
-        )}
-      </div>
 
       {/* Chat Closed / Countdown Banner */}
       {order.status === 'delivered' && order.deliveredAt && (
