@@ -81,18 +81,21 @@ export function OrgProfile() {
         </div>
       </div>
       <div className="flex-1 overflow-y-auto px-5 py-5">
+
         {/* list menu */}
         <div className="space-y-3">
-          {[
-              { icon: Building2, label: 'Edit my profile information', action: () => navigate('/kitchen/profile/edit') },
+          {([
+                { icon: FileText, label: 'Organization Registration Details', action: () => navigate('/kitchen/profile/info') },
+              { icon: Building2, label: 'Edit Organization information', action: () => navigate('/kitchen/profile/edit') },
               { icon: UserCog,   label: 'Manager',                       action: () => navigate('/kitchen/manager') },
               { icon: Bike,      label: 'Rider',                         action: () => navigate('/kitchen/rider') },
               { icon: Bell,      label: 'Help & Support',               action: () => navigate('/help') },
-            ].map((item, idx) => (
+              { icon: LogOut,    label: 'Logout',                       action: handleLogout, isDestructive: true },
+            ] as Array<{icon:any; label:string; action:()=>void; isDestructive?:boolean}>).map((item, idx) => (
             <button
               key={idx}
               onClick={item.action}
-              className="w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm"
+              className={`w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm ${item.isDestructive ? 'text-red-500' : ''}`}
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
@@ -100,22 +103,12 @@ export function OrgProfile() {
                 </div>
                 <span className="flex-1 text-left" style={{ fontWeight: 500 }}>{item.label}</span>
               </div>
-              <ChevronRight size={16} className="text-gray-400" />
+              {!item.isDestructive && <ChevronRight size={16} className="text-gray-400" />}
             </button>
           ))}
         </div>
       </div>
 
-        <div className="mt-6">
-          <button
-            onClick={handleLogout}
-            className="w-full border-2 border-red-100 text-red-500 py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-50 transition-colors"
-            style={{ fontWeight: 600 }}
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
-        </div>
 
       <KitchenBottomNav />
     </MobileLayout>

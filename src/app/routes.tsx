@@ -1,3 +1,4 @@
+import React from 'react';
 import { createBrowserRouter } from 'react-router';
 import { Root } from './Root';
 import { WelcomeScreen } from './components/welcome/WelcomeScreen';
@@ -24,6 +25,7 @@ import { BranchManager } from './components/kitchen/BranchManager';
 import { KitchenOrders } from './components/kitchen/KitchenOrders';
 import { KitchenChatListScreen } from './components/kitchen/KitchenChatListScreen';
 import { OrgProfile, OrgEdit } from './components/kitchen/OrgProfile';
+import { OrgInfo } from './components/kitchen/OrgInfo';
 import { OrgDashboard } from './components/kitchen/OrgDashboard';
 import { RiderOrders } from './components/rider/RiderOrders';
 import { RiderProfile } from './components/rider/RiderProfile';
@@ -34,39 +36,40 @@ import { NotFoundError } from './NotFoundError';
 export const router = createBrowserRouter([
   {
     path: '/',
-    Component: Root,
-    errorElement: NotFoundError, // Custom error element for 404 and other errors
+    element: <Root />,
+    errorElement: <NotFoundError />,
     children: [
-      { index: true, Component: WelcomeScreen },
-      { path: 'signup', Component: SignupScreen },
-      { path: 'kitchen/onboarding', Component: KitchenOnboardingScreen },
-      { path: 'kitchen/login', Component: KitchenOwnerLoginScreen },
-      { path: 'rider/login', Component: RiderLoginScreen },
-      { path: 'kitchen/manager/login', Component: BranchManagerLoginScreen },
-      { path: 'buyer', Component: BuyerHome },
-      { path: 'buyer/search', Component: BuyerSearch },
-      { path: 'buyer/profile', Component: BuyerProfile },
-      { path: 'buyer/restaurant/:orgId', Component: RestaurantDetail },
-      { path: 'buyer/cart', Component: CartScreen },
-      { path: 'buyer/address-selection', Component: AddressSelection },
-      { path: 'buyer/payment-confirmation', Component: PaymentConfirmation },
-      { path: 'buyer/order/:orderId', Component: OrderTracker },
-      { path: 'kitchen/register', Component: OrgRegistration },
-      { path: 'kitchen/dashboard', Component: OrgDashboard },
-      { path: 'kitchen', Component: KitchenHome },
-      { path: 'kitchen/branches', Component: KitchenBranchesScreen },
-      { path: 'kitchen/manager', Component: KitchenManagerScreen },
-      { path: 'kitchen/rider', Component: KitchenRiderScreen },
-      { path: 'kitchen/dishes', Component: DishesList },
-      { path: 'kitchen/branch/:branchId', Component: BranchManager },
-      { path: 'kitchen/orders', Component: KitchenOrders },
-      { path: 'kitchen/chat-list', Component: KitchenChatListScreen },
-      { path: 'kitchen/profile', Component: OrgProfile },
-      { path: 'kitchen/profile/edit', Component: OrgEdit },
-      { path: 'rider/orders', Component: RiderOrders },
-      { path: 'rider/order/:orderId', Component: RiderOrderDetails },
-      { path: 'rider/profile', Component: RiderProfile },
-      { path: 'chat/:orderId', Component: ChatScreen },
+      { index: true, element: <WelcomeScreen /> },
+      { path: 'signup', element: <SignupScreen /> },
+      { path: 'kitchen/onboarding', element: <KitchenOnboardingScreen /> },
+      { path: 'kitchen/login', element: <KitchenOwnerLoginScreen /> },
+      { path: 'rider/login', element: <RiderLoginScreen /> },
+      { path: 'kitchen/manager/login', element: <BranchManagerLoginScreen /> },
+      { path: 'buyer', element: <BuyerHome /> },
+      { path: 'buyer/search', element: <BuyerSearch /> },
+      { path: 'buyer/profile', element: <BuyerProfile /> },
+      { path: 'buyer/restaurant/:orgId', element: <RestaurantDetail /> },
+      { path: 'buyer/cart', element: <CartScreen /> },
+      { path: 'buyer/address-selection', element: <AddressSelection /> },
+      { path: 'buyer/payment-confirmation', element: <PaymentConfirmation /> },
+      { path: 'buyer/order/:orderId', element: <OrderTracker /> },
+      { path: 'kitchen/register', element: <OrgRegistration /> },
+      { path: 'kitchen/dashboard', element: <OrgDashboard /> },
+      { path: 'kitchen', element: <KitchenHome /> },
+      { path: 'kitchen/branches', element: <KitchenBranchesScreen /> },
+      { path: 'kitchen/manager', element: <KitchenManagerScreen /> },
+      { path: 'kitchen/rider', element: <KitchenRiderScreen /> },
+      { path: 'kitchen/dishes', element: <DishesList /> },
+      { path: 'kitchen/branch/:branchId', element: <BranchManager /> },
+      { path: 'kitchen/orders', element: <KitchenOrders /> },
+      { path: 'kitchen/chat-list', element: <KitchenChatListScreen /> },
+      { path: 'kitchen/profile', element: <OrgProfile /> },
+      { path: 'kitchen/profile/info', element: <OrgInfo /> },
+      { path: 'kitchen/profile/edit', element: <OrgEdit /> },
+      { path: 'rider/orders', element: <RiderOrders /> },
+      { path: 'rider/order/:orderId', element: <RiderOrderDetails /> },
+      { path: 'rider/profile', element: <RiderProfile /> },
+      { path: 'chat/:orderId', element: <ChatScreen /> },
     ],
   },
 ]);
