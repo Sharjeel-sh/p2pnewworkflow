@@ -28,6 +28,10 @@ import { OrgProfile, OrgEdit } from './components/kitchen/OrgProfile';
 import { OrgOrgEdit } from './components/kitchen/OrgOrgEdit';
 import { OrgInfo } from './components/kitchen/OrgInfo';
 import { OrgDashboard } from './components/kitchen/OrgDashboard';
+import { KitchenProfile } from './components/kitchen/KitchenProfile';
+import { KitchenCoupons } from './components/kitchen/KitchenCoupons';
+import { KitchenDiscounts } from './components/kitchen/KitchenDiscounts';
+import { KitchenSettings } from './components/kitchen/KitchenSettings';
 import { RiderOrders } from './components/rider/RiderOrders';
 import { RiderProfile } from './components/rider/RiderProfile';
 import { RiderOrderDetails } from './components/rider/RiderOrderDetails';
@@ -64,10 +68,14 @@ export const router = createBrowserRouter([
       { path: 'kitchen/branch/:branchId', element: <BranchManager /> },
       { path: 'kitchen/orders', element: <KitchenOrders /> },
       { path: 'kitchen/chat-list', element: <KitchenChatListScreen /> },
-      { path: 'kitchen/profile', element: <OrgProfile /> },
+      { path: 'kitchen/profile', element: <KitchenProfile /> },
+      { path: 'kitchen/profile/organization', element: <OrgProfile /> },
       { path: 'kitchen/profile/info', element: <OrgInfo /> },
       { path: 'kitchen/profile/org-edit', element: <OrgOrgEdit /> },
       { path: 'kitchen/profile/edit', element: <OrgEdit /> },
+      { path: 'kitchen/profile/coupons', element: <KitchenCoupons /> },
+      { path: 'kitchen/profile/discounts', element: <KitchenDiscounts /> },
+      { path: 'kitchen/profile/kitchen-info', element: <KitchenSettings /> },
       { path: 'rider/orders', element: <RiderOrders /> },
       { path: 'rider/order/:orderId', element: <RiderOrderDetails /> },
       { path: 'rider/profile', element: <RiderProfile /> },

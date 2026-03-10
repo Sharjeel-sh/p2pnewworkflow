@@ -354,20 +354,21 @@ export function KitchenBranchesScreen() {
       {/* Header */}
       <div className="bg-red-700 px-5 pt-10 pb-6">
         <div className="flex items-center justify-between mb-1">
-          <button onClick={() => navigate(-1)} className="text-red-100 mr-2">
+          <button onClick={() => navigate(-1)} className="text-white mr-2">
             <ChevronLeft size={24} />
           </button>
           <div className="flex-1">
-            <p className="text-red-100" style={{ fontSize: '0.8rem' }}>Welcome back,</p>
-            <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>{org.orgName}</h2>
+            <p className="text-red-200" style={{ fontSize: '0.78rem' }}>Welcome back,</p>
+            <h2 className="text-white" style={{ fontSize: '1.35rem', fontWeight: 700, lineHeight: 1.2 }}>{org.orgName}</h2>
           </div>
-          <div className="bg-red-600 rounded-2xl px-3 py-1.5">
-            <p className="text-white" style={{ fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase' }}>
-              {org.type === 'restaurant' ? '🏪 Restaurant' : '🏠 Home-Made'}
+          <div className="bg-white rounded-xl px-3 py-1.5 flex items-center gap-1.5">
+            <Store size={13} className="text-red-700" />
+            <p className="text-red-700" style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              {org.type === 'restaurant' ? 'Restaurant' : 'Home-Made'}
             </p>
           </div>
         </div>
-        <p className="text-red-100 flex items-center gap-1 mt-1" style={{ fontSize: '0.8rem' }}>
+        <p className="text-red-200 flex items-center gap-1 mt-2" style={{ fontSize: '0.78rem' }}>
           <MapPin size={12} />
           {org.address}
         </p>
@@ -406,67 +407,50 @@ export function KitchenBranchesScreen() {
 
               return (
               <div key={branch.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
-                <div className="flex items-start justify-between">
-                  <button
-                    onClick={() => openBranchKitchen(branch.id)}
-                    className="flex-1 text-left"
-                  >
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Store size={16} className="text-red-700" />
-                        </div>
-                        <p className="text-stone-800 truncate" style={{ fontWeight: 700 }}>{branch.name}</p>
-                      </div>
-                      <div className="flex items-center gap-1 bg-amber-50 border border-amber-100 rounded-lg px-2 py-1 flex-shrink-0">
-                        <span className="text-amber-500" style={{ fontSize: '0.78rem' }}>★</span>
-                        <p className="text-amber-700" style={{ fontSize: '0.78rem', fontWeight: 700 }}>
+                <div className="flex items-start gap-3">
+                  {/* Branch icon */}
+                  <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Store size={20} className="text-red-700" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    {/* Name row */}
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <p className="text-stone-800 font-bold truncate" style={{ fontSize: '1rem' }}>{branch.name}</p>
+                      <div className="flex items-center gap-1 bg-amber-50 border border-amber-100 rounded-lg px-2 py-0.5 flex-shrink-0">
+                        <span className="text-amber-400" style={{ fontSize: '0.78rem' }}>★</span>
+                        <p className="text-amber-700 font-bold" style={{ fontSize: '0.78rem' }}>
                           {getBranchRating(branch.id)}
                         </p>
                       </div>
                     </div>
 
-                    <p className="text-stone-500 flex items-center gap-1 mb-1" style={{ fontSize: '0.78rem' }}>
-                      <User size={11} />
+                    {/* Manager */}
+                    <p className="text-stone-500 flex items-center gap-1 mb-1" style={{ fontSize: '0.8rem' }}>
+                      <User size={12} />
                       Manager: {branch.managerName?.trim() ? branch.managerName : 'Not assigned'}
                     </p>
 
-                    <div className="flex flex-wrap items-center gap-2 mt-2">
-                      {branch.isDeliveryEnabled && (
-                        <span
-                          className="inline-flex items-center rounded-full px-2.5 py-1 bg-red-50 text-red-800 border border-red-100"
-                          style={{ fontSize: '0.74rem', fontWeight: 600 }}
-                        >
-                          {getDeliveryPreview(branch)}
-                        </span>
-                      )}
-                      {branch.isDeliveryEnabled && (
-                        <span
-                          className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-100"
-                          style={{ fontSize: '0.74rem', fontWeight: 600 }}
-                        >
-                          <Bike size={11} />
-                          Riders {activeRiders}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-stone-500 flex items-center gap-1 mt-2 text-left" style={{ fontSize: '0.8rem' }}>
-                      <MapPin size={11} />
+                    {/* Address */}
+                    <p className="text-stone-500 flex items-center gap-1" style={{ fontSize: '0.8rem' }}>
+                      <MapPin size={12} />
                       <span className="truncate">{branch.address}</span>
                     </p>
-                  </button>
-                  <div className="flex items-center gap-1 ml-2">
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       onClick={() => openBranchKitchen(branch.id)}
-                      className="text-xs text-red-700 hover:text-red-900 px-2 py-1"
-                      style={{ fontWeight: 600 }}
+                      className="text-red-700 font-semibold text-sm"
                     >
                       Manage
                     </button>
-                    <button onClick={() => openBranchKitchen(branch.id)} className="text-red-600 hover:text-red-800 p-1">
+                    <button onClick={() => openBranchKitchen(branch.id)} className="text-red-700">
                       <ChevronRight size={18} />
                     </button>
-                    <button onClick={() => setDeleteConfirm(branch.id)} className="text-red-600 hover:text-red-800 p-1">
+                    <button onClick={() => setDeleteConfirm(branch.id)} className="text-red-400 hover:text-red-700">
                       <Trash2 size={16} />
                     </button>
                   </div>
