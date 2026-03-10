@@ -184,7 +184,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
       </div>
 
       <div className="px-4 py-4 space-y-5">
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-4 text-white shadow-lg">
+        <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-2xl p-4 text-white shadow-lg">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <TrendingUp size={18} />
@@ -215,7 +215,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
               <span className="flex items-center gap-0.5 text-xs text-green-600">
                 <CheckCircle2 size={10} /> {filteredKitchens.filter((k) => k.status === "Active").length} Active
               </span>
-              <span className="flex items-center gap-0.5 text-xs text-red-500">
+              <span className="flex items-center gap-0.5 text-xs text-red-600">
                 <XCircle size={10} /> {filteredKitchens.filter((k) => k.status === "Inactive").length} Inactive
               </span>
             </div>
@@ -271,7 +271,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
                       <span
                         className={cn(
                           "shrink-0 w-1.5 h-1.5 rounded-full",
-                          kitchen.status === "Active" ? "bg-green-500" : "bg-red-400"
+                          kitchen.status === "Active" ? "bg-green-500" : "bg-red-500"
                         )}
                       />
                     </div>

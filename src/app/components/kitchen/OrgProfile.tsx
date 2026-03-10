@@ -45,7 +45,7 @@ export function OrgProfile() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-orange-500 px-5 pt-10 pb-8">
+      <div className="bg-red-600 px-5 pt-10 pb-8">
         <div className="flex items-center justify-between mb-4">
           <button onClick={() => navigate(-1)} className="text-white p-1.5 rounded-full bg-white/15 hover:bg-white/25 transition-colors">
             <ChevronLeft size={22} />
@@ -69,7 +69,7 @@ export function OrgProfile() {
             <User size={40} className="text-gray-400" />
           )}
           <div className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md">
-            <Image size={16} className="text-orange-500" />
+            <Image size={16} className="text-red-600" />
           </div>
           <input
             ref={fileInputRef}
@@ -96,7 +96,7 @@ export function OrgProfile() {
             <button
               key={idx}
               onClick={item.action}
-              className={`w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm ${item.isDestructive ? 'text-red-500' : ''}`}
+              className={`w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm ${item.isDestructive ? 'text-red-600' : ''}`}
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
@@ -153,7 +153,7 @@ export function OrgEdit() {
 
   return (
     <MobileLayout>
-      <div className="bg-orange-500 px-5 pt-10 pb-8">
+      <div className="bg-red-600 px-5 pt-10 pb-8">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="text-white p-1.5 rounded-full bg-white/15 hover:bg-white/25 transition-colors">
             <ChevronLeft size={22} />
@@ -169,7 +169,7 @@ export function OrgEdit() {
               type="text"
               value={form.ownerName}
               onChange={e => setForm(prev => ({ ...prev, ownerName: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 bg-gray-50"
             />
           </div>
           <div>
@@ -178,7 +178,7 @@ export function OrgEdit() {
               type="email"
               value={form.ownerEmail}
               onChange={e => setForm(prev => ({ ...prev, ownerEmail: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 bg-gray-50"
             />
           </div>
           <div>
@@ -187,7 +187,7 @@ export function OrgEdit() {
               type="password"
               value={form.password}
               onChange={e => setForm(prev => ({ ...prev, password: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 bg-gray-50"
             />
           </div>
           <div>
@@ -196,12 +196,12 @@ export function OrgEdit() {
               type="password"
               value={form.confirmPassword}
               onChange={e => setForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 bg-gray-50"
             />
           </div>
           <button
             onClick={handleSave}
-            className="w-full bg-orange-500 text-white py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-orange-600 transition-colors"
+            className="w-full bg-red-600 text-white py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-700 transition-colors"
             style={{ fontWeight: 700 }}
           >
             <Save size={18} /> Save Changes

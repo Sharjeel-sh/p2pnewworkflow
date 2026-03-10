@@ -24,7 +24,7 @@ export function OrgInfo() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-orange-500 px-5 pt-10 pb-8">
+      <div className="bg-red-600 px-5 pt-10 pb-8">
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => navigate(-1)}

@@ -315,9 +315,9 @@ export function KitchenBranchesScreen() {
       <MobileLayout>
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="text-center">
-            <AlertCircle size={40} className="text-red-400 mx-auto mb-3" />
+            <AlertCircle size={40} className="text-red-500 mx-auto mb-3" />
             <p className="text-stone-600">No organization found. Please register first.</p>
-            <button onClick={() => navigate('/kitchen/register')} className="mt-3 text-orange-500" style={{ fontWeight: 600 }}>
+            <button onClick={() => navigate('/kitchen/register')} className="mt-3 text-red-600" style={{ fontWeight: 600 }}>
               Register Organization
             </button>
           </div>
@@ -331,14 +331,14 @@ export function KitchenBranchesScreen() {
     return (
       <MobileLayout>
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <Store size={44} className="text-orange-300 mb-3" />
+          <Store size={44} className="text-red-300 mb-3" />
           <h3 className="text-stone-800" style={{ fontWeight: 700 }}>Branch Manager Access</h3>
           <p className="text-stone-500 mt-1" style={{ fontSize: '0.85rem' }}>
             Use Orders, Dishes, Chat List, and Profile tabs to manage your assigned branch.
           </p>
           <button
             onClick={() => navigate('/kitchen/orders')}
-            className="mt-4 bg-orange-500 text-white px-5 py-2.5 rounded-xl hover:bg-orange-600 transition-colors"
+            className="mt-4 bg-red-600 text-white px-5 py-2.5 rounded-xl hover:bg-red-700 transition-colors"
             style={{ fontWeight: 600 }}
           >
             Open Branch Orders
@@ -352,22 +352,22 @@ export function KitchenBranchesScreen() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-orange-500 px-5 pt-10 pb-6">
+      <div className="bg-red-600 px-5 pt-10 pb-6">
         <div className="flex items-center justify-between mb-1">
-          <button onClick={() => navigate(-1)} className="text-orange-100 mr-2">
+          <button onClick={() => navigate(-1)} className="text-red-100 mr-2">
             <ChevronLeft size={24} />
           </button>
           <div className="flex-1">
-            <p className="text-orange-100" style={{ fontSize: '0.8rem' }}>Welcome back,</p>
+            <p className="text-red-100" style={{ fontSize: '0.8rem' }}>Welcome back,</p>
             <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>{org.orgName}</h2>
           </div>
-          <div className="bg-orange-400 rounded-2xl px-3 py-1.5">
+          <div className="bg-red-500 rounded-2xl px-3 py-1.5">
             <p className="text-white" style={{ fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase' }}>
               {org.type === 'restaurant' ? '🏪 Restaurant' : '🏠 Home-Made'}
             </p>
           </div>
         </div>
-        <p className="text-orange-100 flex items-center gap-1 mt-1" style={{ fontSize: '0.8rem' }}>
+        <p className="text-red-100 flex items-center gap-1 mt-1" style={{ fontSize: '0.8rem' }}>
           <MapPin size={12} />
           {org.address}
         </p>
@@ -379,7 +379,7 @@ export function KitchenBranchesScreen() {
           <h3 className="text-stone-800" style={{ fontWeight: 700 }}>Kitchen Branches</h3>
           <button
             onClick={() => setModalStep('branchDetails')}
-            className="bg-orange-500 text-white rounded-full p-2 hover:bg-orange-600 transition-colors shadow-md"
+            className="bg-red-600 text-white rounded-full p-2 hover:bg-red-700 transition-colors shadow-md"
           >
             <Plus size={18} />
           </button>
@@ -392,7 +392,7 @@ export function KitchenBranchesScreen() {
             <p className="text-stone-400 mt-1" style={{ fontSize: '0.82rem' }}>Tap + to add your first branch</p>
             <button
               onClick={() => setModalStep('branchDetails')}
-              className="mt-4 bg-orange-500 text-white px-6 py-2.5 rounded-xl hover:bg-orange-600 transition-colors"
+              className="mt-4 bg-red-600 text-white px-6 py-2.5 rounded-xl hover:bg-red-700 transition-colors"
               style={{ fontSize: '0.9rem', fontWeight: 600 }}
             >
               Add Branch
@@ -413,8 +413,8 @@ export function KitchenBranchesScreen() {
                   >
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Store size={16} className="text-orange-500" />
+                        <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Store size={16} className="text-red-600" />
                         </div>
                         <p className="text-stone-800 truncate" style={{ fontWeight: 700 }}>{branch.name}</p>
                       </div>
@@ -458,15 +458,15 @@ export function KitchenBranchesScreen() {
                   <div className="flex items-center gap-1 ml-2">
                     <button
                       onClick={() => openBranchKitchen(branch.id)}
-                      className="text-xs text-orange-500 hover:text-orange-700 px-2 py-1"
+                      className="text-xs text-red-600 hover:text-red-800 px-2 py-1"
                       style={{ fontWeight: 600 }}
                     >
                       Manage
                     </button>
-                    <button onClick={() => openBranchKitchen(branch.id)} className="text-orange-400 hover:text-orange-600 p-1">
+                    <button onClick={() => openBranchKitchen(branch.id)} className="text-red-500 hover:text-red-700 p-1">
                       <ChevronRight size={18} />
                     </button>
-                    <button onClick={() => setDeleteConfirm(branch.id)} className="text-red-400 hover:text-red-600 p-1">
+                    <button onClick={() => setDeleteConfirm(branch.id)} className="text-red-500 hover:text-red-700 p-1">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -498,7 +498,7 @@ export function KitchenBranchesScreen() {
 
                 {/* Step dots */}
                 <div className="flex gap-2 px-6 mb-5">
-                  <div className="h-1.5 flex-1 rounded-full bg-orange-500" />
+                  <div className="h-1.5 flex-1 rounded-full bg-red-600" />
                   <div className="h-1.5 flex-1 rounded-full bg-gray-200" />
                   <div className="h-1.5 flex-1 rounded-full bg-gray-200" />
                 </div>
@@ -514,7 +514,7 @@ export function KitchenBranchesScreen() {
                   ].map(f => (
                     <div key={f.k}>
                       <label className="block text-stone-600 mb-1.5" style={{ fontSize: '0.83rem', fontWeight: 500 }}>
-                        {f.label} {f.required && <span className="text-red-400">*</span>}
+                        {f.label} {f.required && <span className="text-red-500">*</span>}
                       </label>
                       <input
                         type="text"
@@ -522,12 +522,12 @@ export function KitchenBranchesScreen() {
                         onChange={e => updateBranchForm(f.k, e.target.value)}
                         placeholder={f.placeholder}
                         className={`w-full border-2 rounded-xl px-4 py-3 focus:outline-none bg-gray-50 transition-colors ${
-                          branchErrors[f.k] ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                          branchErrors[f.k] ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                         }`}
                         style={{ fontSize: '0.93rem' }}
                       />
                       {branchErrors[f.k] && (
-                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                        <p className="text-red-600 text-xs mt-1 flex items-center gap-1">
                           <AlertCircle size={11} /> {branchErrors[f.k]}
                         </p>
                       )}
@@ -546,7 +546,7 @@ export function KitchenBranchesScreen() {
                     <select
                       value={branchForm.selectedManagerBranchId}
                       onChange={e => updateBranchForm('selectedManagerBranchId', e.target.value)}
-                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none bg-gray-50 focus:border-orange-400 transition-colors"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none bg-gray-50 focus:border-red-500 transition-colors"
                       style={{ fontSize: '0.93rem' }}
                     >
                       <option value="">No manager selected</option>
@@ -563,7 +563,7 @@ export function KitchenBranchesScreen() {
 
                   <button
                     onClick={handleContinueToOperationsStep}
-                    className="w-full bg-orange-500 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-orange-600 active:scale-95 transition-all shadow-lg shadow-orange-200 mt-2"
+                    className="w-full bg-red-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200 mt-2"
                     style={{ fontWeight: 700, fontSize: '0.97rem' }}
                   >
                     Next: Kitchen Operations
@@ -588,7 +588,7 @@ export function KitchenBranchesScreen() {
 
                 <div className="flex gap-2 px-6 mb-5">
                   <div className="h-1.5 flex-1 rounded-full bg-green-500" />
-                  <div className="h-1.5 flex-1 rounded-full bg-orange-500" />
+                  <div className="h-1.5 flex-1 rounded-full bg-red-600" />
                   <div className="h-1.5 flex-1 rounded-full bg-gray-200" />
                 </div>
 
@@ -596,38 +596,38 @@ export function KitchenBranchesScreen() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-stone-600 mb-1.5" style={{ fontSize: '0.83rem', fontWeight: 500 }}>
-                        Kitchen Opening Time <span className="text-red-400">*</span>
+                        Kitchen Opening Time <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="time"
                         value={branchForm.openingTime}
                         onChange={e => updateBranchForm('openingTime', e.target.value)}
                         className={`w-full border-2 rounded-xl px-4 py-3 focus:outline-none bg-gray-50 transition-colors ${
-                          branchErrors.openingTime ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                          branchErrors.openingTime ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                         }`}
                         style={{ fontSize: '0.93rem' }}
                       />
                       {branchErrors.openingTime && (
-                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                        <p className="text-red-600 text-xs mt-1 flex items-center gap-1">
                           <AlertCircle size={11} /> {branchErrors.openingTime}
                         </p>
                       )}
                     </div>
                     <div>
                       <label className="block text-stone-600 mb-1.5" style={{ fontSize: '0.83rem', fontWeight: 500 }}>
-                        Kitchen Closing Time <span className="text-red-400">*</span>
+                        Kitchen Closing Time <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="time"
                         value={branchForm.closingTime}
                         onChange={e => updateBranchForm('closingTime', e.target.value)}
                         className={`w-full border-2 rounded-xl px-4 py-3 focus:outline-none bg-gray-50 transition-colors ${
-                          branchErrors.closingTime ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                          branchErrors.closingTime ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                         }`}
                         style={{ fontSize: '0.93rem' }}
                       />
                       {branchErrors.closingTime && (
-                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                        <p className="text-red-600 text-xs mt-1 flex items-center gap-1">
                           <AlertCircle size={11} /> {branchErrors.closingTime}
                         </p>
                       )}
@@ -655,7 +655,7 @@ export function KitchenBranchesScreen() {
                     <div className="space-y-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
                       <div>
                         <label className="block text-stone-600 mb-1.5" style={{ fontSize: '0.83rem', fontWeight: 500 }}>
-                          Delivery Price <span className="text-red-400">*</span>
+                          Delivery Price <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -663,19 +663,19 @@ export function KitchenBranchesScreen() {
                           onChange={e => updateBranchForm('deliveryPrice', e.target.value)}
                           placeholder="e.g. 150 PKR"
                           className={`w-full border-2 rounded-xl px-4 py-3 focus:outline-none bg-white transition-colors ${
-                            branchErrors.deliveryPrice ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                            branchErrors.deliveryPrice ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                           }`}
                           style={{ fontSize: '0.93rem' }}
                         />
                         {branchErrors.deliveryPrice && (
-                          <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                          <p className="text-red-600 text-xs mt-1 flex items-center gap-1">
                             <AlertCircle size={11} /> {branchErrors.deliveryPrice}
                           </p>
                         )}
                       </div>
                       <div>
                         <label className="block text-stone-600 mb-1.5" style={{ fontSize: '0.83rem', fontWeight: 500 }}>
-                          Delivery Time <span className="text-red-400">*</span>
+                          Delivery Time <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -683,12 +683,12 @@ export function KitchenBranchesScreen() {
                           onChange={e => updateBranchForm('deliveryTime', e.target.value)}
                           placeholder="e.g. 30-40 min"
                           className={`w-full border-2 rounded-xl px-4 py-3 focus:outline-none bg-white transition-colors ${
-                            branchErrors.deliveryTime ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                            branchErrors.deliveryTime ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                           }`}
                           style={{ fontSize: '0.93rem' }}
                         />
                         {branchErrors.deliveryTime && (
-                          <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                          <p className="text-red-600 text-xs mt-1 flex items-center gap-1">
                             <AlertCircle size={11} /> {branchErrors.deliveryTime}
                           </p>
                         )}
@@ -698,7 +698,7 @@ export function KitchenBranchesScreen() {
 
                   <button
                     onClick={handleContinueToLocationStep}
-                    className="w-full bg-orange-500 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-orange-600 active:scale-95 transition-all shadow-lg shadow-orange-200 mt-2"
+                    className="w-full bg-red-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200 mt-2"
                     style={{ fontWeight: 700, fontSize: '0.97rem' }}
                   >
                     Next: Kitchen Location
@@ -724,7 +724,7 @@ export function KitchenBranchesScreen() {
                 <div className="flex gap-2 px-6 mb-5">
                   <div className="h-1.5 flex-1 rounded-full bg-green-500" />
                   <div className="h-1.5 flex-1 rounded-full bg-green-500" />
-                  <div className="h-1.5 flex-1 rounded-full bg-orange-500" />
+                  <div className="h-1.5 flex-1 rounded-full bg-red-600" />
                 </div>
 
                 <div className="px-6 space-y-4 pb-6">
@@ -742,7 +742,7 @@ export function KitchenBranchesScreen() {
                         type="button"
                         onClick={handleUseCurrentLocation}
                         disabled={isLocatingOnMap}
-                        className="inline-flex items-center gap-1 text-orange-600 bg-orange-50 border border-orange-100 px-2.5 py-1.5 rounded-lg disabled:opacity-60"
+                        className="inline-flex items-center gap-1 text-red-700 bg-red-50 border border-red-100 px-2.5 py-1.5 rounded-lg disabled:opacity-60"
                         style={{ fontSize: '0.72rem', fontWeight: 600 }}
                       >
                         {isLocatingOnMap ? <Loader size={12} className="animate-spin" /> : <Navigation size={12} />}
@@ -761,7 +761,7 @@ export function KitchenBranchesScreen() {
                         className="w-full h-44 object-cover"
                       />
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <MapPin size={20} className="text-red-500 drop-shadow" />
+                        <MapPin size={20} className="text-red-600 drop-shadow" />
                       </div>
                     </div>
 
@@ -770,7 +770,7 @@ export function KitchenBranchesScreen() {
                         Lat: {mapCenter.lat.toFixed(5)}, Lng: {mapCenter.lng.toFixed(5)}
                       </p>
                       {isResolvingMapAddress && (
-                        <p className="text-orange-500 flex items-center gap-1" style={{ fontSize: '0.72rem' }}>
+                        <p className="text-red-600 flex items-center gap-1" style={{ fontSize: '0.72rem' }}>
                           <Loader size={11} className="animate-spin" />
                           Fetching address...
                         </p>
@@ -813,7 +813,7 @@ export function KitchenBranchesScreen() {
 
                   <button
                     onClick={handleCreateBranch}
-                    className="w-full bg-orange-500 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-orange-600 active:scale-95 transition-all shadow-lg shadow-orange-200 mt-2"
+                    className="w-full bg-red-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200 mt-2"
                     style={{ fontWeight: 700, fontSize: '0.97rem' }}
                   >
                     Create Branch
@@ -839,7 +839,7 @@ export function KitchenBranchesScreen() {
                 Cancel
               </button>
               <button onClick={() => { deleteBranch(deleteConfirm!); setDeleteConfirm(null); }}
-                className="flex-1 bg-red-500 text-white py-3 rounded-xl hover:bg-red-600 transition-colors"
+                className="flex-1 bg-red-600 text-white py-3 rounded-xl hover:bg-red-700 transition-colors"
                 style={{ fontWeight: 600 }}>
                 Delete
               </button>

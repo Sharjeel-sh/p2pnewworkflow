@@ -179,7 +179,7 @@ export function RiderOrders() {
                     {activeTab === 'pickup' && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handlePickup(order); }}
-                        className="flex-1 bg-orange-500 text-white py-2.5 rounded-xl text-sm hover:bg-orange-600 transition-colors flex items-center justify-center gap-1.5"
+                        className="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm hover:bg-red-700 transition-colors flex items-center justify-center gap-1.5"
                         style={{ fontWeight: 600 }}
                       >
                         <Package size={15} />

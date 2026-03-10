@@ -7,7 +7,7 @@ import type { UserRole } from '../../context/AppContext';
 
 const ROLE_COLORS: Record<UserRole, { bubble: string; name: string; bg: string }> = {
   buyer: { bubble: 'bg-blue-500 text-white', name: 'text-blue-600', bg: 'bg-blue-50' },
-  kitchen: { bubble: 'bg-orange-500 text-white', name: 'text-orange-600', bg: 'bg-orange-50' },
+  kitchen: { bubble: 'bg-red-600 text-white', name: 'text-red-700', bg: 'bg-red-50' },
   rider: { bubble: 'bg-green-500 text-white', name: 'text-green-600', bg: 'bg-green-50' },
 };
 
@@ -148,8 +148,8 @@ export function ChatScreen() {
             </>
           ) : (
             <>
-              <Lock size={13} className="text-red-400 flex-shrink-0" />
-              <p className="text-red-500 text-xs">Chat closed — 1 hour after delivery</p>
+              <Lock size={13} className="text-red-500 flex-shrink-0" />
+              <p className="text-red-600 text-xs">Chat closed — 1 hour after delivery</p>
             </>
           )}
         </div>

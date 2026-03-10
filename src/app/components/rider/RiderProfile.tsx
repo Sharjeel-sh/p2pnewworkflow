@@ -196,7 +196,7 @@ export function RiderProfile() {
         <div className="mt-8">
           <button
             onClick={handleLogout}
-            className="w-full bg-red-50 text-red-600 border border-red-200 py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
+            className="w-full bg-red-50 text-red-700 border border-red-200 py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
             style={{ fontWeight: 600 }}
           >
             <LogOut size={18} /> Logout

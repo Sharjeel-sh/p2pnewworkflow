@@ -37,9 +37,9 @@ export function KitchenChatListScreen() {
 
   return (
     <MobileLayout>
-      <div className="bg-orange-500 px-5 pt-10 pb-5">
+      <div className="bg-red-600 px-5 pt-10 pb-5">
         <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Chat List</h2>
-        <p className="text-orange-100 mt-1" style={{ fontSize: '0.8rem' }}>
+        <p className="text-red-100 mt-1" style={{ fontSize: '0.8rem' }}>
           Open order conversations
         </p>
       </div>
@@ -62,7 +62,7 @@ export function KitchenChatListScreen() {
                 <button
                   key={order.id}
                   onClick={() => navigate(`/chat/${order.id}`)}
-                  className="w-full bg-white border border-gray-100 rounded-2xl p-4 shadow-sm text-left hover:border-orange-200 transition-colors"
+                  className="w-full bg-white border border-gray-100 rounded-2xl p-4 shadow-sm text-left hover:border-red-200 transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">

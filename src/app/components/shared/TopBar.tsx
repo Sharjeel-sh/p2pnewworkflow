@@ -16,7 +16,7 @@ export function TopBar({
   showBack = true,
   backTo,
   rightElement,
-  bgColor = 'bg-gradient-to-r from-orange-500 to-orange-600',
+  bgColor = 'bg-gradient-to-r from-red-600 to-red-700',
   textColor = 'text-white',
 }: TopBarProps) {
   const navigate = useNavigate();

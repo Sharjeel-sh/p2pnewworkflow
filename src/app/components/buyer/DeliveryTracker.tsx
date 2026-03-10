@@ -54,7 +54,7 @@ export function DeliveryTracker() {
             <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-lg">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${isDelivered ? 'bg-green-500' : isOutForDelivery ? 'bg-orange-500 animate-pulse' : 'bg-gray-300'}`} />
+                  <div className={`w-3 h-3 rounded-full ${isDelivered ? 'bg-green-500' : isOutForDelivery ? 'bg-red-600 animate-pulse' : 'bg-gray-300'}`} />
                   <span className="text-stone-800 text-sm font-semibold">
                     {isDelivered ? 'Delivered' : isOutForDelivery ? 'Out for Delivery' : 'Preparing'}
                   </span>
@@ -72,11 +72,11 @@ export function DeliveryTracker() {
 
           {/* Delivery Address Pin */}
           <div className="absolute bottom-4 left-4 right-4">
-            <div className="bg-orange-500 text-white rounded-2xl p-3 shadow-lg">
+            <div className="bg-red-600 text-white rounded-2xl p-3 shadow-lg">
               <div className="flex items-start gap-2">
-                <MapPin size={16} className="text-orange-200 mt-0.5 flex-shrink-0" />
+                <MapPin size={16} className="text-red-200 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="text-orange-100 text-xs">Delivery Address</p>
+                  <p className="text-red-100 text-xs">Delivery Address</p>
                   <p className="text-white font-medium text-sm">{order.buyerAddress}</p>
                 </div>
               </div>
@@ -136,7 +136,7 @@ export function DeliveryTracker() {
           <div className="mx-5 mt-4 bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-stone-700 font-bold">Order #{order.id.slice(-6).toUpperCase()}</h4>
-              {org && <span className="text-orange-600 text-sm font-medium">{org.orgName}</span>}
+              {org && <span className="text-red-700 text-sm font-medium">{org.orgName}</span>}
             </div>
             
             <div className="space-y-2">
@@ -148,7 +148,7 @@ export function DeliveryTracker() {
               ))}
               <div className="border-t border-gray-100 pt-2 flex justify-between">
                 <span className="text-stone-700 font-bold">Total</span>
-                <span className="text-orange-600 font-bold">Rs. {order.total + 50}</span>
+                <span className="text-red-700 font-bold">Rs. {order.total + 50}</span>
               </div>
             </div>
           </div>

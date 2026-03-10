@@ -43,8 +43,8 @@ export function BranchManagerLoginScreen() {
 
       <div className="flex-1 px-6 pt-8 pb-8 flex flex-col">
         <div className="flex flex-col items-center mb-10">
-          <div className="w-20 h-20 bg-orange-100 rounded-3xl flex items-center justify-center mb-4">
-            <ShieldCheck size={40} className="text-orange-500" />
+          <div className="w-20 h-20 bg-red-100 rounded-3xl flex items-center justify-center mb-4">
+            <ShieldCheck size={40} className="text-red-600" />
           </div>
           <h2 className="text-stone-800 text-center" style={{ fontSize: '1.35rem', fontWeight: 700 }}>
             Branch Manager Portal
@@ -56,8 +56,8 @@ export function BranchManagerLoginScreen() {
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 flex items-center gap-2">
-            <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
-            <p className="text-red-600" style={{ fontSize: '0.82rem' }}>{error}</p>
+            <AlertCircle size={16} className="text-red-600 flex-shrink-0" />
+            <p className="text-red-700" style={{ fontSize: '0.82rem' }}>{error}</p>
           </div>
         )}
 
@@ -71,7 +71,7 @@ export function BranchManagerLoginScreen() {
               value={phone}
               onChange={e => setPhone(e.target.value)}
               placeholder="03XX-XXXXXXX"
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-orange-400 bg-gray-50"
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-red-500 bg-gray-50"
               style={{ fontSize: '0.95rem' }}
             />
           </div>
@@ -86,7 +86,7 @@ export function BranchManagerLoginScreen() {
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Enter manager password"
                 onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3.5 pr-12 focus:outline-none focus:border-orange-400 bg-gray-50"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3.5 pr-12 focus:outline-none focus:border-red-500 bg-gray-50"
                 style={{ fontSize: '0.95rem' }}
               />
               <button
@@ -104,7 +104,7 @@ export function BranchManagerLoginScreen() {
           <button
             onClick={handleLogin}
             disabled={loading}
-            className="w-full bg-orange-500 text-white py-4 rounded-2xl hover:bg-orange-600 active:scale-95 transition-all shadow-lg shadow-orange-200 disabled:opacity-60"
+            className="w-full bg-red-600 text-white py-4 rounded-2xl hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200 disabled:opacity-60"
             style={{ fontWeight: 700, fontSize: '1rem' }}
           >
             {loading ? 'Signing in...' : 'Login as Branch Manager'}

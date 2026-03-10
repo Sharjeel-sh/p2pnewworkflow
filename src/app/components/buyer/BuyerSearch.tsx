@@ -46,7 +46,7 @@ export function BuyerSearch() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-orange-500 px-5 pt-10 pb-6">
+      <div className="bg-red-600 px-5 pt-10 pb-6">
         <h2 className="text-white mb-4" style={{ fontSize: '1.3rem', fontWeight: 700 }}>
           Search
         </h2>
@@ -75,7 +75,7 @@ export function BuyerSearch() {
               key={f.val}
               onClick={() => setFilter(f.val as typeof filter)}
               className={`px-3.5 py-1.5 rounded-full text-xs transition-all ${
-                filter === f.val ? 'bg-white text-orange-600' : 'bg-white/20 text-white/80'
+                filter === f.val ? 'bg-white text-red-700' : 'bg-white/20 text-white/80'
               }`}
               style={{ fontWeight: filter === f.val ? 600 : 400 }}
             >
@@ -117,7 +117,7 @@ export function BuyerSearch() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     <div className="absolute bottom-2 left-3">
-                      <span className={`text-white text-xs px-2 py-0.5 rounded-full ${org.type === 'restaurant' ? 'bg-orange-500' : 'bg-purple-500'}`} style={{ fontWeight: 600 }}>
+                      <span className={`text-white text-xs px-2 py-0.5 rounded-full ${org.type === 'restaurant' ? 'bg-red-600' : 'bg-purple-500'}`} style={{ fontWeight: 600 }}>
                         {org.type === 'restaurant' ? '🏪 Restaurant' : '🏠 Home-Made'}
                       </span>
                     </div>

@@ -57,19 +57,19 @@ export function KitchenHome() {
 
   return (
     <MobileLayout>
-      <div className="bg-orange-500 px-5 pt-10 pb-6">
+      <div className="bg-red-600 px-5 pt-10 pb-6">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center">
-            <button onClick={() => navigate(-1)} className="text-orange-100 mr-2">
+            <button onClick={() => navigate(-1)} className="text-red-100 mr-2">
               <ChevronLeft size={24} />
             </button>
           </div>
           <div className="flex-1">
-            <p className="text-orange-100" style={{ fontSize: '0.8rem' }}>Welcome back,</p>
+            <p className="text-red-100" style={{ fontSize: '0.8rem' }}>Welcome back,</p>
             <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>{org.orgName}</h2>
           </div>
         </div>
-        <p className="text-orange-100 flex items-center gap-1 mt-1" style={{ fontSize: '0.8rem' }}>
+        <p className="text-red-100 flex items-center gap-1 mt-1" style={{ fontSize: '0.8rem' }}>
           <MapPin size={12} />
           {org.address}
         </p>

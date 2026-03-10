@@ -218,7 +218,7 @@ export function BranchManager() {
                   openBranchDetailsEdit();
                 }
               }}
-              className="text-orange-500 text-sm"
+              className="text-red-600 text-sm"
               style={{ fontWeight: 600 }}
             >
               {editBranchDetails ? 'Cancel' : 'Edit'}
@@ -237,10 +237,10 @@ export function BranchManager() {
                     if (branchDetailsErrors.name) setBranchDetailsErrors(prev => ({ ...prev, name: '' }));
                   }}
                   className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
-                    branchDetailsErrors.name ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                    branchDetailsErrors.name ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                   }`}
                 />
-                {branchDetailsErrors.name && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.name}</p>}
+                {branchDetailsErrors.name && <p className="text-red-600 text-xs mt-0.5">{branchDetailsErrors.name}</p>}
               </div>
 
               <div>
@@ -253,10 +253,10 @@ export function BranchManager() {
                     if (branchDetailsErrors.address) setBranchDetailsErrors(prev => ({ ...prev, address: '' }));
                   }}
                   className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
-                    branchDetailsErrors.address ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                    branchDetailsErrors.address ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                   }`}
                 />
-                {branchDetailsErrors.address && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.address}</p>}
+                {branchDetailsErrors.address && <p className="text-red-600 text-xs mt-0.5">{branchDetailsErrors.address}</p>}
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -270,10 +270,10 @@ export function BranchManager() {
                       if (branchDetailsErrors.openingTime) setBranchDetailsErrors(prev => ({ ...prev, openingTime: '' }));
                     }}
                     className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
-                      branchDetailsErrors.openingTime ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                      branchDetailsErrors.openingTime ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                     }`}
                   />
-                  {branchDetailsErrors.openingTime && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.openingTime}</p>}
+                  {branchDetailsErrors.openingTime && <p className="text-red-600 text-xs mt-0.5">{branchDetailsErrors.openingTime}</p>}
                 </div>
                 <div>
                   <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Closing Time *</label>
@@ -285,10 +285,10 @@ export function BranchManager() {
                       if (branchDetailsErrors.closingTime) setBranchDetailsErrors(prev => ({ ...prev, closingTime: '' }));
                     }}
                     className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
-                      branchDetailsErrors.closingTime ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                      branchDetailsErrors.closingTime ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                     }`}
                   />
-                  {branchDetailsErrors.closingTime && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.closingTime}</p>}
+                  {branchDetailsErrors.closingTime && <p className="text-red-600 text-xs mt-0.5">{branchDetailsErrors.closingTime}</p>}
                 </div>
               </div>
 
@@ -330,10 +330,10 @@ export function BranchManager() {
                       }}
                       placeholder="30-40 min"
                       className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
-                        branchDetailsErrors.deliveryTime ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                        branchDetailsErrors.deliveryTime ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                       }`}
                     />
-                    {branchDetailsErrors.deliveryTime && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.deliveryTime}</p>}
+                    {branchDetailsErrors.deliveryTime && <p className="text-red-600 text-xs mt-0.5">{branchDetailsErrors.deliveryTime}</p>}
                   </div>
                   <div>
                     <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Delivery Charges *</label>
@@ -346,24 +346,24 @@ export function BranchManager() {
                       }}
                       placeholder="150 PKR"
                       className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${
-                        branchDetailsErrors.deliveryPrice ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                        branchDetailsErrors.deliveryPrice ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                       }`}
                     />
-                    {branchDetailsErrors.deliveryPrice && <p className="text-red-500 text-xs mt-0.5">{branchDetailsErrors.deliveryPrice}</p>}
+                    {branchDetailsErrors.deliveryPrice && <p className="text-red-600 text-xs mt-0.5">{branchDetailsErrors.deliveryPrice}</p>}
                   </div>
                 </div>
               )}
 
               <button
                 onClick={handleSaveBranchDetails}
-                className="w-full bg-orange-500 text-white py-2.5 rounded-xl text-sm hover:bg-orange-600 transition-colors"
+                className="w-full bg-red-600 text-white py-2.5 rounded-xl text-sm hover:bg-red-700 transition-colors"
                 style={{ fontWeight: 600 }}
               >
                 Save Branch Details
               </button>
             </div>
           ) : (
-            <div className="bg-orange-50 px-4 py-3 border border-orange-100 rounded-xl">
+            <div className="bg-red-50 px-4 py-3 border border-red-100 rounded-xl">
               <p className="text-stone-700" style={{ fontWeight: 600 }}>{branch.name}</p>
               <p className="text-stone-500 mt-0.5" style={{ fontSize: '0.82rem' }}>{branch.address}</p>
               <p className="text-stone-500 mt-0.5" style={{ fontSize: '0.82rem' }}>
@@ -397,7 +397,7 @@ export function BranchManager() {
                 setManagerPhone(branch.managerPhone || '');
                 setManagerPassword(branch.managerPassword || '');
               }}
-              className="text-orange-500 text-sm" style={{ fontWeight: 600 }}>
+              className="text-red-600 text-sm" style={{ fontWeight: 600 }}>
               {editManager ? 'Cancel' : 'Edit'}
             </button>
           </div>
@@ -408,24 +408,24 @@ export function BranchManager() {
                 value={managerName}
                 onChange={e => setManagerName(e.target.value)}
                 placeholder="Manager Name"
-                className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
+                className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 bg-gray-50"
               />
               <input
                 type="text"
                 value={managerPhone}
                 onChange={e => setManagerPhone(e.target.value)}
                 placeholder="Manager Phone"
-                className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
+                className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 bg-gray-50"
               />
               <input
                 type="text"
                 value={managerPassword}
                 onChange={e => setManagerPassword(e.target.value)}
                 placeholder="Manager Password"
-                className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-400 bg-gray-50"
+                className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 bg-gray-50"
               />
               <button onClick={handleSaveManager}
-                className="w-full bg-orange-500 text-white py-2.5 rounded-xl text-sm hover:bg-orange-600 transition-colors"
+                className="w-full bg-red-600 text-white py-2.5 rounded-xl text-sm hover:bg-red-700 transition-colors"
                 style={{ fontWeight: 600 }}>
                 Save Manager Info
               </button>
@@ -438,7 +438,7 @@ export function BranchManager() {
                     <p className="text-stone-800" style={{ fontWeight: 600 }}>{branch.managerName}</p>
                     <button
                       onClick={copyManagerDetails}
-                      className="flex items-center gap-1 text-orange-500"
+                      className="flex items-center gap-1 text-red-600"
                       style={{ fontSize: '0.72rem', fontWeight: 600 }}
                     >
                       {managerCopied ? <><Check size={11} /> Copied!</> : <><Copy size={11} /> Copy</>}
@@ -467,7 +467,7 @@ export function BranchManager() {
             <h3 className="text-stone-700" style={{ fontWeight: 700 }}>Riders ({branchRiders.length})</h3>
             <button
               onClick={() => setShowAddRider(true)}
-              className="bg-orange-500 text-white rounded-full p-1.5 hover:bg-orange-600 transition-colors"
+              className="bg-red-600 text-white rounded-full p-1.5 hover:bg-red-700 transition-colors"
             >
               <Plus size={16} />
             </button>
@@ -478,7 +478,7 @@ export function BranchManager() {
               <Bike size={36} className="text-gray-300 mx-auto mb-2" />
               <p className="text-stone-400 text-sm">No riders added yet</p>
               <button onClick={() => setShowAddRider(true)}
-                className="mt-3 text-orange-500 text-sm" style={{ fontWeight: 600 }}>
+                className="mt-3 text-red-600 text-sm" style={{ fontWeight: 600 }}>
                 + Add Rider
               </button>
             </div>
@@ -501,7 +501,7 @@ export function BranchManager() {
                       <div className="bg-gray-50 rounded-xl p-3 space-y-1">
                         <div className="flex items-center justify-between">
                           <p className="text-stone-400" style={{ fontSize: '0.72rem' }}>Login Credentials</p>
-                          <button onClick={() => copyCredentials(rider)} className="flex items-center gap-1 text-orange-500" style={{ fontSize: '0.72rem' }}>
+                          <button onClick={() => copyCredentials(rider)} className="flex items-center gap-1 text-red-600" style={{ fontSize: '0.72rem' }}>
                             {copiedId === rider.id ? <><Check size={11} /> Copied!</> : <><Copy size={11} /> Copy</>}
                           </button>
                         </div>
@@ -526,7 +526,7 @@ export function BranchManager() {
                         Edit
                       </button>
                       <button onClick={() => deleteRider(rider.id)}
-                        className="text-red-400 hover:text-red-600 p-1 mt-1">
+                        className="text-red-500 hover:text-red-700 p-1 mt-1">
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -573,9 +573,9 @@ export function BranchManager() {
                     value={riderForm[f.k]}
                     onChange={e => updateRiderForm(f.k, e.target.value)}
                     placeholder={f.placeholder}
-                    className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${riderErrors[f.k] ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'}`}
+                    className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${riderErrors[f.k] ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
                   />
-                  {riderErrors[f.k] && <p className="text-red-500 text-xs mt-0.5">{riderErrors[f.k]}</p>}
+                  {riderErrors[f.k] && <p className="text-red-600 text-xs mt-0.5">{riderErrors[f.k]}</p>}
                 </div>
               ))}
             </div>
@@ -591,7 +591,7 @@ export function BranchManager() {
             ) : (
               <button
                 onClick={handleAddRider}
-                className="w-full bg-orange-500 text-white py-3.5 rounded-xl hover:bg-orange-600 transition-colors"
+                className="w-full bg-red-600 text-white py-3.5 rounded-xl hover:bg-red-700 transition-colors"
                 style={{ fontWeight: 700 }}
               >
                 Add Rider

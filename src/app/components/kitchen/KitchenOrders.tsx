@@ -96,11 +96,11 @@ export function KitchenOrders() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-600 to-orange-500 px-5 pt-10 pb-5">
+      <div className="bg-gradient-to-r from-red-700 to-red-600 px-5 pt-10 pb-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-white text-2xl font-bold">Orders</h2>
           {newOrdersCount > 0 && (
-            <span className="bg-white text-orange-600 font-bold px-3 py-1 rounded-full shadow text-xs">
+            <span className="bg-white text-red-700 font-bold px-3 py-1 rounded-full shadow text-xs">
               +{newOrdersCount} New
             </span>
           )}
@@ -113,7 +113,7 @@ export function KitchenOrders() {
                 <button
                   key={status}
                   onClick={() => setActiveFilter(status)}
-                  className={`px-4 py-2 rounded-full text-sm transition-all ${activeFilter === status ? 'bg-white text-orange-600 shadow-lg' : 'bg-orange-200 text-orange-800'}`}
+                  className={`px-4 py-2 rounded-full text-sm transition-all ${activeFilter === status ? 'bg-white text-red-700 shadow-lg' : 'bg-red-200 text-red-900'}`}
                   style={{ fontWeight: 600 }}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)} ({count})
@@ -123,7 +123,7 @@ export function KitchenOrders() {
           </div>
           {/* sliding indicator */}
           <div
-            className="absolute bottom-0 h-0.5 bg-orange-600 transition-all"
+            className="absolute bottom-0 h-0.5 bg-red-700 transition-all"
             style={{
               width: `calc(${100 / statusTabs.length}% - 0.5rem)`,
               left: `calc(${statusTabs.indexOf(activeFilter) * (100 / statusTabs.length)}% + 0.25rem)`
@@ -149,7 +149,7 @@ export function KitchenOrders() {
                     if (!currentUser?.orgId) return;
                     createMockOrderForOrg(currentUser.orgId, 3);
                   }}
-                  className="mt-4 bg-orange-500 text-white px-5 py-2.5 rounded-xl hover:bg-orange-600 transition-colors"
+                  className="mt-4 bg-red-600 text-white px-5 py-2.5 rounded-xl hover:bg-red-700 transition-colors"
                   style={{ fontSize: '0.86rem', fontWeight: 600 }}
                 >
                   Create 3 Mock Orders
@@ -186,7 +186,7 @@ export function KitchenOrders() {
                   ))}
                   <div className="border-t border-gray-100 pt-1 mt-1 flex justify-between">
                     <span className="text-stone-600 text-xs" style={{ fontWeight: 600 }}>Total</span>
-                    <span className="text-orange-600 text-sm" style={{ fontWeight: 700 }}>Rs. {order.total}</span>
+                    <span className="text-red-700 text-sm" style={{ fontWeight: 700 }}>Rs. {order.total}</span>
                   </div>
                 </div>
 
@@ -207,7 +207,7 @@ export function KitchenOrders() {
                       return (
                         <button
                           onClick={act.handler}
-                          className="flex-1 bg-orange-500 text-white py-2 rounded-xl text-xs hover:bg-orange-600 transition-colors flex items-center justify-center gap-1"
+                          className="flex-1 bg-red-600 text-white py-2 rounded-xl text-xs hover:bg-red-700 transition-colors flex items-center justify-center gap-1"
                           style={{ fontWeight: 600 }}
                         >
                           <Check size={13} />
@@ -230,7 +230,7 @@ export function KitchenOrders() {
                   {order.status !== 'delivered' && order.riderId && (
                     <button
                       onClick={() => handleUnassignRider(order.id)}
-                      className="bg-red-50 text-red-600 py-2 px-3 rounded-xl hover:bg-red-100 transition-colors flex items-center gap-1"
+                      className="bg-red-50 text-red-700 py-2 px-3 rounded-xl hover:bg-red-100 transition-colors flex items-center gap-1"
                       style={{ fontSize: '0.78rem', fontWeight: 600 }}
                     >
                       <UserMinus size={14} />

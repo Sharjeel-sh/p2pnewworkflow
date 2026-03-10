@@ -5,7 +5,7 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string; bg: string; text: stri
   pending: { label: 'Pending', bg: 'bg-yellow-100', text: 'text-yellow-700' },
   accepted: { label: 'Accepted', bg: 'bg-blue-100', text: 'text-blue-700' },
   preparing: { label: 'Preparing', bg: 'bg-purple-100', text: 'text-purple-700' },
-  ready: { label: 'Ready for Pickup', bg: 'bg-orange-100', text: 'text-orange-700' },
+  ready: { label: 'Ready for Pickup', bg: 'bg-red-100', text: 'text-red-800' },
   picked_up: { label: 'Out for Delivery', bg: 'bg-teal-100', text: 'text-teal-700' },
   delivered: { label: 'Delivered', bg: 'bg-green-100', text: 'text-green-700' },
 };

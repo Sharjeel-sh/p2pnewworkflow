@@ -136,7 +136,7 @@ export function PaymentConfirmation() {
       <MobileLayout>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <AlertCircle size={48} className="text-orange-500 mx-auto mb-3" />
+            <AlertCircle size={48} className="text-red-600 mx-auto mb-3" />
             <p className="text-stone-600">Loading delivery details...</p>
           </div>
         </div>
@@ -147,7 +147,7 @@ export function PaymentConfirmation() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-orange-500 text-white px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-md">
+      <div className="bg-red-600 text-white px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-md">
         <button onClick={() => navigate(-1)} className="p-1 rounded-full hover:bg-white/20 transition-colors">
           <ArrowLeft size={22} />
         </button>
@@ -156,10 +156,10 @@ export function PaymentConfirmation() {
 
       <div className="flex-1 overflow-y-auto">
         {/* Order Summary */}
-        <div className="bg-orange-50 px-5 py-4 border-b border-orange-100">
+        <div className="bg-red-50 px-5 py-4 border-b border-red-100">
           <h3 className="text-stone-700 font-bold mb-3">Order Summary</h3>
           {org && (
-            <p className="text-orange-600 font-semibold mb-2">{org.orgName}</p>
+            <p className="text-red-700 font-semibold mb-2">{org.orgName}</p>
           )}
           <div className="space-y-1">
             {cart.map((item, i) => (
@@ -168,7 +168,7 @@ export function PaymentConfirmation() {
                 <span className="text-stone-700 font-medium">Rs. {item.dish.price * item.quantity}</span>
               </div>
             ))}
-            <div className="border-t border-orange-200 pt-1 mt-2 space-y-1">
+            <div className="border-t border-red-200 pt-1 mt-2 space-y-1">
               <div className="flex justify-between text-sm">
                 <span className="text-stone-500">Subtotal</span>
                 <span className="text-stone-700">Rs. {cartTotal}</span>
@@ -179,7 +179,7 @@ export function PaymentConfirmation() {
               </div>
               <div className="flex justify-between font-bold">
                 <span className="text-stone-800">Total</span>
-                <span className="text-orange-600">Rs. {total}</span>
+                <span className="text-red-700">Rs. {total}</span>
               </div>
             </div>
           </div>
@@ -191,7 +191,7 @@ export function PaymentConfirmation() {
             <div className="flex-1">
               <h3 className="text-stone-700 font-bold mb-2">Delivery Address</h3>
               <div className="flex items-start gap-2">
-                <MapPin size={14} className="text-orange-500 mt-0.5 flex-shrink-0" />
+                <MapPin size={14} className="text-red-600 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-stone-600 text-sm">{deliveryAddress.address}</p>
                   {deliveryAddress.landmark && (
@@ -202,7 +202,7 @@ export function PaymentConfirmation() {
             </div>
             <button
               onClick={() => navigate('/buyer/address-selection')}
-              className="text-orange-500 text-sm font-semibold hover:text-orange-600 transition-colors"
+              className="text-red-600 text-sm font-semibold hover:text-red-700 transition-colors"
             >
               Change
             </button>
@@ -223,11 +223,11 @@ export function PaymentConfirmation() {
                 }}
                 placeholder="Your Full Name *"
                 className={`w-full border-2 rounded-xl px-4 py-3 text-sm focus:outline-none bg-gray-50 ${
-                  errors.name ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                  errors.name ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                 }`}
               />
               {errors.name && (
-                <p className="text-red-500 text-xs mt-0.5 flex items-center gap-1">
+                <p className="text-red-600 text-xs mt-0.5 flex items-center gap-1">
                   <AlertCircle size={11} />{errors.name}
                 </p>
               )}
@@ -242,11 +242,11 @@ export function PaymentConfirmation() {
                 }}
                 placeholder="Phone Number *"
                 className={`w-full border-2 rounded-xl px-4 py-3 text-sm focus:outline-none bg-gray-50 ${
-                  errors.phone ? 'border-red-300' : 'border-gray-200 focus:border-orange-400'
+                  errors.phone ? 'border-red-300' : 'border-gray-200 focus:border-red-500'
                 }`}
               />
               {errors.phone && (
-                <p className="text-red-500 text-xs mt-0.5 flex items-center gap-1">
+                <p className="text-red-600 text-xs mt-0.5 flex items-center gap-1">
                   <AlertCircle size={11} />{errors.phone}
                 </p>
               )}
@@ -267,14 +267,14 @@ export function PaymentConfirmation() {
                   disabled={!option.enabled}
                   className={`w-full flex items-center gap-3 p-4 border-2 rounded-xl text-left transition-all ${
                     selectedPayment === option.id && option.enabled
-                      ? 'border-orange-400 bg-orange-50'
+                      ? 'border-red-500 bg-red-50'
                       : option.enabled
                       ? 'border-gray-200 bg-white hover:border-gray-300'
                       : 'border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed'
                   }`}
                 >
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    selectedPayment === option.id && option.enabled ? 'bg-orange-500' : 'bg-gray-200'
+                    selectedPayment === option.id && option.enabled ? 'bg-red-600' : 'bg-gray-200'
                   }`}>
                     {selectedPayment === option.id && option.enabled && (
                       <CheckCircle size={14} className="text-white" />
@@ -303,7 +303,7 @@ export function PaymentConfirmation() {
             value={specialInstructions}
             onChange={(e) => setSpecialInstructions(e.target.value)}
             placeholder="Any specific instructions for the restaurant or delivery rider..."
-            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-400 bg-gray-50 resize-none"
+            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 bg-gray-50 resize-none"
             rows={3}
           />
         </div>
@@ -318,7 +318,7 @@ export function PaymentConfirmation() {
         <button
           onClick={handlePlaceOrder}
           disabled={loading}
-          className="w-full bg-orange-500 text-white py-4 rounded-2xl hover:bg-orange-600 active:scale-95 transition-all shadow-lg shadow-orange-200 disabled:opacity-60 font-bold"
+          className="w-full bg-red-600 text-white py-4 rounded-2xl hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200 disabled:opacity-60 font-bold"
         >
           {loading ? 'Placing Order...' : `Place Order • Rs. ${total}`}
         </button>

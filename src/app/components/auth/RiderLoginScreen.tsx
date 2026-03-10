@@ -65,8 +65,8 @@ export function RiderLoginScreen() {
         {/* Error */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 flex items-center gap-2">
-            <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
-            <p className="text-red-600" style={{ fontSize: '0.82rem' }}>{error}</p>
+            <AlertCircle size={16} className="text-red-600 flex-shrink-0" />
+            <p className="text-red-700" style={{ fontSize: '0.82rem' }}>{error}</p>
           </div>
         )}
 
