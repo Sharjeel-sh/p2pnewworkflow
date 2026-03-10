@@ -4,7 +4,7 @@ import { useLocation } from 'react-router';
 import {
   Building2, Home, AlertCircle, CheckCircle2,
   Upload, X, FileText, Image, User, Phone, MapPin, CreditCard, Hash,
-  ChevronRight, ChevronLeft, Shield,
+  ChevronRight, ChevronLeft, Shield, Camera,
 } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { TopBar } from '../shared/TopBar';
@@ -250,8 +250,18 @@ export function OrgRegistration() {
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [ownerPhoto, setOwnerPhoto] = useState('');
+  const ownerPhotoInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { registerOrganization, setCurrentUser } = useApp();
+
+  const handleOwnerPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setOwnerPhoto(reader.result as string);
+    reader.readAsDataURL(file);
+  };
 
   const update = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -414,6 +424,14 @@ export function OrgRegistration() {
     <MobileLayout>
       <TopBar title="Organization Registration" backTo="/signup" />
 
+      <input
+        ref={ownerPhotoInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleOwnerPhotoChange}
+        className="hidden"
+      />
+
       <StepIndicator />
 
       <div className="px-5 mb-4">
@@ -545,6 +563,30 @@ export function OrgRegistration() {
         {/* ── STEP 2: Basic Information ─────────────────────────────────────── */}
         {step === 2 && (
           <div className="space-y-4">
+
+            <div className="flex justify-center mb-6">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => ownerPhotoInputRef.current?.click()}
+                  className="w-56 h-56 rounded-full border-4 border-red-500 bg-slate-300 overflow-hidden flex items-center justify-center"
+                >
+                  {ownerPhoto ? (
+                    <img src={ownerPhoto} alt="Owner profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <User size={86} className="text-slate-500" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => ownerPhotoInputRef.current?.click()}
+                  className="absolute bottom-3 right-0 w-14 h-14 rounded-full border-2 border-black bg-white flex items-center justify-center"
+                >
+                  <Camera size={24} className="text-black" />
+                </button>
+              </div>
+            </div>
+
             <FormField
               label="Owner / Registrar Name"
               icon={<User size={16} />}

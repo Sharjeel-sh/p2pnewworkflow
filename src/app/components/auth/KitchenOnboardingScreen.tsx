@@ -146,18 +146,18 @@ export function KitchenOnboardingScreen() {
 
 
 
-      <div className="flex-1 px-6 py-7 overflow-y-auto">
+      <div className="flex-1 px-6 py-7 overflow-y-auto bg-orange-50">
         {step === 1 && (
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center flex-shrink-0">
-                <Smartphone size={22} className="text-teal-700" />
+          <div className="bg-white rounded-3xl p-5 shadow-xl" style={{ borderTop: '4px solid #f97316' }}>
+            <div className="flex items-start gap-3 mb-5">
+              <div className="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-orange-200">
+                <Smartphone size={22} className="text-white" />
               </div>
               <div>
                 <h2 className="text-slate-900" style={{ fontSize: '1.1rem', fontWeight: 700 }}>
                   Phone Number Registration
                 </h2>
-                <p className="text-slate-500 mt-1" style={{ fontSize: '0.84rem', lineHeight: 1.5 }}>
+                <p className="text-orange-500 mt-1" style={{ fontSize: '0.84rem', lineHeight: 1.5, fontWeight: 500 }}>
                   Enter your phone number to receive an OTP and continue onboarding.
                 </p>
               </div>
@@ -166,7 +166,7 @@ export function KitchenOnboardingScreen() {
             <label className="block text-slate-700 mb-1.5" style={{ fontSize: '0.82rem', fontWeight: 600 }}>
               Phone Number
             </label>
-            <div className={`rounded-xl border-2 bg-slate-50 ${errors.phone ? 'border-red-300' : 'border-slate-200 focus-within:border-teal-500'}`}>
+            <div className={`rounded-2xl border-2 transition-colors ${errors.phone ? 'bg-red-50 border-red-300' : 'bg-orange-50 border-orange-200 focus-within:border-orange-500'}`}>
               <input
                 type="tel"
                 value={phone}
@@ -179,28 +179,28 @@ export function KitchenOnboardingScreen() {
             <p className="text-slate-400 mt-1.5" style={{ fontSize: '0.73rem' }}>
               Use the same number you will use for sign in.
             </p>
-            {errors.phone && <p className="text-red-600 text-xs mt-1.5">{errors.phone}</p>}
+            {errors.phone && <p className="text-red-500 text-xs mt-1.5">{errors.phone}</p>}
           </div>
         )}
 
         {step === 2 && (
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center flex-shrink-0">
-                <ShieldCheck size={22} className="text-cyan-700" />
+          <div className="bg-white rounded-3xl p-5 shadow-xl" style={{ borderTop: '4px solid #f97316' }}>
+            <div className="flex items-start gap-3 mb-5">
+              <div className="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-orange-200">
+                <ShieldCheck size={22} className="text-white" />
               </div>
               <div>
                 <h2 className="text-slate-900" style={{ fontSize: '1.1rem', fontWeight: 700 }}>
                   OTP Verification
                 </h2>
-                <p className="text-slate-500 mt-1" style={{ fontSize: '0.84rem', lineHeight: 1.5 }}>
+                <p className="text-orange-500 mt-1" style={{ fontSize: '0.84rem', lineHeight: 1.5, fontWeight: 500 }}>
                   Enter the verification code sent to {formatPhoneInput(phone) || 'your phone number'}.
                 </p>
               </div>
             </div>
 
-            <div className="mb-4 rounded-xl border border-cyan-100 bg-cyan-50 px-3 py-2">
-              <p className="text-cyan-700" style={{ fontSize: '0.76rem', fontWeight: 700 }}>
+            <div className="mb-4 rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2.5">
+              <p className="text-orange-600" style={{ fontSize: '0.76rem', fontWeight: 700 }}>
                 Demo code: {generatedOtp || '----'}
               </p>
             </div>
@@ -208,7 +208,7 @@ export function KitchenOnboardingScreen() {
             <label className="block text-slate-700 mb-1.5" style={{ fontSize: '0.82rem', fontWeight: 600 }}>
               Verification Code
             </label>
-            <div className={`rounded-xl border-2 bg-slate-50 ${errors.otp ? 'border-red-300' : 'border-slate-200 focus-within:border-teal-500'}`}>
+            <div className={`rounded-2xl border-2 transition-colors ${errors.otp ? 'bg-red-50 border-red-300' : 'bg-orange-50 border-orange-200 focus-within:border-orange-500'}`}>
               <input
                 type="text"
                 value={otp}
@@ -220,13 +220,13 @@ export function KitchenOnboardingScreen() {
                 style={{ fontSize: '0.95rem', fontWeight: 600 }}
               />
             </div>
-            {errors.otp && <p className="text-red-600 text-xs mt-1.5">{errors.otp}</p>}
+            {errors.otp && <p className="text-red-500 text-xs mt-1.5">{errors.otp}</p>}
 
             <button
               type="button"
               onClick={resendOtpCode}
               disabled={resendCountdown > 0}
-              className="mt-3 text-teal-700 disabled:text-slate-400"
+              className="mt-3 text-orange-500 disabled:text-slate-400"
               style={{ fontSize: '0.79rem', fontWeight: 600 }}
             >
               {resendCountdown > 0 ? `Resend code in ${resendCountdown}s` : 'Resend code'}
@@ -247,28 +247,7 @@ export function KitchenOnboardingScreen() {
               className="hidden"
             />
 
-            <div className="flex justify-center mb-6">
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => ownerPhotoInputRef.current?.click()}
-                  className="w-56 h-56 rounded-full border-4 border-red-500 bg-slate-300 overflow-hidden flex items-center justify-center"
-                >
-                  {ownerPhoto ? (
-                    <img src={ownerPhoto} alt="Owner profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <User size={86} className="text-slate-500" />
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => ownerPhotoInputRef.current?.click()}
-                  className="absolute bottom-3 right-0 w-14 h-14 rounded-full border-2 border-black bg-white flex items-center justify-center"
-                >
-                  <Camera size={24} className="text-black" />
-                </button>
-              </div>
-            </div>
+
 
             <div className="space-y-3">
               <div>
@@ -278,9 +257,9 @@ export function KitchenOnboardingScreen() {
                   value={ownerName}
                   onChange={e => { setOwnerName(e.target.value); clearError('ownerName'); }}
                   placeholder="e.g. Ahmed Khan"
-                  className={`w-full border-2 rounded-xl px-4 py-3.5 bg-slate-50 focus:outline-none ${errors.ownerName ? 'border-red-300' : 'border-slate-200 focus:border-teal-500'}`}
+                  className={`w-full border-2 rounded-2xl px-4 py-3.5 focus:outline-none transition-colors ${errors.ownerName ? 'bg-red-50 border-red-300' : 'bg-orange-50 border-orange-200 focus:border-orange-500'}`}
                 />
-                {errors.ownerName && <p className="text-red-600 text-xs mt-1">{errors.ownerName}</p>}
+                {errors.ownerName && <p className="text-red-500 text-xs mt-1">{errors.ownerName}</p>}
               </div>
               <div>
                 <label className="block text-slate-600 mb-1.5" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Email</label>
@@ -289,9 +268,9 @@ export function KitchenOnboardingScreen() {
                   value={ownerEmail}
                   onChange={e => { setOwnerEmail(e.target.value); clearError('ownerEmail'); }}
                   placeholder="owner@email.com"
-                  className={`w-full border-2 rounded-xl px-4 py-3.5 bg-slate-50 focus:outline-none ${errors.ownerEmail ? 'border-red-300' : 'border-slate-200 focus:border-teal-500'}`}
+                  className={`w-full border-2 rounded-2xl px-4 py-3.5 focus:outline-none transition-colors ${errors.ownerEmail ? 'bg-red-50 border-red-300' : 'bg-orange-50 border-orange-200 focus:border-orange-500'}`}
                 />
-                {errors.ownerEmail && <p className="text-red-600 text-xs mt-1">{errors.ownerEmail}</p>}
+                {errors.ownerEmail && <p className="text-red-500 text-xs mt-1">{errors.ownerEmail}</p>}
               </div>
               <div>
                 <label className="block text-slate-600 mb-1.5" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Password</label>
@@ -300,9 +279,9 @@ export function KitchenOnboardingScreen() {
                   value={password}
                   onChange={e => { setPassword(e.target.value); clearError('password'); }}
                   placeholder="Create password"
-                  className={`w-full border-2 rounded-xl px-4 py-3.5 bg-slate-50 focus:outline-none ${errors.password ? 'border-red-300' : 'border-slate-200 focus:border-teal-500'}`}
+                  className={`w-full border-2 rounded-2xl px-4 py-3.5 focus:outline-none transition-colors ${errors.password ? 'bg-red-50 border-red-300' : 'bg-orange-50 border-orange-200 focus:border-orange-500'}`}
                 />
-                {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password}</p>}
+                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
               </div>
               <div>
                 <label className="block text-slate-600 mb-1.5" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Confirm Password</label>
@@ -311,15 +290,15 @@ export function KitchenOnboardingScreen() {
                   value={confirmPassword}
                   onChange={e => { setConfirmPassword(e.target.value); clearError('confirmPassword'); }}
                   placeholder="Confirm password"
-                  className={`w-full border-2 rounded-xl px-4 py-3.5 bg-slate-50 focus:outline-none ${errors.confirmPassword ? 'border-red-300' : 'border-slate-200 focus:border-teal-500'}`}
+                  className={`w-full border-2 rounded-2xl px-4 py-3.5 focus:outline-none transition-colors ${errors.confirmPassword ? 'bg-red-50 border-red-300' : 'bg-orange-50 border-orange-200 focus:border-orange-500'}`}
                 />
-                {errors.confirmPassword && <p className="text-red-600 text-xs mt-1">{errors.confirmPassword}</p>}
+                {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
               </div>
             </div>
 
-            <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5 flex items-start gap-2">
-              <CheckCircle2 size={15} className="text-emerald-700 mt-0.5" />
-              <p className="text-emerald-700" style={{ fontSize: '0.76rem' }}>
+            <div className="mt-4 bg-orange-50 border border-orange-200 rounded-2xl px-3 py-2.5 flex items-start gap-2">
+              <CheckCircle2 size={15} className="text-orange-500 mt-0.5" />
+              <p className="text-orange-600" style={{ fontSize: '0.76rem' }}>
                 Next, you will complete organization registration details.
               </p>
             </div>
@@ -327,12 +306,12 @@ export function KitchenOnboardingScreen() {
         )}
       </div>
 
-      <div className="sticky bottom-0 p-5 border-t border-slate-200 bg-white">
+      <div className="sticky bottom-0 p-5 border-t border-orange-100 bg-white">
         {step < 3 ? (
           <button
             type="button"
             onClick={handleNext}
-            className="w-full py-3.5 rounded-xl bg-teal-700 text-white font-semibold text-[0.95rem] hover:bg-teal-800 active:scale-[0.99] transition-all shadow-md shadow-teal-900/15"
+            className="w-full py-4 rounded-full bg-teal-700 text-white font-bold text-[0.95rem] active:scale-[0.98] transition-all shadow-lg shadow-teal-900/20"
           >
             {step === 1 ? 'Continue to Verification' : 'Verify and Continue'}
           </button>
@@ -340,7 +319,7 @@ export function KitchenOnboardingScreen() {
           <button
             type="button"
             onClick={handleContinueToOrganization}
-            className="w-full py-3.5 rounded-xl bg-teal-700 text-white font-semibold text-[0.95rem] hover:bg-teal-800 active:scale-[0.99] transition-all shadow-md shadow-teal-900/15"
+            className="w-full py-4 rounded-full bg-teal-700 text-white font-bold text-[0.95rem] active:scale-[0.98] transition-all shadow-lg shadow-teal-900/20"
           >
             Continue to Organization Registration
           </button>
@@ -348,7 +327,7 @@ export function KitchenOnboardingScreen() {
         <button
           type="button"
           onClick={() => navigate('/kitchen/login')}
-          className="w-full mt-3 border border-slate-200 text-slate-700 py-2.5 rounded-xl hover:bg-slate-50 transition-colors"
+          className="w-full mt-3 border-2 border-slate-200 text-slate-600 py-3 rounded-full hover:bg-slate-50 transition-colors"
           style={{ fontSize: '0.82rem', fontWeight: 600 }}
         >
           Sign in now with phone number and password
