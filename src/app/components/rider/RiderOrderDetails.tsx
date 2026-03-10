@@ -66,7 +66,7 @@ export function RiderOrderDetails() {
           </div>
           <div className="border-t border-gray-100 mt-3 pt-3 flex justify-between">
             <span className="text-stone-700" style={{ fontWeight: 700 }}>Total</span>
-            <span className="text-green-600" style={{ fontWeight: 700 }}>Rs. {order.total}</span>
+            <span className="text-red-700" style={{ fontWeight: 700 }}>Rs. {order.total}</span>
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@ export function RiderOrderDetails() {
           {order.riderAccepted && order.status === 'ready' && (
             <button
               onClick={handlePickup}
-              className="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm hover:bg-red-700 transition-colors flex items-center justify-center gap-1.5"
+              className="flex-1 bg-red-700 text-white py-2.5 rounded-xl text-sm hover:bg-red-800 transition-colors flex items-center justify-center gap-1.5"
               style={{ fontWeight: 600 }}
             >
               <Package size={15} />
@@ -96,7 +96,7 @@ export function RiderOrderDetails() {
           {order.status === 'picked_up' && (
             <button
               onClick={handleDeliver}
-              className="flex-1 bg-green-500 text-white py-2.5 rounded-xl text-sm hover:bg-green-600 transition-colors flex items-center justify-center gap-1.5"
+              className="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm hover:bg-red-700 transition-colors flex items-center justify-center gap-1.5"
               style={{ fontWeight: 600 }}
             >
               <CheckCircle size={15} />

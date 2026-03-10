@@ -31,7 +31,7 @@ export function CartScreen() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-red-600 px-5 pt-10 pb-5">
+      <div className="bg-red-700 px-5 pt-10 pb-5">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="text-white p-1">
             <ArrowLeft size={22} />
@@ -50,7 +50,7 @@ export function CartScreen() {
             <p className="text-stone-400" style={{ fontWeight: 500 }}>Your cart is empty</p>
             <p className="text-stone-400 mt-1 text-sm">Add items from a restaurant to get started</p>
             <button onClick={() => navigate('/buyer')}
-              className="mt-5 bg-red-600 text-white px-6 py-2.5 rounded-xl hover:bg-red-700 transition-colors"
+              className="mt-5 bg-red-700 text-white px-6 py-2.5 rounded-xl hover:bg-red-800 transition-colors"
               style={{ fontWeight: 600 }}>
               Browse Restaurants
             </button>
@@ -63,18 +63,18 @@ export function CartScreen() {
                 <div key={item.dish.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-stone-800 truncate" style={{ fontWeight: 600 }}>{item.dish.name}</p>
-                    <p className="text-red-600 mt-0.5" style={{ fontWeight: 700, fontSize: '0.9rem' }}>
+                    <p className="text-red-700 mt-0.5" style={{ fontWeight: 700, fontSize: '0.9rem' }}>
                       Rs. {item.dish.price * item.quantity}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 bg-red-50 rounded-xl p-1">
                     <button onClick={() => handleDec(item.dish.id, item.quantity)}
-                      className="w-7 h-7 bg-red-600 text-white rounded-lg flex items-center justify-center hover:bg-red-700 transition-colors">
+                      className="w-7 h-7 bg-red-700 text-white rounded-lg flex items-center justify-center hover:bg-red-800 transition-colors">
                       {item.quantity === 1 ? <Trash2 size={12} /> : <Minus size={13} />}
                     </button>
-                    <span className="text-red-800 w-5 text-center" style={{ fontWeight: 700 }}>{item.quantity}</span>
+                    <span className="text-red-900 w-5 text-center" style={{ fontWeight: 700 }}>{item.quantity}</span>
                     <button onClick={() => handleInc(item.dish.id, item.quantity)}
-                      className="w-7 h-7 bg-red-600 text-white rounded-lg flex items-center justify-center hover:bg-red-700 transition-colors">
+                      className="w-7 h-7 bg-red-700 text-white rounded-lg flex items-center justify-center hover:bg-red-800 transition-colors">
                       <Plus size={13} />
                     </button>
                   </div>
@@ -93,7 +93,7 @@ export function CartScreen() {
                 </div>
                 <div className="border-t border-red-100 pt-2 flex justify-between">
                   <span className="text-stone-700" style={{ fontWeight: 700 }}>Total</span>
-                  <span className="text-red-700" style={{ fontWeight: 700, fontSize: '1.05rem' }}>Rs. {cartTotal + 50}</span>
+                  <span className="text-red-800" style={{ fontWeight: 700, fontSize: '1.05rem' }}>Rs. {cartTotal + 50}</span>
                 </div>
               </div>
             </div>
@@ -107,7 +107,7 @@ export function CartScreen() {
         <div className="p-5 bg-white border-t border-gray-100 shadow-[0_-4px_15px_rgba(0,0,0,0.06)]">
           <button
             onClick={handleProceedToAddress}
-            className="w-full bg-red-600 text-white py-4 rounded-2xl hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200"
+            className="w-full bg-red-700 text-white py-4 rounded-2xl hover:bg-red-800 active:scale-95 transition-all shadow-lg shadow-red-200"
             style={{ fontWeight: 700, fontSize: '1rem' }}
           >
             Continue to Address • Rs. {cartTotal + 50}

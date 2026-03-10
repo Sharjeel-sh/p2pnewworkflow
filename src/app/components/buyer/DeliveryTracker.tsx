@@ -42,11 +42,11 @@ export function DeliveryTracker() {
 
       <div className="flex-1 flex flex-col">
         {/* Map Placeholder - Simple Version */}
-        <div className="h-80 relative bg-gradient-to-b from-green-100 to-green-200 flex items-center justify-center">
+        <div className="h-80 relative bg-gradient-to-b from-red-100 to-red-200 flex items-center justify-center">
           <div className="text-center">
-            <MapPin size={48} className="text-green-600 mx-auto mb-2" />
-            <p className="text-green-700 font-bold text-lg">Live Delivery Tracking</p>
-            <p className="text-green-600 text-sm">Your order location</p>
+            <MapPin size={48} className="text-red-700 mx-auto mb-2" />
+            <p className="text-red-800 font-bold text-lg">Live Delivery Tracking</p>
+            <p className="text-red-700 text-sm">Your order location</p>
           </div>
           
           {/* Status Overlay */}
@@ -54,7 +54,7 @@ export function DeliveryTracker() {
             <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-lg">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${isDelivered ? 'bg-green-500' : isOutForDelivery ? 'bg-red-600 animate-pulse' : 'bg-gray-300'}`} />
+                  <div className={`w-3 h-3 rounded-full ${isDelivered ? 'bg-red-600' : isOutForDelivery ? 'bg-red-700 animate-pulse' : 'bg-gray-300'}`} />
                   <span className="text-stone-800 text-sm font-semibold">
                     {isDelivered ? 'Delivered' : isOutForDelivery ? 'Out for Delivery' : 'Preparing'}
                   </span>
@@ -72,7 +72,7 @@ export function DeliveryTracker() {
 
           {/* Delivery Address Pin */}
           <div className="absolute bottom-4 left-4 right-4">
-            <div className="bg-red-600 text-white rounded-2xl p-3 shadow-lg">
+            <div className="bg-red-700 text-white rounded-2xl p-3 shadow-lg">
               <div className="flex items-start gap-2">
                 <MapPin size={16} className="text-red-200 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
@@ -88,21 +88,21 @@ export function DeliveryTracker() {
         <div className="flex-1 overflow-y-auto">
           {/* Rider Info */}
           {rider && (
-            <div className="mx-5 mt-4 bg-green-50 border border-green-100 rounded-2xl p-4">
+            <div className="mx-5 mt-4 bg-red-50 border border-red-100 rounded-2xl p-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
                   <Bike size={22} color="white" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-green-700 font-bold">{rider.name}</p>
-                  <p className="text-green-600 text-sm">Your delivery rider</p>
-                  {rider.phone && <p className="text-green-500 text-xs">{rider.phone}</p>}
+                  <p className="text-red-800 font-bold">{rider.name}</p>
+                  <p className="text-red-700 text-sm">Your delivery rider</p>
+                  {rider.phone && <p className="text-red-600 text-xs">{rider.phone}</p>}
                 </div>
                 <div className="flex gap-2">
                   {rider.phone && (
                     <button 
                       onClick={() => window.open(`tel:${rider.phone}`)}
-                      className="bg-green-500 text-white rounded-full p-2 hover:bg-green-600 transition-colors"
+                      className="bg-red-600 text-white rounded-full p-2 hover:bg-red-700 transition-colors"
                     >
                       <Phone size={16} />
                     </button>
@@ -119,12 +119,12 @@ export function DeliveryTracker() {
               </div>
               
               {isOutForDelivery && (
-                <div className="bg-green-100 rounded-xl p-3">
-                  <div className="flex items-center gap-2 text-green-700">
+                <div className="bg-red-100 rounded-xl p-3">
+                  <div className="flex items-center gap-2 text-red-800">
                     <Navigation size={14} />
                     <span className="text-sm font-medium">On the way to you</span>
                   </div>
-                  <p className="text-green-600 text-xs mt-1">
+                  <p className="text-red-700 text-xs mt-1">
                     Estimated delivery: {formatTime(new Date(Date.now() + Math.random() * 20 * 60 * 1000).toISOString())}
                   </p>
                 </div>
@@ -136,7 +136,7 @@ export function DeliveryTracker() {
           <div className="mx-5 mt-4 bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-stone-700 font-bold">Order #{order.id.slice(-6).toUpperCase()}</h4>
-              {org && <span className="text-red-700 text-sm font-medium">{org.orgName}</span>}
+              {org && <span className="text-red-800 text-sm font-medium">{org.orgName}</span>}
             </div>
             
             <div className="space-y-2">
@@ -148,7 +148,7 @@ export function DeliveryTracker() {
               ))}
               <div className="border-t border-gray-100 pt-2 flex justify-between">
                 <span className="text-stone-700 font-bold">Total</span>
-                <span className="text-red-700 font-bold">Rs. {order.total + 50}</span>
+                <span className="text-red-800 font-bold">Rs. {order.total + 50}</span>
               </div>
             </div>
           </div>
@@ -173,7 +173,7 @@ export function DeliveryTracker() {
 
 function TopBarSimple({ onBack, title }: { onBack: () => void; title: string }) {
   return (
-    <div className="bg-green-500 text-white px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-md">
+    <div className="bg-red-600 text-white px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-md">
       <button onClick={onBack} className="p-1 rounded-full hover:bg-white/20 transition-colors">
         <ArrowLeft size={22} />
       </button>

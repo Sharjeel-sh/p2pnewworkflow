@@ -178,7 +178,7 @@ export function KitchenManagerScreen() {
           <h3 className="text-stone-800" style={{ fontWeight: 700 }}>Kitchen Login Credentials</h3>
           <button
             onClick={openAdd}
-            className="bg-red-600 text-white rounded-full p-2 hover:bg-red-700 transition-colors shadow-md"
+            className="bg-red-700 text-white rounded-full p-2 hover:bg-red-800 transition-colors shadow-md"
             aria-label="Add manager"
           >
             <Plus size={18} />
@@ -235,7 +235,7 @@ export function KitchenManagerScreen() {
                         </button>
                         <button
                           onClick={() => { handleDeleteManager(branch.id, branch.name); setOpenMenuBranchId(null); }}
-                          className="w-full text-left px-2.5 py-2 rounded-lg text-sm hover:bg-red-50 text-red-700"
+                          className="w-full text-left px-2.5 py-2 rounded-lg text-sm hover:bg-red-50 text-red-800"
                         >
                           Delete
                         </button>
@@ -261,7 +261,7 @@ export function KitchenManagerScreen() {
                         branch.managerPhone,
                         branch.managerPassword,
                       )}
-                      className="w-6 h-6 rounded-lg border border-gray-200 bg-white text-red-600 flex items-center justify-center hover:bg-gray-50"
+                      className="w-6 h-6 rounded-lg border border-gray-200 bg-white text-red-700 flex items-center justify-center hover:bg-gray-50"
                       aria-label="Copy credentials"
                     >
                       {copiedId === branch.id ? <Check size={12} /> : <Copy size={12} />}
@@ -308,7 +308,7 @@ export function KitchenManagerScreen() {
                   <button
                     type="button"
                     onClick={() => managerImageInputRef.current?.click()}
-                    className="w-44 h-44 rounded-full border-4 border-red-600 bg-gray-100 overflow-hidden flex items-center justify-center"
+                    className="w-44 h-44 rounded-full border-4 border-red-700 bg-gray-100 overflow-hidden flex items-center justify-center"
                     aria-label="Upload manager image"
                   >
                     {form.managerImage ? (
@@ -326,7 +326,7 @@ export function KitchenManagerScreen() {
                     <Camera size={20} className="text-stone-800" />
                   </button>
                 </div>
-                {errors.managerImage && <p className="text-red-600 text-xs mt-1">{errors.managerImage}</p>}
+                {errors.managerImage && <p className="text-red-700 text-xs mt-1">{errors.managerImage}</p>}
               </div>
 
               <div>
@@ -334,14 +334,14 @@ export function KitchenManagerScreen() {
                 <select
                   value={form.branchId}
                   onChange={e => { setForm(prev => ({ ...prev, branchId: e.target.value })); if (errors.branchId) setErrors(prev => ({ ...prev, branchId: '' })); }}
-                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.branchId ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
+                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.branchId ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                 >
                   <option value="">Select Branch</option>
                   {orgBranches.map(branch => (
                     <option key={branch.id} value={branch.id}>{branch.name}</option>
                   ))}
                 </select>
-                {errors.branchId && <p className="text-red-600 text-xs mt-0.5">{errors.branchId}</p>}
+                {errors.branchId && <p className="text-red-700 text-xs mt-0.5">{errors.branchId}</p>}
               </div>
 
               <div>
@@ -351,9 +351,9 @@ export function KitchenManagerScreen() {
                   value={form.managerName}
                   onChange={e => { setForm(prev => ({ ...prev, managerName: e.target.value })); if (errors.managerName) setErrors(prev => ({ ...prev, managerName: '' })); }}
                   placeholder="Manager name"
-                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.managerName ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
+                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.managerName ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                 />
-                {errors.managerName && <p className="text-red-600 text-xs mt-0.5">{errors.managerName}</p>}
+                {errors.managerName && <p className="text-red-700 text-xs mt-0.5">{errors.managerName}</p>}
               </div>
 
               <div>
@@ -363,9 +363,9 @@ export function KitchenManagerScreen() {
                   value={form.managerPhone}
                   onChange={e => { setForm(prev => ({ ...prev, managerPhone: e.target.value })); if (errors.managerPhone) setErrors(prev => ({ ...prev, managerPhone: '' })); }}
                   placeholder="03XX-XXXXXXX"
-                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.managerPhone ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
+                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.managerPhone ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                 />
-                {errors.managerPhone && <p className="text-red-600 text-xs mt-0.5">{errors.managerPhone}</p>}
+                {errors.managerPhone && <p className="text-red-700 text-xs mt-0.5">{errors.managerPhone}</p>}
               </div>
 
               {editingBranchId && (
@@ -391,9 +391,9 @@ export function KitchenManagerScreen() {
                       value={form.managerPassword}
                       onChange={e => { setForm(prev => ({ ...prev, managerPassword: e.target.value })); if (errors.managerPassword) setErrors(prev => ({ ...prev, managerPassword: '' })); }}
                       placeholder="Manager password"
-                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.managerPassword ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
+                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.managerPassword ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                     />
-                    {errors.managerPassword && <p className="text-red-600 text-xs mt-0.5">{errors.managerPassword}</p>}
+                    {errors.managerPassword && <p className="text-red-700 text-xs mt-0.5">{errors.managerPassword}</p>}
                   </div>
 
                   <div>
@@ -403,9 +403,9 @@ export function KitchenManagerScreen() {
                       value={form.confirmManagerPassword}
                       onChange={e => { setForm(prev => ({ ...prev, confirmManagerPassword: e.target.value })); if (errors.confirmManagerPassword) setErrors(prev => ({ ...prev, confirmManagerPassword: '' })); }}
                       placeholder="Confirm manager password"
-                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.confirmManagerPassword ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
+                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.confirmManagerPassword ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                     />
-                    {errors.confirmManagerPassword && <p className="text-red-600 text-xs mt-0.5">{errors.confirmManagerPassword}</p>}
+                    {errors.confirmManagerPassword && <p className="text-red-700 text-xs mt-0.5">{errors.confirmManagerPassword}</p>}
                   </div>
                 </>
               )}
@@ -413,7 +413,7 @@ export function KitchenManagerScreen() {
 
             <button
               onClick={handleSave}
-              className="w-full bg-red-600 text-white py-3.5 rounded-xl hover:bg-red-700 transition-colors"
+              className="w-full bg-red-700 text-white py-3.5 rounded-xl hover:bg-red-800 transition-colors"
               style={{ fontWeight: 700 }}
             >
               {editingBranchId ? 'Update Manager' : 'Create Manager'}

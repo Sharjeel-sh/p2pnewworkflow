@@ -43,7 +43,7 @@ export function WelcomeScreen() {
 
   return (
     <MobileLayout>
-      <div className="min-h-full bg-red-700 flex flex-col overflow-y-auto">
+      <div className="min-h-full bg-red-800 flex flex-col overflow-y-auto">
 
         {/* Food Image Grid */}
         <div className="px-5 pt-10 pb-8">
@@ -129,17 +129,17 @@ export function WelcomeScreen() {
                     onClick={() => { setSelectedRole(opt.value); setShowDropdown(false); }}
                     className={`w-full px-4 py-3.5 flex items-center gap-3 transition-colors ${selectedRole === opt.value ? 'bg-red-50' : 'hover:bg-gray-50'}`}
                   >
-                    <span className={selectedRole === opt.value ? 'text-red-600' : 'text-stone-400'}>
+                    <span className={selectedRole === opt.value ? 'text-red-700' : 'text-stone-400'}>
                       {opt.icon}
                     </span>
                     <div className="text-left">
-                      <p className={selectedRole === opt.value ? 'text-red-700' : 'text-stone-800'} style={{ fontWeight: 600 }}>
+                      <p className={selectedRole === opt.value ? 'text-red-800' : 'text-stone-800'} style={{ fontWeight: 600 }}>
                         {opt.label}
                       </p>
                       <p className="text-stone-400" style={{ fontSize: '0.78rem' }}>{opt.desc}</p>
                     </div>
                     {selectedRole === opt.value && (
-                      <div className="ml-auto w-2 h-2 bg-red-600 rounded-full" />
+                      <div className="ml-auto w-2 h-2 bg-red-700 rounded-full" />
                     )}
                   </button>
                 ))}

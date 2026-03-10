@@ -44,7 +44,7 @@ export function BuyerHome() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-red-600 px-5 pt-10 pb-6">
+      <div className="bg-red-700 px-5 pt-10 pb-6">
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => { setCurrentUser(null); navigate('/'); }}
@@ -64,7 +64,7 @@ export function BuyerHome() {
           >
             <ShoppingCart size={20} />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ width: 18, height: 18, fontSize: '0.65rem', fontWeight: 700 }}>
+              <span className="absolute -top-1 -right-1 bg-red-700 text-white text-xs w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ width: 18, height: 18, fontSize: '0.65rem', fontWeight: 700 }}>
                 {cartCount}
               </span>
             )}
@@ -98,18 +98,18 @@ export function BuyerHome() {
               onClick={() => navigate(`/buyer/order/${activeOrders[0].id}`)}
               className="w-full bg-red-50 border border-red-200 rounded-2xl p-3.5 flex items-center gap-3"
             >
-              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
+              <div className="w-8 h-8 bg-red-700 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
                 <Clock size={15} color="white" />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-red-800" style={{ fontWeight: 600, fontSize: '0.87rem' }}>
+                <p className="text-red-900" style={{ fontWeight: 600, fontSize: '0.87rem' }}>
                   You have an active order!
                 </p>
-                <p className="text-red-600" style={{ fontSize: '0.75rem' }}>
+                <p className="text-red-700" style={{ fontSize: '0.75rem' }}>
                   Tap to track order #{activeOrders[0].id.slice(-6).toUpperCase()}
                 </p>
               </div>
-              <div className="text-red-500">›</div>
+              <div className="text-red-600">›</div>
             </button>
           </div>
         )}
@@ -126,7 +126,7 @@ export function BuyerHome() {
                 key={f.val}
                 onClick={() => setFilter(f.val as typeof filter)}
                 className={`px-3.5 py-1.5 rounded-full text-xs transition-all ${
-                  filter === f.val ? 'bg-red-600 text-white' : 'bg-gray-100 text-stone-600'
+                  filter === f.val ? 'bg-red-700 text-white' : 'bg-gray-100 text-stone-600'
                 }`}
                 style={{ fontWeight: filter === f.val ? 600 : 400 }}
               >
@@ -162,7 +162,7 @@ export function BuyerHome() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                   <div className="absolute bottom-2 left-3">
-                    <span className={`text-white text-xs px-2 py-0.5 rounded-full ${org.type === 'restaurant' ? 'bg-red-600' : 'bg-purple-500'}`} style={{ fontWeight: 600 }}>
+                    <span className={`text-white text-xs px-2 py-0.5 rounded-full ${org.type === 'restaurant' ? 'bg-red-700' : 'bg-purple-500'}`} style={{ fontWeight: 600 }}>
                       {org.type === 'restaurant' ? '🏪 Restaurant' : '🏠 Home-Made'}
                     </span>
                   </div>
@@ -170,9 +170,9 @@ export function BuyerHome() {
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-1">
                     <h3 className="text-stone-800" style={{ fontWeight: 700, fontSize: '1rem' }}>{org.orgName}</h3>
-                    <div className="flex items-center gap-1 bg-green-50 px-2 py-0.5 rounded-lg">
+                    <div className="flex items-center gap-1 bg-red-50 px-2 py-0.5 rounded-lg">
                       <Star size={11} className="text-yellow-400 fill-yellow-400" />
-                      <span className="text-green-700" style={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                      <span className="text-red-800" style={{ fontSize: '0.75rem', fontWeight: 600 }}>
                         {ORG_RATINGS[org.id] || '4.5'}
                       </span>
                     </div>

@@ -37,7 +37,7 @@ export function KitchenChatListScreen() {
 
   return (
     <MobileLayout>
-      <div className="bg-red-600 px-5 pt-10 pb-5">
+      <div className="bg-red-700 px-5 pt-10 pb-5">
         <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Chat List</h2>
         <p className="text-red-100 mt-1" style={{ fontSize: '0.8rem' }}>
           Open order conversations

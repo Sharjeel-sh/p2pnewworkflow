@@ -21,10 +21,10 @@ export function RiderBottomNav() {
             key={item.path}
             onClick={() => navigate(item.path)}
             className={`flex-1 flex flex-col items-center py-2.5 gap-1 transition-colors ${
-              isActive ? 'text-green-700' : 'text-gray-400 hover:text-gray-600'
+              isActive ? 'text-red-800' : 'text-gray-400 hover:text-gray-600'
             }`}
           >
-            <div className={`rounded-xl px-3 py-1 transition-all ${isActive ? 'bg-green-50 shadow-sm' : ''}`}>
+            <div className={`rounded-xl px-3 py-1 transition-all ${isActive ? 'bg-red-50 shadow-sm' : ''}`}>
               <Icon size={22} strokeWidth={isActive ? 2.4 : 1.8} />
             </div>
             <span style={{ fontSize: '0.68rem', fontWeight: isActive ? 600 : 400 }}>{item.label}</span>

@@ -38,7 +38,7 @@ export function KitchenBottomNav() {
             key={item.path}
             onClick={() => navigate(item.path)}
             className={`flex-1 flex flex-col items-center py-2.5 gap-1 transition-colors ${
-              isActive ? 'text-red-700' : 'text-gray-400 hover:text-gray-600'
+              isActive ? 'text-red-800' : 'text-gray-400 hover:text-gray-600'
             }`}
           >
             <div className={`rounded-xl px-3 py-1 transition-all ${isActive ? 'bg-red-50 shadow-sm' : ''}`}>

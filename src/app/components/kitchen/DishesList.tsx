@@ -68,12 +68,12 @@ export function DishesList() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-red-600 px-5 pt-10 pb-5">
+      <div className="bg-red-700 px-5 pt-10 pb-5">
         <div className="flex items-center justify-between">
           <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Dishes Menu</h2>
           <button
             onClick={() => { setEditId(null); setForm(EMPTY_FORM); setShowModal(true); }}
-            className="bg-white text-red-600 rounded-full p-2 shadow-md"
+            className="bg-white text-red-700 rounded-full p-2 shadow-md"
           >
             <Plus size={20} />
           </button>
@@ -89,7 +89,7 @@ export function DishesList() {
               key={cat}
               onClick={() => setFilterCat(cat)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs transition-all ${
-                filterCat === cat ? 'bg-red-600 text-white' : 'bg-white text-stone-500 border border-gray-200'
+                filterCat === cat ? 'bg-red-700 text-white' : 'bg-white text-stone-500 border border-gray-200'
               }`}
               style={{ fontWeight: filterCat === cat ? 600 : 400 }}
             >
@@ -108,7 +108,7 @@ export function DishesList() {
             <p className="text-stone-400 mt-1" style={{ fontSize: '0.82rem' }}>Add dishes to your menu</p>
             <button
               onClick={() => { setEditId(null); setForm(EMPTY_FORM); setShowModal(true); }}
-              className="mt-4 bg-red-600 text-white px-6 py-2.5 rounded-xl hover:bg-red-700 transition-colors"
+              className="mt-4 bg-red-700 text-white px-6 py-2.5 rounded-xl hover:bg-red-800 transition-colors"
               style={{ fontSize: '0.9rem', fontWeight: 600 }}
             >
               Add First Dish
@@ -119,22 +119,22 @@ export function DishesList() {
             {filtered.map(dish => (
               <div key={dish.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-start gap-3">
                 <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <UtensilsCrossed size={18} className="text-red-500" />
+                  <UtensilsCrossed size={18} className="text-red-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0 mr-2">
                       <p className="text-stone-800 truncate" style={{ fontWeight: 600 }}>{dish.name}</p>
-                      <span className="inline-block bg-red-50 text-red-700 text-xs px-2 py-0.5 rounded-full mt-0.5" style={{ fontWeight: 500 }}>
+                      <span className="inline-block bg-red-50 text-red-800 text-xs px-2 py-0.5 rounded-full mt-0.5" style={{ fontWeight: 500 }}>
                         {dish.category}
                       </span>
                     </div>
-                    <p className="text-red-700 flex-shrink-0" style={{ fontWeight: 700 }}>
+                    <p className="text-red-800 flex-shrink-0" style={{ fontWeight: 700 }}>
                       Rs. {dish.price}
                     </p>
                   </div>
                   <div className="mt-1">
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${dish.isAvailable ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${dish.isAvailable ? 'bg-red-50 text-red-800' : 'bg-red-50 text-red-800'}`}>
                       {dish.isAvailable ? <Eye size={11} /> : <EyeOff size={11} />}
                       {dish.isAvailable ? 'Available' : 'Unavailable'}
                     </span>
@@ -146,7 +146,7 @@ export function DishesList() {
                 <div className="flex flex-col gap-2 flex-shrink-0">
                   <button
                     onClick={() => updateDish(dish.id, { isAvailable: !dish.isAvailable })}
-                    className={`${dish.isAvailable ? 'text-amber-500 hover:text-amber-700' : 'text-green-500 hover:text-green-700'} p-1`}
+                    className={`${dish.isAvailable ? 'text-amber-500 hover:text-amber-700' : 'text-red-600 hover:text-red-800'} p-1`}
                     title={dish.isAvailable ? 'Set unavailable' : 'Set available'}
                   >
                     {dish.isAvailable ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -154,7 +154,7 @@ export function DishesList() {
                   <button onClick={() => handleOpenEdit(dish)} className="text-blue-400 hover:text-blue-600 p-1">
                     <Pencil size={15} />
                   </button>
-                  <button onClick={() => deleteDish(dish.id)} className="text-red-500 hover:text-red-700 p-1">
+                  <button onClick={() => deleteDish(dish.id)} className="text-red-600 hover:text-red-800 p-1">
                     <Trash2 size={15} />
                   </button>
                 </div>
@@ -184,9 +184,9 @@ export function DishesList() {
                   value={form.name}
                   onChange={e => update('name', e.target.value)}
                   placeholder="e.g. Chicken Karahi"
-                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.name ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
+                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.name ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                 />
-                {errors.name && <p className="text-red-600 text-xs mt-0.5">{errors.name}</p>}
+                {errors.name && <p className="text-red-700 text-xs mt-0.5">{errors.name}</p>}
               </div>
               <div>
                 <label className="block text-stone-600 mb-1.5 text-sm" style={{ fontWeight: 500 }}>Price (Rs.) *</label>
@@ -195,16 +195,16 @@ export function DishesList() {
                   value={form.price}
                   onChange={e => update('price', e.target.value)}
                   placeholder="e.g. 350"
-                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.price ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
+                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.price ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                 />
-                {errors.price && <p className="text-red-600 text-xs mt-0.5">{errors.price}</p>}
+                {errors.price && <p className="text-red-700 text-xs mt-0.5">{errors.price}</p>}
               </div>
               <div>
                 <label className="block text-stone-600 mb-1.5 text-sm" style={{ fontWeight: 500 }}>Category</label>
                 <select
                   value={form.category}
                   onChange={e => update('category', e.target.value)}
-                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 bg-gray-50"
+                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-gray-50"
                 >
                   {CATEGORIES.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -218,12 +218,12 @@ export function DishesList() {
                   onChange={e => update('description', e.target.value)}
                   placeholder="Short description of the dish..."
                   rows={2}
-                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 bg-gray-50 resize-none"
+                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-gray-50 resize-none"
                 />
               </div>
             </div>
             <button onClick={handleSave}
-              className="w-full bg-red-600 text-white py-3.5 rounded-xl mt-5 hover:bg-red-700 transition-colors"
+              className="w-full bg-red-700 text-white py-3.5 rounded-xl mt-5 hover:bg-red-800 transition-colors"
               style={{ fontWeight: 700 }}>
               {editId ? 'Save Changes' : 'Add Dish'}
             </button>

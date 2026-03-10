@@ -78,10 +78,10 @@ export function RiderOrders() {
 
   return (
     <MobileLayout>
-      <div className="bg-green-500 px-5 pt-10 pb-5">
+      <div className="bg-red-600 px-5 pt-10 pb-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-green-100" style={{ fontSize: '0.8rem' }}>Assigned Branch</p>
+            <p className="text-red-100" style={{ fontSize: '0.8rem' }}>Assigned Branch</p>
             <h2 className="text-white" style={{ fontSize: '1.25rem', fontWeight: 700 }}>{rider.name}</h2>
           </div>
           <button
@@ -96,14 +96,14 @@ export function RiderOrders() {
         <div className="flex gap-2 mt-3 overflow-x-auto">
           <button
             onClick={() => setActiveTab('pickup')}
-            className={`px-4 py-1.5 rounded-full text-sm transition-all whitespace-nowrap ${activeTab === 'pickup' ? 'bg-white text-green-600' : 'bg-green-400 text-white'}`}
+            className={`px-4 py-1.5 rounded-full text-sm transition-all whitespace-nowrap ${activeTab === 'pickup' ? 'bg-white text-red-700' : 'bg-red-500 text-white'}`}
             style={{ fontWeight: 600 }}
           >
             Pickup ({pickupOrders.length})
           </button>
           <button
             onClick={() => setActiveTab('delivery')}
-            className={`px-4 py-1.5 rounded-full text-sm transition-all whitespace-nowrap ${activeTab === 'delivery' ? 'bg-white text-green-600' : 'bg-green-400 text-white'}`}
+            className={`px-4 py-1.5 rounded-full text-sm transition-all whitespace-nowrap ${activeTab === 'delivery' ? 'bg-white text-red-700' : 'bg-red-500 text-white'}`}
             style={{ fontWeight: 600 }}
           >
             Delivery ({deliveryOrders.length})
@@ -161,7 +161,7 @@ export function RiderOrders() {
                     </div>
                     <div className="border-t border-gray-100 mt-1.5 pt-1.5 flex justify-between">
                       <span className="text-stone-600 text-xs" style={{ fontWeight: 600 }}>Total</span>
-                      <span className="text-green-600 text-sm" style={{ fontWeight: 700 }}>Rs. {order.total}</span>
+                      <span className="text-red-700 text-sm" style={{ fontWeight: 700 }}>Rs. {order.total}</span>
                     </div>
                   </div>
 
@@ -179,7 +179,7 @@ export function RiderOrders() {
                     {activeTab === 'pickup' && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handlePickup(order); }}
-                        className="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm hover:bg-red-700 transition-colors flex items-center justify-center gap-1.5"
+                        className="flex-1 bg-red-700 text-white py-2.5 rounded-xl text-sm hover:bg-red-800 transition-colors flex items-center justify-center gap-1.5"
                         style={{ fontWeight: 600 }}
                       >
                         <Package size={15} />
@@ -189,7 +189,7 @@ export function RiderOrders() {
                     {activeTab === 'delivery' && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeliver(order); }}
-                        className="flex-1 bg-green-500 text-white py-2.5 rounded-xl text-sm hover:bg-green-600 transition-colors flex items-center justify-center gap-1.5"
+                        className="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm hover:bg-red-700 transition-colors flex items-center justify-center gap-1.5"
                         style={{ fontWeight: 600 }}
                       >
                         <CheckCircle size={15} />

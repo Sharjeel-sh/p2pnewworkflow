@@ -66,26 +66,26 @@ export function RiderProfile() {
   return (
     <MobileLayout>
       {/* header gradient */}
-      <div className="bg-gradient-to-r from-green-600 to-green-500 px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-r from-red-700 to-red-600 px-5 pt-10 pb-6 rounded-b-2xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white rounded-full overflow-hidden flex items-center justify-center">
               {rider.profilePicture ? (
                 <img src={rider.profilePicture} alt="Rider" className="w-full h-full object-cover" />
               ) : (
-                <User size={24} className="text-green-600" />
+                <User size={24} className="text-red-700" />
               )}
             </div>
             <div>
               <h2 className="text-white text-2xl font-bold leading-tight">{rider.name}</h2>
-              <p className="text-green-100 text-sm mt-1">{rider.phone || 'No contact'}</p>
+              <p className="text-red-100 text-sm mt-1">{rider.phone || 'No contact'}</p>
             </div>
           </div>
           <button
             onClick={editing ? () => setEditing(false) : startEdit}
             className="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center"
           >
-            {editing ? <X size={18} className="text-green-600" /> : <Pencil size={18} className="text-green-600" />}
+            {editing ? <X size={18} className="text-red-700" /> : <Pencil size={18} className="text-red-700" />}
           </button>
         </div>
       </div>
@@ -99,13 +99,13 @@ export function RiderProfile() {
                 {form.profilePicture ? (
                   <img src={form.profilePicture} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
-                  <User size={32} className="text-green-400" />
+                  <User size={32} className="text-red-500" />
                 )}
               </div>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="text-green-600 text-sm underline"
+                className="text-red-700 text-sm underline"
               >
                 Change photo
               </button>
@@ -123,7 +123,7 @@ export function RiderProfile() {
                 type="text"
                 value={form.name}
                 onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-green-400 bg-white shadow-sm"
+                className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 bg-white shadow-sm"
               />
             </div>
             <div>
@@ -132,12 +132,12 @@ export function RiderProfile() {
                 type="tel"
                 value={form.phone}
                 onChange={e => setForm(prev => ({ ...prev, phone: e.target.value }))}
-                className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-green-400 bg-white shadow-sm"
+                className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 bg-white shadow-sm"
               />
             </div>
             <button
               onClick={handleSave}
-              className="w-full bg-green-500 text-white py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-green-600 transition-colors shadow"
+              className="w-full bg-red-600 text-white py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-700 transition-colors shadow"
               style={{ fontWeight: 700 }}
             >
               <Save size={18} /> Save Changes
@@ -150,8 +150,8 @@ export function RiderProfile() {
               className="w-full bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <User size={20} className="text-green-600" />
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <User size={20} className="text-red-700" />
                 </div>
                 <div>
                   <p className="text-stone-400 text-xs">Name</p>
@@ -165,8 +165,8 @@ export function RiderProfile() {
               className="w-full bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <Phone size={20} className="text-green-600" />
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <Phone size={20} className="text-red-700" />
                 </div>
                 <div>
                   <p className="text-stone-400 text-xs">Contact</p>
@@ -180,8 +180,8 @@ export function RiderProfile() {
               className="w-full bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <ImageIcon size={20} className="text-green-600" />
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <ImageIcon size={20} className="text-red-700" />
                 </div>
                 <div>
                   <p className="text-stone-400 text-xs">Profile Picture</p>
@@ -196,7 +196,7 @@ export function RiderProfile() {
         <div className="mt-8">
           <button
             onClick={handleLogout}
-            className="w-full bg-red-50 text-red-700 border border-red-200 py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
+            className="w-full bg-red-50 text-red-800 border border-red-200 py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
             style={{ fontWeight: 600 }}
           >
             <LogOut size={18} /> Logout

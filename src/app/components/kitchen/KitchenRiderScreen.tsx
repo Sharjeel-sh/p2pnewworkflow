@@ -216,7 +216,7 @@ export function KitchenRiderScreen() {
           </div>
           <button
             onClick={e => { e.stopPropagation(); openAdd(); }}
-            className="inline-flex items-center gap-1.5 bg-red-600 text-white px-3.5 py-2 rounded-xl shadow-sm hover:bg-red-700 transition-colors flex-shrink-0"
+            className="inline-flex items-center gap-1.5 bg-red-700 text-white px-3.5 py-2 rounded-xl shadow-sm hover:bg-red-800 transition-colors flex-shrink-0"
             style={{ fontWeight: 700, fontSize: '0.82rem' }}
           >
             <Plus size={15} />
@@ -240,7 +240,7 @@ export function KitchenRiderScreen() {
                 <div key={rider.id} className="bg-white rounded-2xl p-4 shadow-sm border border-stone-200">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3 min-w-0">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-red-50 border border-red-200 flex items-center justify-center text-red-700 flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-red-50 border border-red-200 flex items-center justify-center text-red-800 flex-shrink-0">
                         {rider.profilePicture ? (
                           <img src={rider.profilePicture} alt={rider.name} className="w-full h-full object-cover" />
                         ) : (
@@ -288,7 +288,7 @@ export function KitchenRiderScreen() {
                           </button>
                           <button
                             onClick={() => { handleDeleteRider(rider.id, rider.name); setOpenMenuRiderId(null); }}
-                            className="w-full text-left px-2.5 py-2 rounded-lg text-sm hover:bg-red-50 text-red-700"
+                            className="w-full text-left px-2.5 py-2 rounded-lg text-sm hover:bg-red-50 text-red-800"
                           >
                             Delete
                           </button>
@@ -309,7 +309,7 @@ export function KitchenRiderScreen() {
                         className="w-8 h-8 rounded-lg border border-stone-200 bg-white text-stone-500 hover:bg-stone-50 flex items-center justify-center"
                         aria-label="Copy rider details"
                       >
-                        {copiedRiderId === rider.id ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+                        {copiedRiderId === rider.id ? <Check size={14} className="text-red-700" /> : <Copy size={14} />}
                       </button>
                     </div>
                   </div>
@@ -364,7 +364,7 @@ export function KitchenRiderScreen() {
                   <button
                     type="button"
                     onClick={() => riderImageInputRef.current?.click()}
-                    className="w-44 h-44 rounded-full border-4 border-red-600 bg-gray-100 overflow-hidden flex items-center justify-center"
+                    className="w-44 h-44 rounded-full border-4 border-red-700 bg-gray-100 overflow-hidden flex items-center justify-center"
                     aria-label="Upload rider image"
                   >
                     {form.profilePicture ? (
@@ -382,7 +382,7 @@ export function KitchenRiderScreen() {
                     <Camera size={20} className="text-stone-800" />
                   </button>
                 </div>
-                {errors.profilePicture && <p className="text-red-600 text-xs mt-1">{errors.profilePicture}</p>}
+                {errors.profilePicture && <p className="text-red-700 text-xs mt-1">{errors.profilePicture}</p>}
               </div>
 
               <div>
@@ -390,14 +390,14 @@ export function KitchenRiderScreen() {
                 <select
                   value={form.branchId}
                   onChange={e => { setForm(prev => ({ ...prev, branchId: e.target.value })); if (errors.branchId) setErrors(prev => ({ ...prev, branchId: '' })); }}
-                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.branchId ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
+                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.branchId ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                 >
                   <option value="">Select Branch</option>
                   {scopedBranches.map(branch => (
                     <option key={branch.id} value={branch.id}>{branch.name}</option>
                   ))}
                 </select>
-                {errors.branchId && <p className="text-red-600 text-xs mt-0.5">{errors.branchId}</p>}
+                {errors.branchId && <p className="text-red-700 text-xs mt-0.5">{errors.branchId}</p>}
               </div>
 
               <div>
@@ -407,9 +407,9 @@ export function KitchenRiderScreen() {
                   value={form.name}
                   onChange={e => { setForm(prev => ({ ...prev, name: e.target.value })); if (errors.name) setErrors(prev => ({ ...prev, name: '' })); }}
                   placeholder="Rider name"
-                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.name ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
+                  className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.name ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                 />
-                {errors.name && <p className="text-red-600 text-xs mt-0.5">{errors.name}</p>}
+                {errors.name && <p className="text-red-700 text-xs mt-0.5">{errors.name}</p>}
               </div>
 
               <div>
@@ -419,7 +419,7 @@ export function KitchenRiderScreen() {
                   value={form.phone}
                   onChange={e => setForm(prev => ({ ...prev, phone: e.target.value }))}
                   placeholder="03XX-XXXXXXX"
-                  className="w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 border-gray-200 focus:border-red-500"
+                  className="w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 border-gray-200 focus:border-red-600"
                 />
               </div>
 
@@ -444,9 +444,9 @@ export function KitchenRiderScreen() {
                       value={form.password}
                       onChange={e => { setForm(prev => ({ ...prev, password: e.target.value })); if (errors.password) setErrors(prev => ({ ...prev, password: '' })); }}
                       placeholder="Login password"
-                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.password ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
+                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.password ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                     />
-                    {errors.password && <p className="text-red-600 text-xs mt-0.5">{errors.password}</p>}
+                    {errors.password && <p className="text-red-700 text-xs mt-0.5">{errors.password}</p>}
                   </div>
                   <div>
                     <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Confirm Password *</label>
@@ -455,9 +455,9 @@ export function KitchenRiderScreen() {
                       value={form.confirmPassword}
                       onChange={e => { setForm(prev => ({ ...prev, confirmPassword: e.target.value })); if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: '' })); }}
                       placeholder="Confirm password"
-                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.confirmPassword ? 'border-red-300' : 'border-gray-200 focus:border-red-500'}`}
+                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.confirmPassword ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                     />
-                    {errors.confirmPassword && <p className="text-red-600 text-xs mt-0.5">{errors.confirmPassword}</p>}
+                    {errors.confirmPassword && <p className="text-red-700 text-xs mt-0.5">{errors.confirmPassword}</p>}
                   </div>
                 </>
               )}
@@ -465,7 +465,7 @@ export function KitchenRiderScreen() {
 
             <button
               onClick={handleSave}
-              className="w-full bg-red-600 text-white py-3.5 rounded-xl hover:bg-red-700 transition-colors"
+              className="w-full bg-red-700 text-white py-3.5 rounded-xl hover:bg-red-800 transition-colors"
               style={{ fontWeight: 700 }}
             >
               {editingRiderId ? 'Update Rider' : 'Create Rider'}

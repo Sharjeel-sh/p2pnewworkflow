@@ -184,7 +184,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
       </div>
 
       <div className="px-4 py-4 space-y-5">
-        <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-2xl p-4 text-white shadow-lg">
+        <div className="bg-gradient-to-br from-red-700 to-red-800 rounded-2xl p-4 text-white shadow-lg">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <TrendingUp size={18} />
@@ -212,10 +212,10 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
             <p className="text-xl font-bold text-gray-900">{filteredKitchens.length === data.kitchens.length ? data.totalKitchens : filteredKitchens.length}</p>
             <p className="text-xs text-gray-500">Total Branches</p>
             <div className="flex items-center gap-2 mt-1.5">
-              <span className="flex items-center gap-0.5 text-xs text-green-600">
+              <span className="flex items-center gap-0.5 text-xs text-red-700">
                 <CheckCircle2 size={10} /> {filteredKitchens.filter((k) => k.status === "Active").length} Active
               </span>
-              <span className="flex items-center gap-0.5 text-xs text-red-600">
+              <span className="flex items-center gap-0.5 text-xs text-red-700">
                 <XCircle size={10} /> {filteredKitchens.filter((k) => k.status === "Inactive").length} Inactive
               </span>
             </div>
@@ -223,13 +223,13 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
 
           <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
-                <ShoppingBag size={16} className="text-green-600" />
+              <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
+                <ShoppingBag size={16} className="text-red-700" />
               </div>
             </div>
             <p className="text-xl font-bold text-gray-900">{totalOrders.toLocaleString()}</p>
             <p className="text-xs text-gray-500">Total Orders</p>
-            <p className="text-xs text-green-600 mt-1.5">+{ordersToday} today</p>
+            <p className="text-xs text-red-700 mt-1.5">+{ordersToday} today</p>
           </div>
 
           <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
@@ -271,7 +271,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
                       <span
                         className={cn(
                           "shrink-0 w-1.5 h-1.5 rounded-full",
-                          kitchen.status === "Active" ? "bg-green-500" : "bg-red-500"
+                          kitchen.status === "Active" ? "bg-red-600" : "bg-red-600"
                         )}
                       />
                     </div>
@@ -293,7 +293,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
                   </div>
                   <div>
                     <p className="text-xs text-gray-400">Net</p>
-                    <p className="text-sm font-semibold text-green-600">
+                    <p className="text-sm font-semibold text-red-700">
                       {formatCurrency(kitchen.revenue - kitchen.commission)}
                     </p>
                   </div>

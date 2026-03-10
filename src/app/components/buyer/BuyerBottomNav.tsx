@@ -29,13 +29,13 @@ export function BuyerBottomNav() {
             key={item.path}
             onClick={() => navigate(item.path)}
             className={`flex-1 flex flex-col items-center py-2.5 gap-1 transition-colors ${
-              isActive ? 'text-red-700' : 'text-gray-400 hover:text-gray-600'
+              isActive ? 'text-red-800' : 'text-gray-400 hover:text-gray-600'
             }`}
           >
             <div className={`rounded-xl px-3 py-1 transition-all relative ${isActive ? 'bg-red-50 shadow-sm' : ''}`}>
               <Icon size={22} strokeWidth={isActive ? 2.4 : 1.8} />
               {isCart && cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center" style={{ fontSize: '0.65rem', fontWeight: 700 }}>
+                <span className="absolute -top-1 -right-1 bg-red-700 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center" style={{ fontSize: '0.65rem', fontWeight: 700 }}>
                   {cartCount > 99 ? '99+' : cartCount}
                 </span>
               )}

@@ -62,9 +62,9 @@ export function RestaurantDetail() {
         {cartCount > 0 && (
           <div className="absolute top-4 right-4">
             <button onClick={() => navigate('/buyer/cart')}
-              className="bg-red-600 text-white rounded-full p-2 shadow-md relative">
+              className="bg-red-700 text-white rounded-full p-2 shadow-md relative">
               <ShoppingCart size={20} />
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full flex items-center justify-center"
+              <span className="absolute -top-1 -right-1 bg-red-700 text-white text-xs rounded-full flex items-center justify-center"
                 style={{ width: 18, height: 18, fontSize: '0.65rem', fontWeight: 700 }}>
                 {cartCount}
               </span>
@@ -87,7 +87,7 @@ export function RestaurantDetail() {
               <Clock size={11} className="text-white" />
               <span className="text-white text-xs">30–45 min</span>
             </div>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${org.type === 'restaurant' ? 'bg-red-600' : 'bg-purple-500'} text-white`} style={{ fontWeight: 600 }}>
+            <span className={`text-xs px-2 py-0.5 rounded-full ${org.type === 'restaurant' ? 'bg-red-700' : 'bg-purple-500'} text-white`} style={{ fontWeight: 600 }}>
               {org.type === 'restaurant' ? 'Restaurant' : 'Home-Made'}
             </span>
           </div>
@@ -102,7 +102,7 @@ export function RestaurantDetail() {
               key={cat}
               onClick={() => setActiveCategory(cat)}
               className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs transition-all ${
-                activeCategory === cat ? 'bg-red-600 text-white' : 'bg-gray-100 text-stone-600'
+                activeCategory === cat ? 'bg-red-700 text-white' : 'bg-gray-100 text-stone-600'
               }`}
               style={{ fontWeight: activeCategory === cat ? 600 : 400 }}
             >
@@ -138,11 +138,11 @@ export function RestaurantDetail() {
                       </div>
                     </div>
                     <div className="flex items-center justify-between mt-2">
-                      <p className="text-red-700" style={{ fontWeight: 700 }}>Rs. {dish.price}</p>
+                      <p className="text-red-800" style={{ fontWeight: 700 }}>Rs. {dish.price}</p>
                       {qty === 0 ? (
                         <button
                           onClick={() => handleAdd(dish)}
-                          className="bg-red-600 text-white rounded-xl px-3.5 py-1.5 hover:bg-red-700 transition-colors flex items-center gap-1"
+                          className="bg-red-700 text-white rounded-xl px-3.5 py-1.5 hover:bg-red-800 transition-colors flex items-center gap-1"
                           style={{ fontSize: '0.8rem', fontWeight: 600 }}
                         >
                           <Plus size={14} /> Add
@@ -150,12 +150,12 @@ export function RestaurantDetail() {
                       ) : (
                         <div className="flex items-center gap-2 bg-red-50 rounded-xl p-1">
                           <button onClick={() => handleDec(dish.id)}
-                            className="w-7 h-7 bg-red-600 text-white rounded-lg flex items-center justify-center hover:bg-red-700 transition-colors">
+                            className="w-7 h-7 bg-red-700 text-white rounded-lg flex items-center justify-center hover:bg-red-800 transition-colors">
                             <Minus size={13} />
                           </button>
-                          <span className="text-red-800 w-5 text-center" style={{ fontWeight: 700, fontSize: '0.9rem' }}>{qty}</span>
+                          <span className="text-red-900 w-5 text-center" style={{ fontWeight: 700, fontSize: '0.9rem' }}>{qty}</span>
                           <button onClick={() => handleInc(dish.id)}
-                            className="w-7 h-7 bg-red-600 text-white rounded-lg flex items-center justify-center hover:bg-red-700 transition-colors">
+                            className="w-7 h-7 bg-red-700 text-white rounded-lg flex items-center justify-center hover:bg-red-800 transition-colors">
                             <Plus size={13} />
                           </button>
                         </div>
@@ -174,9 +174,9 @@ export function RestaurantDetail() {
         <div className="p-4 bg-white border-t border-gray-100 shadow-[0_-4px_15px_rgba(0,0,0,0.08)]">
           <button
             onClick={() => navigate('/buyer/cart')}
-            className="w-full bg-red-600 text-white py-3.5 rounded-2xl flex items-center justify-between px-5 hover:bg-red-700 transition-colors shadow-lg shadow-red-200"
+            className="w-full bg-red-700 text-white py-3.5 rounded-2xl flex items-center justify-between px-5 hover:bg-red-800 transition-colors shadow-lg shadow-red-200"
           >
-            <div className="bg-red-700 text-white text-xs rounded-lg w-6 h-6 flex items-center justify-center" style={{ fontWeight: 700 }}>
+            <div className="bg-red-800 text-white text-xs rounded-lg w-6 h-6 flex items-center justify-center" style={{ fontWeight: 700 }}>
               {cartCount}
             </div>
             <span style={{ fontWeight: 700 }}>View Cart</span>

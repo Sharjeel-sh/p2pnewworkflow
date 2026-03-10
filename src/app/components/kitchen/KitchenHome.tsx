@@ -57,7 +57,7 @@ export function KitchenHome() {
 
   return (
     <MobileLayout>
-      <div className="bg-red-600 px-5 pt-10 pb-6">
+      <div className="bg-red-700 px-5 pt-10 pb-6">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center">
             <button onClick={() => navigate(-1)} className="text-red-100 mr-2">

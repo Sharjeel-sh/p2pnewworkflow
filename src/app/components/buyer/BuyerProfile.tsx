@@ -33,7 +33,7 @@ export function BuyerProfile() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-red-600 px-5 pt-10 pb-8">
+      <div className="bg-red-700 px-5 pt-10 pb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Profile</h2>
           <button
@@ -71,7 +71,7 @@ export function BuyerProfile() {
           {/* Phone */}
           <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center gap-3 mb-2">
-              <Phone size={20} className="text-red-600" />
+              <Phone size={20} className="text-red-700" />
               <span className="text-stone-700" style={{ fontWeight: 600 }}>Phone Number</span>
             </div>
             {editing ? (
@@ -90,7 +90,7 @@ export function BuyerProfile() {
           {/* Address */}
           <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center gap-3 mb-2">
-              <MapPin size={20} className="text-red-600" />
+              <MapPin size={20} className="text-red-700" />
               <span className="text-stone-700" style={{ fontWeight: 600 }}>Delivery Address</span>
             </div>
             {editing ? (
@@ -109,7 +109,7 @@ export function BuyerProfile() {
           {editing && (
             <button
               onClick={handleSave}
-              className="w-full bg-red-600 text-white py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-700 transition-colors shadow-md shadow-red-200"
+              className="w-full bg-red-700 text-white py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-800 transition-colors shadow-md shadow-red-200"
               style={{ fontWeight: 700 }}
             >
               <Save size={18} />
@@ -120,7 +120,7 @@ export function BuyerProfile() {
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="w-full bg-red-600 text-white py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-700 transition-colors shadow-md shadow-red-200 mt-8"
+            className="w-full bg-red-700 text-white py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-800 transition-colors shadow-md shadow-red-200 mt-8"
             style={{ fontWeight: 700 }}
           >
             <LogOut size={18} />

@@ -91,7 +91,7 @@ function FileUploadBox({ label, sublabel, accept, icon, value, onChange, require
   return (
     <div>
       <label className="block text-stone-600 mb-1.5" style={{ fontSize: '0.85rem', fontWeight: 500 }}>
-        {label} {required && <span className="text-red-500">*</span>}
+        {label} {required && <span className="text-red-600">*</span>}
         {!required && <span className="text-stone-400 ml-1">(Optional)</span>}
       </label>
       {sublabel && (
@@ -114,12 +114,12 @@ function FileUploadBox({ label, sublabel, accept, icon, value, onChange, require
         >
           <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${error ? 'bg-red-100' : 'bg-gray-100'}`}>
             {isImage
-              ? <Image size={22} className={error ? 'text-red-500' : 'text-gray-400'} />
-              : <FileText size={22} className={error ? 'text-red-500' : 'text-gray-400'} />
+              ? <Image size={22} className={error ? 'text-red-600' : 'text-gray-400'} />
+              : <FileText size={22} className={error ? 'text-red-600' : 'text-gray-400'} />
             }
           </div>
           <div className="text-center">
-            <p className={`${error ? 'text-red-600' : 'text-stone-500'}`} style={{ fontSize: '0.82rem', fontWeight: 500 }}>
+            <p className={`${error ? 'text-red-700' : 'text-stone-500'}`} style={{ fontSize: '0.82rem', fontWeight: 500 }}>
               <Upload size={12} className="inline mr-1" />
               Tap to upload
             </p>
@@ -129,7 +129,7 @@ function FileUploadBox({ label, sublabel, accept, icon, value, onChange, require
           </div>
         </button>
       ) : (
-        <div className={`border-2 rounded-xl overflow-hidden ${error ? 'border-red-200' : 'border-green-200'}`}>
+        <div className={`border-2 rounded-xl overflow-hidden ${error ? 'border-red-200' : 'border-red-200'}`}>
           {isPreviewable ? (
             <div className="relative">
               <img
@@ -147,9 +147,9 @@ function FileUploadBox({ label, sublabel, accept, icon, value, onChange, require
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3 px-4 py-3 bg-green-50">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <FileText size={18} className="text-green-600" />
+            <div className="flex items-center gap-3 px-4 py-3 bg-red-50">
+              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileText size={18} className="text-red-700" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-stone-700 truncate" style={{ fontSize: '0.82rem', fontWeight: 500 }}>
@@ -162,19 +162,19 @@ function FileUploadBox({ label, sublabel, accept, icon, value, onChange, require
                 onClick={() => onChange(null)}
                 className="w-7 h-7 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0"
               >
-                <X size={14} className="text-red-600" />
+                <X size={14} className="text-red-700" />
               </button>
             </div>
           )}
-          <div className="flex items-center gap-1.5 px-3 py-2 bg-green-50 border-t border-green-100">
-            <CheckCircle2 size={13} className="text-green-500" />
-            <span className="text-green-600" style={{ fontSize: '0.72rem', fontWeight: 500 }}>
+          <div className="flex items-center gap-1.5 px-3 py-2 bg-red-50 border-t border-red-100">
+            <CheckCircle2 size={13} className="text-red-600" />
+            <span className="text-red-700" style={{ fontSize: '0.72rem', fontWeight: 500 }}>
               {value.fileName} uploaded successfully
             </span>
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
-              className="ml-auto text-red-600"
+              className="ml-auto text-red-700"
               style={{ fontSize: '0.72rem', fontWeight: 500 }}
             >
               Change
@@ -183,7 +183,7 @@ function FileUploadBox({ label, sublabel, accept, icon, value, onChange, require
         </div>
       )}
       {error && (
-        <p className="text-red-600 mt-1 flex items-center gap-1" style={{ fontSize: '0.75rem' }}>
+        <p className="text-red-700 mt-1 flex items-center gap-1" style={{ fontSize: '0.75rem' }}>
           <AlertCircle size={12} /> {error}
         </p>
       )}
@@ -206,7 +206,7 @@ function FormField({ label, icon, value, onChange, placeholder, error, type = 't
   return (
     <div>
       <label className="block text-stone-600 mb-1.5" style={{ fontSize: '0.85rem', fontWeight: 500 }}>
-        {label} {required && <span className="text-red-500">*</span>}
+        {label} {required && <span className="text-red-600">*</span>}
       </label>
       <div className="relative">
         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400">
@@ -218,13 +218,13 @@ function FormField({ label, icon, value, onChange, placeholder, error, type = 't
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
           className={`w-full border-2 rounded-xl pl-10 pr-4 py-3 focus:outline-none bg-gray-50 transition-colors ${
-            error ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-red-500'
+            error ? 'border-red-300 focus:border-red-600' : 'border-gray-200 focus:border-red-600'
           }`}
           style={{ fontSize: '0.93rem' }}
         />
       </div>
       {error && (
-        <p className="text-red-600 mt-1 flex items-center gap-1" style={{ fontSize: '0.75rem' }}>
+        <p className="text-red-700 mt-1 flex items-center gap-1" style={{ fontSize: '0.75rem' }}>
           <AlertCircle size={12} /> {error}
         </p>
       )}
@@ -351,8 +351,8 @@ export function OrgRegistration() {
     return (
       <MobileLayout>
         <div className="flex-1 flex flex-col items-center justify-center px-6 gap-4">
-          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle2 size={48} className="text-green-500" />
+          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center">
+            <CheckCircle2 size={48} className="text-red-600" />
           </div>
           <div className="text-center">
             <h2 className="text-stone-800 mb-2" style={{ fontWeight: 700, fontSize: '1.3rem' }}>
@@ -397,7 +397,7 @@ export function OrgRegistration() {
           <div
             key={`step-${num}`}
             className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
-              isDone ? 'bg-green-500' : isActive ? 'bg-red-600' : 'bg-gray-200'
+              isDone ? 'bg-red-600' : isActive ? 'bg-red-700' : 'bg-gray-200'
             }`}
             style={{ fontSize: '0.82rem', fontWeight: 700, color: isDone || isActive ? 'white' : '#9ca3af' }}
           >
@@ -409,7 +409,7 @@ export function OrgRegistration() {
             circle,
             <div
               key={`line-${num}`}
-              className={`flex-1 h-0.5 rounded-full transition-all ${isDone ? 'bg-green-400' : 'bg-gray-200'}`}
+              className={`flex-1 h-0.5 rounded-full transition-all ${isDone ? 'bg-red-500' : 'bg-gray-200'}`}
             />,
           ];
         }
@@ -455,23 +455,23 @@ export function OrgRegistration() {
               onClick={() => update('type', 'restaurant')}
               className={`w-full rounded-2xl p-4 border text-left transition-all ${
                 form.type === 'restaurant'
-                  ? 'bg-white border-red-500 ring-2 ring-red-100 shadow-sm'
+                  ? 'bg-white border-red-600 ring-2 ring-red-100 shadow-sm'
                   : 'bg-white border-gray-200 hover:border-red-200'
               }`}
             >
               <div className="flex items-start gap-3.5">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  form.type === 'restaurant' ? 'bg-red-600' : 'bg-gray-100'
+                  form.type === 'restaurant' ? 'bg-red-700' : 'bg-gray-100'
                 }`}>
                   <Building2 size={22} color={form.type === 'restaurant' ? 'white' : '#9ca3af'} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className={form.type === 'restaurant' ? 'text-red-800' : 'text-stone-800'} style={{ fontWeight: 700, fontSize: '1rem' }}>
+                    <p className={form.type === 'restaurant' ? 'text-red-900' : 'text-stone-800'} style={{ fontWeight: 700, fontSize: '1rem' }}>
                       Organization as a Restaurant
                     </p>
                     {form.type === 'restaurant' && (
-                      <span className="bg-red-600 text-white px-2 py-0.5 rounded-full" style={{ fontSize: '0.64rem', fontWeight: 600 }}>
+                      <span className="bg-red-700 text-white px-2 py-0.5 rounded-full" style={{ fontSize: '0.64rem', fontWeight: 600 }}>
                         Selected
                       </span>
                     )}
@@ -484,7 +484,7 @@ export function OrgRegistration() {
                       <span
                         key={tag}
                         className={`px-2 py-0.5 rounded-full ${
-                          form.type === 'restaurant' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-stone-500'
+                          form.type === 'restaurant' ? 'bg-red-100 text-red-900' : 'bg-gray-100 text-stone-500'
                         }`}
                         style={{ fontSize: '0.68rem', fontWeight: 600 }}
                       >
@@ -494,7 +494,7 @@ export function OrgRegistration() {
                   </div>
                 </div>
                 {form.type === 'restaurant' ? (
-                  <CheckCircle2 size={18} className="text-red-600 mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 size={18} className="text-red-700 mt-0.5 flex-shrink-0" />
                 ) : (
                   <div className="w-[18px] h-[18px] rounded-full border-2 border-gray-300 mt-0.5 flex-shrink-0" />
                 )}
@@ -505,23 +505,23 @@ export function OrgRegistration() {
               onClick={() => update('type', 'homemade')}
               className={`w-full rounded-2xl p-4 border text-left transition-all ${
                 form.type === 'homemade'
-                  ? 'bg-white border-red-500 ring-2 ring-red-100 shadow-sm'
+                  ? 'bg-white border-red-600 ring-2 ring-red-100 shadow-sm'
                   : 'bg-white border-gray-200 hover:border-red-200'
               }`}
             >
               <div className="flex items-start gap-3.5">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  form.type === 'homemade' ? 'bg-red-600' : 'bg-gray-100'
+                  form.type === 'homemade' ? 'bg-red-700' : 'bg-gray-100'
                 }`}>
                   <Home size={22} color={form.type === 'homemade' ? 'white' : '#9ca3af'} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className={form.type === 'homemade' ? 'text-red-800' : 'text-stone-800'} style={{ fontWeight: 700, fontSize: '1rem' }}>
+                    <p className={form.type === 'homemade' ? 'text-red-900' : 'text-stone-800'} style={{ fontWeight: 700, fontSize: '1rem' }}>
                       Organization as a Home Chef
                     </p>
                     {form.type === 'homemade' && (
-                      <span className="bg-red-600 text-white px-2 py-0.5 rounded-full" style={{ fontSize: '0.64rem', fontWeight: 600 }}>
+                      <span className="bg-red-700 text-white px-2 py-0.5 rounded-full" style={{ fontSize: '0.64rem', fontWeight: 600 }}>
                         Selected
                       </span>
                     )}
@@ -534,7 +534,7 @@ export function OrgRegistration() {
                       <span
                         key={tag}
                         className={`px-2 py-0.5 rounded-full ${
-                          form.type === 'homemade' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-stone-500'
+                          form.type === 'homemade' ? 'bg-red-100 text-red-900' : 'bg-gray-100 text-stone-500'
                         }`}
                         style={{ fontSize: '0.68rem', fontWeight: 600 }}
                       >
@@ -544,7 +544,7 @@ export function OrgRegistration() {
                   </div>
                 </div>
                 {form.type === 'homemade' ? (
-                  <CheckCircle2 size={18} className="text-red-600 mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 size={18} className="text-red-700 mt-0.5 flex-shrink-0" />
                 ) : (
                   <div className="w-[18px] h-[18px] rounded-full border-2 border-gray-300 mt-0.5 flex-shrink-0" />
                 )}
@@ -569,7 +569,7 @@ export function OrgRegistration() {
                 <button
                   type="button"
                   onClick={() => ownerPhotoInputRef.current?.click()}
-                  className="w-56 h-56 rounded-full border-4 border-red-600 bg-slate-300 overflow-hidden flex items-center justify-center"
+                  className="w-56 h-56 rounded-full border-4 border-red-700 bg-slate-300 overflow-hidden flex items-center justify-center"
                 >
                   {ownerPhoto ? (
                     <img src={ownerPhoto} alt="Owner profile" className="w-full h-full object-cover" />
@@ -716,11 +716,11 @@ export function OrgRegistration() {
                 {/* Legal Agreement — Required for Restaurant */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <FileText size={16} className="text-red-600" />
+                    <FileText size={16} className="text-red-700" />
                     <p className="text-stone-600" style={{ fontWeight: 600, fontSize: '0.88rem' }}>
                       Legal Agreement Document
                     </p>
-                    <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full" style={{ fontSize: '0.68rem', fontWeight: 600 }}>
+                    <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full" style={{ fontSize: '0.68rem', fontWeight: 600 }}>
                       REQUIRED
                     </span>
                   </div>
@@ -759,7 +759,7 @@ export function OrgRegistration() {
           {step < 3 ? (
             <button
               onClick={handleNext}
-              className="flex-1 bg-red-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200"
+              className="flex-1 bg-red-700 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-800 active:scale-95 transition-all shadow-lg shadow-red-200"
               style={{ fontWeight: 700, fontSize: '0.95rem' }}
             >
               Next
@@ -769,7 +769,7 @@ export function OrgRegistration() {
             <button
               onClick={handleRegister}
               disabled={loading}
-              className="flex-1 bg-red-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200 disabled:opacity-60"
+              className="flex-1 bg-red-700 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-800 active:scale-95 transition-all shadow-lg shadow-red-200 disabled:opacity-60"
               style={{ fontWeight: 700, fontSize: '0.95rem' }}
             >
               {loading ? (

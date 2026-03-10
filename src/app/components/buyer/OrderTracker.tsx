@@ -58,7 +58,7 @@ export function OrderTracker() {
                 Order #{order.id.slice(-6).toUpperCase()}
               </p>
               <p className="text-stone-400 text-xs mt-0.5">{formatDate(order.createdAt)}</p>
-              {org && <p className="text-red-700 text-sm mt-1" style={{ fontWeight: 500 }}>{org.orgName}</p>}
+              {org && <p className="text-red-800 text-sm mt-1" style={{ fontWeight: 500 }}>{org.orgName}</p>}
             </div>
             <StatusBadge status={order.status} />
           </div>
@@ -78,21 +78,21 @@ export function OrderTracker() {
                   <div className="flex flex-col items-center">
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
                       isCurrent
-                        ? 'bg-red-600 text-white shadow-md shadow-red-200'
+                        ? 'bg-red-700 text-white shadow-md shadow-red-200'
                         : isCompleted
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-red-600 text-white'
                         : 'bg-gray-100 text-gray-300'
                     }`}>
                       <Icon size={17} />
                     </div>
                     {idx < STATUS_STEPS.length - 1 && (
-                      <div className={`w-0.5 flex-1 my-1 ${isCompleted && idx < currentStatusIdx ? 'bg-green-400' : 'bg-gray-200'}`}
+                      <div className={`w-0.5 flex-1 my-1 ${isCompleted && idx < currentStatusIdx ? 'bg-red-500' : 'bg-gray-200'}`}
                         style={{ minHeight: 24 }} />
                     )}
                   </div>
                   {/* Content */}
                   <div className="pb-4 flex-1 pt-1.5">
-                    <p className={`${isCurrent ? 'text-red-700' : isCompleted ? 'text-green-600' : 'text-stone-400'}`}
+                    <p className={`${isCurrent ? 'text-red-800' : isCompleted ? 'text-red-700' : 'text-stone-400'}`}
                       style={{ fontWeight: isCurrent ? 700 : 500, fontSize: '0.9rem' }}>
                       {step.label}
                     </p>
@@ -108,15 +108,15 @@ export function OrderTracker() {
 
         {/* Rider Info */}
         {rider && (
-          <div className="mx-5 bg-green-50 border border-green-100 rounded-2xl p-4 mb-4">
+          <div className="mx-5 bg-red-50 border border-red-100 rounded-2xl p-4 mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
                 <Bike size={19} color="white" />
               </div>
               <div>
-                <p className="text-green-700" style={{ fontWeight: 700, fontSize: '0.9rem' }}>Your Rider</p>
-                <p className="text-green-600 text-sm">{rider.name}</p>
-                {rider.phone && <p className="text-green-400 text-xs">{rider.phone}</p>}
+                <p className="text-red-800" style={{ fontWeight: 700, fontSize: '0.9rem' }}>Your Rider</p>
+                <p className="text-red-700 text-sm">{rider.name}</p>
+                {rider.phone && <p className="text-red-500 text-xs">{rider.phone}</p>}
               </div>
             </div>
           </div>
@@ -138,7 +138,7 @@ export function OrderTracker() {
             </div>
             <div className="flex justify-between">
               <span className="text-stone-700" style={{ fontWeight: 700 }}>Total</span>
-              <span className="text-red-700" style={{ fontWeight: 700 }}>Rs. {order.total + 50}</span>
+              <span className="text-red-800" style={{ fontWeight: 700 }}>Rs. {order.total + 50}</span>
             </div>
             {order.paymentMethod && (
               <div className="border-t border-gray-100 pt-2 flex justify-between">
@@ -153,7 +153,7 @@ export function OrderTracker() {
         <div className="mx-5 bg-white border border-gray-100 rounded-2xl p-4 mb-4 shadow-sm">
           <h4 className="text-stone-700 mb-3" style={{ fontWeight: 700 }}>Delivery Info</h4>
           <div className="flex items-start gap-2">
-            <MapPin size={14} className="text-red-500 mt-0.5 flex-shrink-0" />
+            <MapPin size={14} className="text-red-600 mt-0.5 flex-shrink-0" />
             <p className="text-stone-600 text-sm">{order.buyerAddress}</p>
           </div>
           {order.specialInstructions && (
@@ -189,7 +189,7 @@ export function OrderTracker() {
 
 function TopBarSimple({ onBack, title }: { onBack: () => void; title: string }) {
   return (
-    <div className="bg-red-600 text-white px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-md">
+    <div className="bg-red-700 text-white px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-md">
       <button onClick={onBack} className="p-1 rounded-full hover:bg-white/20 transition-colors">
         <ArrowLeft size={22} />
       </button>

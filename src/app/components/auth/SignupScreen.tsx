@@ -50,7 +50,7 @@ export function SignupScreen() {
         <div className="mt-auto pt-4">
           <button
             onClick={() => navigate('/kitchen/onboarding')}
-            className="w-full text-white py-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg bg-red-600 hover:bg-red-700 shadow-red-200"
+            className="w-full text-white py-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg bg-red-700 hover:bg-red-800 shadow-red-200"
             style={{ fontWeight: 700, fontSize: '1rem' }}
           >
             Register New Organization
