@@ -160,7 +160,7 @@ export function KitchenManagerScreen() {
   if (isBranchManager) {
     return (
       <MobileLayout>
-        <TopBar title="Kitchen Manager" showBack={false} />
+        <TopBar title="Kitchen Manager" />
         <div className="flex-1 flex items-center justify-center px-6 text-center">
           <p className="text-stone-500">Only organization owner can manage branch manager credentials.</p>
         </div>
@@ -171,7 +171,7 @@ export function KitchenManagerScreen() {
 
   return (
     <MobileLayout>
-      <TopBar title="Kitchen Manager" showBack={false} />
+      <TopBar title="Kitchen Manager" />
 
       <div className="flex-1 overflow-y-auto px-5 py-5">
         <div className="flex items-center justify-between mb-4">

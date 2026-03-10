@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { Building2, Home, Phone, MapPin, User, Pencil, LogOut, Save, X, FileText, Image, CreditCard, Hash, CheckCircle2, UserCog, Bike, ChevronRight, ChevronLeft, GitBranch, UtensilsCrossed, Clock, Truck, BarChart2, Bell, ShieldCheck } from 'lucide-react';
+import { Building2, Home, Phone, MapPin, User, Pencil, LogOut, Save, X, FileText, Image, Camera, CreditCard, Hash, CheckCircle2, UserCog, Bike, ChevronRight, ChevronLeft, GitBranch, UtensilsCrossed, Clock, Truck, BarChart2, Bell, ShieldCheck } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { KitchenBottomNav } from './KitchenBottomNav';
 import { useApp } from '../../context/AppContext';
@@ -68,8 +68,8 @@ export function OrgProfile() {
           ) : (
             <User size={40} className="text-gray-400" />
           )}
-          <div className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md">
-            <Image size={16} className="text-red-700" />
+          <div className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md ">
+            <Camera size={16} className="text-red-700" />
           </div>
           <input
             ref={fileInputRef}

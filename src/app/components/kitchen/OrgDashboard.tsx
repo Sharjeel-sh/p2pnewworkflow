@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useNavigate } from 'react-router';
 import {
   Store,
   ShoppingBag,
@@ -11,6 +12,7 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  ArrowLeft,
 } from "lucide-react";
 
 import {
@@ -60,6 +62,7 @@ function getRangeStart(now: Date, range: DateRange): Date {
 }
 
 export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
+  const navigate = useNavigate();
   const { currentUser, branches, orders, riders } = useApp();
   const [dateRange, setDateRange] = useState<DateRange>("week");
   const [kitchenFilter, setKitchenFilter] = useState<string>("all");
@@ -148,9 +151,14 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
   return (
     <div className="flex-1 min-h-0 overflow-y-auto">
       {showHeader && (
-        <div className="bg-white px-4 pt-4 pb-2">
-          <h1 className="text-lg font-bold text-gray-900">Dashboard</h1>
-          <p className="text-xs text-gray-500">Manage your kitchens & track performance</p>
+        <div className="bg-white px-4 pt-4 pb-2 flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200">
+            <ArrowLeft size={20} />
+          </button>
+          <div>
+            <h1 className="text-lg font-bold text-gray-900">Dashboard</h1>
+            <p className="text-xs text-gray-500">Manage your kitchens & track performance</p>
+          </div>
         </div>
       )}
 

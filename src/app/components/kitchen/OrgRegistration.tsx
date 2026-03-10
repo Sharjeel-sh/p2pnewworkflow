@@ -569,7 +569,7 @@ export function OrgRegistration() {
                 <button
                   type="button"
                   onClick={() => ownerPhotoInputRef.current?.click()}
-                  className="w-56 h-56 rounded-full border-4 border-red-700 bg-slate-300 overflow-hidden flex items-center justify-center"
+                  className="w-40 h-40 rounded-full border-4 border-red-700 bg-slate-300 overflow-hidden flex items-center justify-center"
                 >
                   {ownerPhoto ? (
                     <img src={ownerPhoto} alt="Owner profile" className="w-full h-full object-cover" />
@@ -580,9 +580,9 @@ export function OrgRegistration() {
                 <button
                   type="button"
                   onClick={() => ownerPhotoInputRef.current?.click()}
-                  className="absolute bottom-3 right-0 w-14 h-14 rounded-full border-2 border-black bg-white flex items-center justify-center"
+                  className="absolute bottom-3 right-0 w-12 h-12 rounded-full border-2 border-black bg-white flex items-center justify-center"
                 >
-                  <Camera size={24} className="text-black" />
+                  <Camera size={20} className="text-black" />
                 </button>
               </div>
             </div>

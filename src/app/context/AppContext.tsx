@@ -229,7 +229,7 @@ const INITIAL_ORDERS: Order[] = [
     orgId: 'org-001',
     branchId: 'branch-001',
     riderId: 'rider-001',
-    riderName: 'Ali Hassan',
+    riderName: 'Ali',
     riderAccepted: true,
     riderAcceptedAt: new Date(Date.now() - 36 * 60 * 1000).toISOString(),
     createdAt: new Date(Date.now() - 35 * 60 * 1000).toISOString(),

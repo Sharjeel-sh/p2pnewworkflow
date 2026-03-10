@@ -51,39 +51,38 @@ export function WelcomeScreen() {
             {/* Left column — 3 equal rows */}
             <div className="flex flex-col gap-2">
               <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[0]} alt="" className="w-full h-full object-cover" />
+                <img src={FOOD_IMGS[0]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </div>
               <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[3]} alt="" className="w-full h-full object-cover" />
+                <img src={FOOD_IMGS[3]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </div>
               <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[5]} alt="" className="w-full h-full object-cover" />
+                <img src={FOOD_IMGS[5]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </div>
             </div>
 
             {/* Center column — tall / heart / tall */}
             <div className="flex flex-col gap-2">
               <div className="rounded-2xl overflow-hidden" style={{ flex: 2.2 }}>
-                <img src={FOOD_IMGS[1]} alt="" className="w-full h-full object-cover" />
+                <img src={FOOD_IMGS[1]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </div>
               <div className="flex items-center justify-center" style={{ flex: 0.7 }}>
                 <Heart size={26} color="white" strokeWidth={1.5} />
               </div>
               <div className="rounded-2xl overflow-hidden" style={{ flex: 2.2 }}>
-                <img src={FOOD_IMGS[6]} alt="" className="w-full h-full object-cover" />
               </div>
             </div>
 
             {/* Right column — 3 equal rows */}
             <div className="flex flex-col gap-2">
               <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[2]} alt="" className="w-full h-full object-cover" />
+                <img src={FOOD_IMGS[2]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </div>
               <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[4]} alt="" className="w-full h-full object-cover" />
+                <img src={FOOD_IMGS[4]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </div>
               <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[7]} alt="" className="w-full h-full object-cover" />
+                <img src={FOOD_IMGS[7]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </div>
             </div>
           </div>
@@ -100,7 +99,7 @@ export function WelcomeScreen() {
         </div>
 
         {/* Role Selector */}
-        <div className="px-6 mb-3">
+        <div className="px-6 py-6">
           <div className="relative">
             <button
               onClick={() => setShowDropdown(!showDropdown)}
@@ -149,7 +148,7 @@ export function WelcomeScreen() {
         </div>
 
         {/* Info box */}
-        <div className="px-6 mb-4">
+        <div className="px-6 ">
           {selectedRole === 'buyer' && (
             <div className="rounded-2xl p-3.5" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
               <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.82rem' }}>

@@ -205,7 +205,7 @@ export function KitchenRiderScreen() {
 
   return (
     <MobileLayout>
-      <TopBar title="Rider" showBack={false} />
+      <TopBar title="Rider" />
 
       <div className="flex-1 overflow-y-auto px-4 py-4 bg-stone-100" onClick={() => setOpenMenuRiderId(null)}>
         <div className="flex items-center justify-between gap-3 mb-3">
