@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft, CheckCircle, Phone } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Phone, MessageCircle } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { BuyerBottomNav } from './BuyerBottomNav';
 import { useApp } from '../../context/AppContext';
@@ -34,7 +34,7 @@ export function PickupConfirmation() {
   return (
     <MobileLayout>
       {/* Success header */}
-      <div className="bg-green-600 text-white px-5 py-4 flex items-center gap-3">
+      <div className=" bg-red-700 text-white px-5 py-9 flex items-center gap-3">
         <CheckCircle size={22} />
         <h2 className="flex-1 font-bold">Order Placed Successfully</h2>
       </div>
@@ -42,8 +42,8 @@ export function PickupConfirmation() {
       <div className="flex-1 overflow-y-auto p-5 space-y-4">
         {/* Basic info */}
         <div className="bg-white rounded-2xl shadow-md p-4">
-          <p className="text-stone-700 text-sm">Order ID</p>
-          <p className="font-semibold">{order.id.toUpperCase()}</p>
+          <p className="text-stone-700 text-sm">Order no</p>
+          <p className="font-semibold">#{order.id.slice(-6).toUpperCase()}</p>
           {org && (
             <>
               <p className="mt-2 text-stone-700 text-sm">Restaurant</p>
@@ -113,14 +113,13 @@ export function PickupConfirmation() {
         >
           View Order Details
         </button>
-        {org && org.phone && (
-          <button
-            onClick={() => window.open(`tel:${org.phone}`)}
-            className="w-full bg-green-600 text-white py-3 rounded-2xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-          >
-            <Phone size={16} /> Call Kitchen
-          </button>
-        )}
+        { /* chat is always available for pickup too */ }
+        <button
+          onClick={() => navigate(`/chat/${order.id}`)}
+          className="w-full bg-blue-500 text-white py-3 rounded-2xl hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+        >
+          <MessageCircle size={16} /> Chat with Kitchen & Rider
+        </button>
         <button
           onClick={() => navigate('/buyer')}
           className="w-full bg-red-700 text-white py-3 rounded-2xl hover:bg-red-800 transition-colors"

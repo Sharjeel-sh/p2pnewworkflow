@@ -175,7 +175,7 @@ export function PaymentConfirmation() {
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-red-700 text-white px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-md">
+      <div className="bg-red-700 text-white px-4 py-9 flex items-center  gap-3 sticky top-0 z-10 shadow-md">
         <button onClick={() => navigate(-1)} className="p-1 rounded-full hover:bg-white/20 transition-colors">
           <ArrowLeft size={22} />
         </button>
