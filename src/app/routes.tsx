@@ -30,6 +30,7 @@ import { OrgProfile, OrgEdit } from './components/kitchen/OrgProfile';
 import { OrgOrgEdit } from './components/kitchen/OrgOrgEdit';
 import { OrgInfo } from './components/kitchen/OrgInfo';
 import { OrgDashboard } from './components/kitchen/OrgDashboard';
+import { KitchenOrderDashboard } from './components/kitchen/KitchenOrderDashboard';
 import { KitchenProfile } from './components/kitchen/KitchenProfile';
 import { KitchenCoupons } from './components/kitchen/KitchenCoupons';
 import { KitchenDiscounts } from './components/kitchen/KitchenDiscounts';
@@ -63,6 +64,7 @@ export const router = createBrowserRouter([
       { path: 'buyer/pickup/:orderId', element: <PickupConfirmation /> },
       { path: 'buyer/order/:orderId', element: <OrderTracker /> },
       { path: 'kitchen/register', element: <OrgRegistration /> },
+      { path: 'kitchen/order/dashboard', element: <KitchenOrderDashboard /> },
       { path: 'kitchen/dashboard', element: <OrgDashboard /> },
       { path: 'kitchen', element: <KitchenHome /> },
       { path: 'kitchen/branches', element: <KitchenBranchesScreen /> },

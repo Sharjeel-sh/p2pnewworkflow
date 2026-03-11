@@ -34,7 +34,7 @@ export function BranchManagerLoginScreen() {
       branchId: branch.id,
       managerName: branch.managerName || 'Branch Manager',
     });
-    navigate('/kitchen/orders');
+    navigate('/kitchen/order/dashboard');
   };
 
   return (

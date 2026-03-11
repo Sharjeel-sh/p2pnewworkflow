@@ -101,7 +101,7 @@ export function KitchenBranchesScreen() {
       orgId: currentUser.orgId,
       branchId,
     });
-    navigate('/kitchen/orders');
+    navigate('/kitchen/order/dashboard');
   };
 
   const getBranchRating = (branchId: string): string => {
@@ -337,7 +337,7 @@ export function KitchenBranchesScreen() {
             Use Orders, Dishes, Chat List, and Profile tabs to manage your assigned branch.
           </p>
           <button
-            onClick={() => navigate('/kitchen/orders')}
+            onClick={() => navigate('/kitchen/order/dashboard')}
             className="mt-4 bg-red-700 text-white px-5 py-2.5 rounded-xl hover:bg-red-800 transition-colors"
             style={{ fontWeight: 600 }}
           >

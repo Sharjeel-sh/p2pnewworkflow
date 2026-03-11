@@ -20,6 +20,7 @@ export function KitchenBottomNav() {
 
   // Kitchen-mode paths
   const isKitchenSection =
+    location.pathname === '/kitchen/order/dashboard' ||
     location.pathname === '/kitchen/orders' ||
     location.pathname.startsWith('/kitchen/orders/') ||
     location.pathname.startsWith('/kitchen/dishes') ||
@@ -35,7 +36,9 @@ export function KitchenBottomNav() {
   const useKitchenNav = !isOrgSection && (isBranchManager || isKitchenSection);
 
   const navItems = useKitchenNav
+
     ? [
+        { path: '/kitchen/order/dashboard', label: 'Home', icon: Home },
         { path: '/kitchen/orders', label: 'Orders', icon: ClipboardList },
         { path: '/kitchen/dishes', label: 'Dishes', icon: UtensilsCrossed },
         { path: '/kitchen/chat-list', label: 'Chat List', icon: MessageCircle },

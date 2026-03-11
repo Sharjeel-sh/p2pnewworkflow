@@ -88,7 +88,7 @@ export function ChatScreen() {
   };
 
   const getBackPath = () => {
-    if (currentUser?.role === 'kitchen') return '/kitchen/orders';
+    if (currentUser?.role === 'kitchen') return '/kitchen/order/dashboard';
     if (currentUser?.role === 'rider') return '/rider/orders';
     return `/buyer/order/${orderId}`;
   };
