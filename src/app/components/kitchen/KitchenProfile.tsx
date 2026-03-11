@@ -17,7 +17,7 @@ export function KitchenProfile() {
   return (
     <MobileLayout>
       {/* header */}
-      <div className="bg-red-700 px-5 pt-6 pb-4 flex items-center justify-between">
+      <div className="bg-red-700 px-5 pt-9 pb-4 flex items-center justify-between">
         <div className="w-8" />
         <h2 className="text-white text-lg font-bold">Profile Settings</h2>
         <Bell size={24} className="text-white" />
@@ -38,8 +38,9 @@ export function KitchenProfile() {
           {([
             { icon: User,     label: 'Edit profile information', action: () => navigate('/kitchen/profile/edit') },
             { icon: FileText, label: 'Coupons',                action: () => navigate('/kitchen/profile/coupons') },
-            { icon: FileText, label: 'Discounts',              action: () => navigate('/kitchen/profile/discounts') },
-            { icon: Bell,     label: 'Help & Support',         action: () => navigate('/help') },
+            { icon: FileText, label: 'Discounts',              action: () => navigate('/kitchen/profile/discounts') },           
+            { icon: FileText, label: 'Terms & Conditions',         action: () => navigate('/terms') },
+            { icon: Bell,     label: 'Help & Support',             action: () => navigate('/help') },
             { icon: GitBranch, label: 'Back to Organization',   action: () => navigate('/kitchen') },
             { icon: LogOut,   label: 'Log out',                action: handleLogout, isDestructive: true },
           ] as Array<{ icon: any; label: string; action: () => void; isDestructive?: boolean }>).map((item, idx) => (

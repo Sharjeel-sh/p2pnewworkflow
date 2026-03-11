@@ -63,6 +63,7 @@ export interface Dish {
   description: string;
   category: string;
   isAvailable: boolean;
+  image?: string; // optional image URL for dish
 }
 
 export interface CartItem {
