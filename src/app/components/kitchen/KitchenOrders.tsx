@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ClipboardList, ChevronRight, MessageCircle, Bike, X, Check, UserMinus } from 'lucide-react';
+import { ClipboardList, ChevronRight, MessageCircle, Bike, X, Check, UserMinus, Phone } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { KitchenBottomNav } from './KitchenBottomNav';
 import { StatusBadge } from '../shared/StatusBadge';
@@ -16,7 +16,7 @@ const STATUS_NEXT_LABEL: Record<string, string> = {
 };
 
 export function KitchenOrders() {
-  const { currentUser, orders, riders, updateOrderStatus, assignRiderToOrder, unassignRiderFromOrder, createMockOrderForOrg, isChatOpen } = useApp();
+  const { currentUser, orders, riders, updateOrderStatus, assignRiderToOrder, unassignRiderFromOrder, createMockOrderForOrg, clearOrdersForOrg, isChatOpen } = useApp();
   const navigate = useNavigate();
   // track which status tab is selected (pending, accepted, preparing, ready)
   const [activeFilter, setActiveFilter] = useState<OrderStatus>('pending');
@@ -50,6 +50,11 @@ export function KitchenOrders() {
     updateOrderStatus(order.id, 'picked_up');
   };
 
+  // mark an order complete (used for self pickup when food handed over)
+  const handleMarkCompleted = (order: Order) => {
+    updateOrderStatus(order.id, 'delivered');
+  };
+
   const handleAssignRider = (rider: typeof orgRiders[0]) => {
     if (!selectedOrder) return;
     assignRiderToOrder(selectedOrder.id, rider.id, rider.name, rider.branchId);
@@ -79,6 +84,22 @@ export function KitchenOrders() {
   };
 
   const getPrimaryAction = (order: Order) => {
+    const isPickup = order.deliveryMethod === 'pickup';
+    if (isPickup) {
+      switch (order.status) {
+        case 'pending':
+          return { label: 'Accept Order', handler: () => updateOrderStatus(order.id, 'accepted') };
+        case 'accepted':
+          return { label: 'Start Preparing', handler: () => handleStartPreparing(order) };
+        case 'preparing':
+          return { label: 'Mark Ready for Pickup', handler: () => handleMarkReady(order) };
+        case 'ready':
+          return { label: 'Mark Completed', handler: () => handleMarkCompleted(order) };
+        default:
+          return null;
+      }
+    }
+    // delivery flow
     switch (order.status) {
       case 'pending':
         return { label: 'Accept Order', handler: () => updateOrderStatus(order.id, 'accepted') };
@@ -99,11 +120,21 @@ export function KitchenOrders() {
       <div className="bg-gradient-to-r from-red-800 to-red-700 px-5 pt-10 pb-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-white text-2xl font-bold">Orders</h2>
-          {newOrdersCount > 0 && (
-            <span className="bg-white text-red-800 font-bold px-3 py-1 rounded-full shadow text-xs">
-              +{newOrdersCount} New
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {newOrdersCount > 0 && (
+              <span className="bg-white text-red-800 font-bold px-3 py-1 rounded-full shadow text-xs">
+                +{newOrdersCount} New
+              </span>
+            )}
+            {currentUser?.orgId && orgOrders.length > 0 && (
+              <button
+                onClick={() => clearOrdersForOrg(currentUser.orgId!) }
+                className="text-white text-xs bg-red-500 px-2 py-1 rounded hover:bg-red-600"
+              >
+                Clear Orders
+              </button>
+            )}
+          </div>
         </div>
         <div className="relative flex flex-col gap-1 mt-4">
           <div className="flex gap-2">
@@ -144,16 +175,28 @@ export function KitchenOrders() {
                 <p className="text-stone-400 mt-1" style={{ fontSize: '0.82rem' }}>
                   New orders will appear here
                 </p>
-                <button
-                  onClick={() => {
-                    if (!currentUser?.orgId) return;
-                    createMockOrderForOrg(currentUser.orgId, 3);
-                  }}
-                  className="mt-4 bg-red-700 text-white px-5 py-2.5 rounded-xl hover:bg-red-800 transition-colors"
-                  style={{ fontSize: '0.86rem', fontWeight: 600 }}
-                >
-                  Create 3 Mock Orders
-                </button>
+                <div className="flex gap-2 justify-center">
+                  <button
+                    onClick={() => {
+                      if (!currentUser?.orgId) return;
+                      createMockOrderForOrg(currentUser.orgId, 3);
+                    }}
+                    className="mt-4 bg-red-700 text-white px-5 py-2.5 rounded-xl hover:bg-red-800 transition-colors"
+                    style={{ fontSize: '0.86rem', fontWeight: 600 }}
+                  >
+                    Create 3 Delivery Mocks
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!currentUser?.orgId) return;
+                      createMockOrderForOrg(currentUser.orgId, 2, 'pickup');
+                    }}
+                    className="mt-4 bg-green-700 text-white px-5 py-2.5 rounded-xl hover:bg-green-800 transition-colors"
+                    style={{ fontSize: '0.86rem', fontWeight: 600 }}
+                  >
+                    Create 2 Pickup Mocks
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -166,14 +209,21 @@ export function KitchenOrders() {
                     <p className="text-stone-800" style={{ fontWeight: 700 }}>#{order.id.slice(-6).toUpperCase()}</p>
                     <p className="text-stone-400 text-xs mt-0.5">{formatDate(order.createdAt)}</p>
                   </div>
-                  <StatusBadge status={order.status} size="sm" />
+                  <div className="flex items-center gap-2">
+                    <StatusBadge status={order.status} size="sm" />
+                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${order.deliveryMethod === 'pickup' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}> 
+                      {order.deliveryMethod === 'pickup' ? 'Self Pickup' : 'Delivery'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Buyer Info */}
                 <div className="bg-[#F0F0F0] rounded-xl p-3 mb-3">
                   <p className="text-stone-700 text-sm font-semibold">{order.buyerName}</p>
                   <p className="text-stone-500 text-xs mt-0.5">{order.buyerPhone}</p>
-                  <p className="text-stone-500 text-xs mt-0.5">{order.buyerAddress}</p>
+                  {order.deliveryMethod !== 'pickup' && (
+                    <p className="text-stone-500 text-xs mt-0.5">{order.buyerAddress}</p>
+                  )}
                 </div>
 
                 {/* Items */}
@@ -217,7 +267,7 @@ export function KitchenOrders() {
                     }
                     return null;
                   })()}
-                  {order.status !== 'delivered' && (
+                  {order.deliveryMethod !== 'pickup' && order.status !== 'delivered' && (
                     <button
                       onClick={() => openAssignModal(order)}
                       className="bg-red-50 text-red-800 py-2 px-3 rounded-xl hover:bg-red-100 transition-colors flex items-center gap-1"
@@ -227,7 +277,7 @@ export function KitchenOrders() {
                       {order.riderId ? 'Change Rider' : 'Assign Rider'}
                     </button>
                   )}
-                  {order.status !== 'delivered' && order.riderId && (
+                  {order.deliveryMethod !== 'pickup' && order.status !== 'delivered' && order.riderId && (
                     <button
                       onClick={() => handleUnassignRider(order.id)}
                       className="bg-red-50 text-red-800 py-2 px-3 rounded-xl hover:bg-red-100 transition-colors flex items-center gap-1"

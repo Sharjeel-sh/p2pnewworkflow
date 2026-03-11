@@ -143,8 +143,9 @@ interface AppContextType extends AppState {
   removeFromCart: (dishId: string) => void;
   clearCart: () => void;
   placeOrder: (buyerInfo: { name: string; phone: string; address: string; orgId: string; paymentMethod?: string; specialInstructions?: string }) => Order;
-  createMockOrderForOrg: (orgId: string, count?: number) => Order[] | null;
+  createMockOrderForOrg: (orgId: string, count?: number, deliveryType?: 'delivery' | 'pickup') => Order[] | null;
   createMockOrdersForRider: (riderId: string, countPerTab?: number) => Order[] | null;
+  clearOrdersForOrg: (orgId: string) => void;
   createApplicationMockData: () => void;
   resetApplicationData: () => void;
   updateOrderStatus: (orderId: string, status: OrderStatus) => void;
@@ -479,7 +480,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return createdOrder!;
   }, []);
 
-  const createMockOrderForOrg = useCallback((orgId: string, count = 1): Order[] | null => {
+  const createMockOrderForOrg = useCallback((orgId: string, count = 1, deliveryType: 'delivery' | 'pickup' = 'delivery'): Order[] | null => {
     let createdOrders: Order[] | null = null;
     setState(prev => {
       const orgDishes = prev.dishes.filter(d => d.orgId === orgId && d.isAvailable);
@@ -502,12 +503,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           id: `order-${generateId()}`,
           buyerName: `Mock Buyer ${i + 1}`,
           buyerPhone: `0300-11122${String(i + 1).padStart(2, '0')}`,
-          buyerAddress: `Testing Address ${i + 1}, Karachi`,
+          buyerAddress: deliveryType === 'pickup' ? 'Self Pickup' : `Testing Address ${i + 1}, Karachi`,
           items,
           total,
           status: 'pending',
           orgId,
           branchId: branch?.id,
+          deliveryMethod: deliveryType,
           riderAccepted: false,
           createdAt: new Date(Date.now() - i * 60 * 1000).toISOString(),
         });
@@ -517,6 +519,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return { ...prev, orders: [...prev.orders, ...generated] };
     });
     return createdOrders;
+  }, []);
+
+  // Remove all orders belonging to a specific organization (useful for clearing mocks)
+  const clearOrdersForOrg = useCallback((orgId: string) => {
+    setState(prev => ({
+      ...prev,
+      orders: prev.orders.filter(o => o.orgId !== orgId),
+    }));
   }, []);
 
   const createMockOrdersForRider = useCallback((riderId: string, countPerTab = 1): Order[] | null => {
@@ -838,6 +848,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       placeOrder,
       createMockOrderForOrg,
       createMockOrdersForRider,
+      clearOrdersForOrg,
       createApplicationMockData,
       resetApplicationData,
       updateOrderStatus,
