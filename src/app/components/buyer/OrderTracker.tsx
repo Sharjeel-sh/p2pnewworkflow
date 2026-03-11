@@ -38,8 +38,15 @@ export function OrderTracker() {
 
   const org = organizations.find(o => o.id === order.orgId);
   const rider = order.riderId ? riders.find(r => r.id === order.riderId) : null;
-  const currentStatusIdx = STATUS_ORDER.indexOf(order.status);
   const chatOpen = isChatOpen(order);
+  const isPickup = order.deliveryMethod === 'pickup';
+  // adjust status steps for pickup orders
+  const steps = isPickup
+    ? ['pending', 'accepted', 'preparing', 'ready']
+    : STATUS_ORDER;
+  const currentStatusIdx = steps.indexOf(order.status);
+
+  const deliveryFee = isPickup ? 0 : 50; // default to 50 if undefined
 
   const formatDate = (iso: string) => {
     return new Date(iso).toLocaleString('en-PK', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -68,7 +75,8 @@ export function OrderTracker() {
         <div className="px-5 py-5">
           <h3 className="text-stone-700 mb-4" style={{ fontWeight: 700 }}>Order Status</h3>
           <div className="space-y-0">
-            {STATUS_STEPS.map((step, idx) => {
+            { (isPickup ? STATUS_STEPS.slice(0,3) : STATUS_STEPS).map((step, idx) => {
+              // when pickup, only first three steps are relevant
               const isCompleted = idx <= currentStatusIdx;
               const isCurrent = idx === currentStatusIdx;
               const Icon = step.icon;
@@ -132,13 +140,17 @@ export function OrderTracker() {
                 <span className="text-stone-500">Rs. {item.dish.price * item.quantity}</span>
               </div>
             ))}
-            <div className="border-t border-gray-100 pt-2 flex justify-between">
-              <span className="text-stone-500 text-sm">Delivery</span>
-              <span className="text-stone-500 text-sm">Rs. 50</span>
-            </div>
+            {!isPickup && (
+              <>
+                <div className="border-t border-gray-100 pt-2 flex justify-between">
+                  <span className="text-stone-500 text-sm">Delivery</span>
+                  <span className="text-stone-500 text-sm">Rs. {deliveryFee}</span>
+                </div>
+              </>
+            )}
             <div className="flex justify-between">
               <span className="text-stone-700" style={{ fontWeight: 700 }}>Total</span>
-              <span className="text-red-800" style={{ fontWeight: 700 }}>Rs. {order.total + 50}</span>
+              <span className="text-red-800" style={{ fontWeight: 700 }}>Rs. {order.total + deliveryFee}</span>
             </div>
             {order.paymentMethod && (
               <div className="border-t border-gray-100 pt-2 flex justify-between">
@@ -150,19 +162,21 @@ export function OrderTracker() {
         </div>
 
         {/* Delivery Info */}
-        <div className="mx-5 bg-white border border-gray-100 rounded-2xl p-4 mb-4 shadow-sm">
-          <h4 className="text-stone-700 mb-3" style={{ fontWeight: 700 }}>Delivery Info</h4>
-          <div className="flex items-start gap-2">
-            <MapPin size={14} className="text-red-600 mt-0.5 flex-shrink-0" />
-            <p className="text-stone-600 text-sm">{order.buyerAddress}</p>
-          </div>
-          {order.specialInstructions && (
-            <div className="mt-3 pt-3 border-t border-gray-100">
-              <p className="text-stone-700 text-sm font-semibold mb-1">Special Instructions:</p>
-              <p className="text-stone-600 text-sm">{order.specialInstructions}</p>
+        {!isPickup && (
+          <div className="mx-5 bg-white border border-gray-100 rounded-2xl p-4 mb-4 shadow-sm">
+            <h4 className="text-stone-700 mb-3" style={{ fontWeight: 700 }}>Delivery Info</h4>
+            <div className="flex items-start gap-2">
+              <MapPin size={14} className="text-red-600 mt-0.5 flex-shrink-0" />
+              <p className="text-stone-600 text-sm">{order.buyerAddress}</p>
             </div>
-          )}
-        </div>
+            {order.specialInstructions && (
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <p className="text-stone-700 text-sm font-semibold mb-1">Special Instructions:</p>
+                <p className="text-stone-600 text-sm">{order.specialInstructions}</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Chat Button */}
         {chatOpen ? (

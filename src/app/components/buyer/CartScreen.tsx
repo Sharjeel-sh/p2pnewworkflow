@@ -10,6 +10,8 @@ export function CartScreen() {
   const navigate = useNavigate();
 
   const cartTotal = cart.reduce((s, i) => s + i.dish.price * i.quantity, 0);
+  const storedOption = localStorage.getItem('deliveryOption');
+  const estimatedFee = storedOption === 'pickup' ? 0 : 50;
   const orgId = cart[0]?.dish.orgId || '';
   const org = organizations.find(o => o.id === orgId);
 
@@ -24,8 +26,8 @@ export function CartScreen() {
     // Contact details removed from cart UI; keep stable defaults for checkout flow.
     localStorage.setItem('buyerName', 'Guest Buyer');
     localStorage.setItem('buyerPhone', 'N/A');
-    // Navigate to address selection
-    navigate('/buyer/address-selection');
+    // Navigate to delivery option screen before entering address
+    navigate('/buyer/delivery');
   };
 
   return (
@@ -93,7 +95,7 @@ export function CartScreen() {
                 </div>
                 <div className="border-t border-red-100 pt-2 flex justify-between">
                   <span className="text-stone-700" style={{ fontWeight: 700 }}>Total</span>
-                  <span className="text-red-800" style={{ fontWeight: 700, fontSize: '1.05rem' }}>Rs. {cartTotal + 50}</span>
+                  <span className="text-red-800" style={{ fontWeight: 700, fontSize: '1.05rem' }}>Rs. {cartTotal + estimatedFee}</span>
                 </div>
               </div>
             </div>
@@ -110,7 +112,7 @@ export function CartScreen() {
             className="w-full bg-red-700 text-white py-4 rounded-2xl hover:bg-red-800 active:scale-95 transition-all shadow-lg shadow-red-200"
             style={{ fontWeight: 700, fontSize: '1rem' }}
           >
-            Continue to Address • Rs. {cartTotal + 50}
+            Continue to Delivery • Rs. {cartTotal + estimatedFee}
           </button>
         </div>
       )}

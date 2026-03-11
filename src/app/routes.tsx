@@ -13,8 +13,10 @@ import { BuyerProfile } from './components/buyer/BuyerProfile';
 import { RestaurantDetail } from './components/buyer/RestaurantDetail';
 import { CartScreen } from './components/buyer/CartScreen';
 import { AddressSelection } from './components/buyer/AddressSelection';
+import { DeliveryScreen } from './components/buyer/DeliveryScreen';
 import { PaymentConfirmation } from './components/buyer/PaymentConfirmation';
 import { OrderTracker } from './components/buyer/OrderTracker';
+import { PickupConfirmation } from './components/buyer/PickupConfirmation';
 import { OrgRegistration } from './components/kitchen/OrgRegistration';
 import { KitchenHome } from './components/kitchen/KitchenHome';
 import { KitchenBranchesScreen } from './components/kitchen/KitchenBranchesScreen';
@@ -55,8 +57,10 @@ export const router = createBrowserRouter([
       { path: 'buyer/profile', element: <BuyerProfile /> },
       { path: 'buyer/restaurant/:orgId', element: <RestaurantDetail /> },
       { path: 'buyer/cart', element: <CartScreen /> },
+      { path: 'buyer/delivery', element: <DeliveryScreen /> },
       { path: 'buyer/address-selection', element: <AddressSelection /> },
       { path: 'buyer/payment-confirmation', element: <PaymentConfirmation /> },
+      { path: 'buyer/pickup/:orderId', element: <PickupConfirmation /> },
       { path: 'buyer/order/:orderId', element: <OrderTracker /> },
       { path: 'kitchen/register', element: <OrgRegistration /> },
       { path: 'kitchen/dashboard', element: <OrgDashboard /> },

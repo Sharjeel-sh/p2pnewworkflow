@@ -81,7 +81,8 @@ export interface Order {
   buyerPhone: string;
   buyerAddress: string;
   items: OrderItem[];
-  total: number;
+  total: number; // does not include delivery fee, fee handled separately where needed
+  deliveryMethod?: 'delivery' | 'pickup';
   status: OrderStatus;
   orgId: string;
   branchId?: string;
@@ -444,6 +445,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setState(prev => {
       const availableRider = prev.riders.find(r => r.orgId === buyerInfo.orgId && r.isAvailable);
       const fallbackBranch = prev.branches.find(b => b.orgId === buyerInfo.orgId);
+      // read delivery choice from localStorage (set in DeliveryScreen)
+      const deliveryOption = localStorage.getItem('deliveryOption') || 'delivery';
+      const deliveryFee = deliveryOption === 'pickup' ? 0 : parseFloat(localStorage.getItem('deliveryFee') || '50');
       const total = prev.cart.reduce((sum, item) => sum + item.dish.price * item.quantity, 0);
       const order: Order = {
         id: `order-${generateId()}`,
@@ -451,7 +455,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         buyerPhone: buyerInfo.phone,
         buyerAddress: buyerInfo.address,
         items: prev.cart.map(i => ({ dish: i.dish, quantity: i.quantity })),
-        total,
+        total, // keep base total; UI layers may add deliveryFee when showing
+        deliveryMethod: deliveryOption === 'pickup' ? 'pickup' : 'delivery',
         status: 'pending',
         orgId: buyerInfo.orgId,
         ...(availableRider

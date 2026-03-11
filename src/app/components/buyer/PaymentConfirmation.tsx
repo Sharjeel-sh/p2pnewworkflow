@@ -60,7 +60,8 @@ export function PaymentConfirmation() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const cartTotal = cart.reduce((s, i) => s + i.dish.price * i.quantity, 0);
-  const deliveryFee = 50;
+  const storedOption = localStorage.getItem('deliveryOption');
+  const deliveryFee = storedOption === 'pickup' ? 0 : parseFloat(localStorage.getItem('deliveryFee') || '50');
   const total = cartTotal + deliveryFee;
   
   const orgId = cart[0]?.dish.orgId || '';
@@ -68,12 +69,22 @@ export function PaymentConfirmation() {
 
   useEffect(() => {
     // Load delivery address from localStorage
-    const savedAddress = localStorage.getItem('deliveryAddress');
-    if (savedAddress) {
-      setDeliveryAddress(JSON.parse(savedAddress));
-    } else {
-      // If no address selected, redirect back to address selection
-      navigate('/buyer/address-selection');
+    // require delivery/self‑pickup choice first
+    const storedOption = localStorage.getItem('deliveryOption');
+    if (!storedOption) {
+      navigate('/buyer/delivery');
+      return; // stop further logic
+    }
+
+    // if delivery was chosen we need an address; pickup users can skip
+    if (storedOption !== 'pickup') {
+      const savedAddress = localStorage.getItem('deliveryAddress');
+      if (savedAddress) {
+        setDeliveryAddress(JSON.parse(savedAddress));
+      } else {
+        // If no address selected, redirect back to address selection
+        navigate('/buyer/delivery');
+      }
     }
 
     // Load buyer details if previously entered
@@ -85,9 +96,16 @@ export function PaymentConfirmation() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!buyerName.trim()) e.name = 'Name is required';
-    if (!buyerPhone.trim()) e.phone = 'Phone number is required';
-    if (!deliveryAddress) e.address = 'Please select a delivery address';
+    const storedOption = localStorage.getItem('deliveryOption');
+    const isPickup = storedOption === 'pickup';
+    // only require contact details for delivery (hide section for pickup)
+    if (!isPickup) {
+      if (!buyerName.trim()) e.name = 'Name is required';
+      if (!buyerPhone.trim()) e.phone = 'Phone number is required';
+    }
+    if (!isPickup && !deliveryAddress) {
+      e.address = 'Please select a delivery address';
+    }
     return e;
   };
 
@@ -98,7 +116,7 @@ export function PaymentConfirmation() {
       return;
     }
 
-    if (!deliveryAddress || cart.length === 0) return;
+    if ((storedOption !== 'pickup' && !deliveryAddress) || cart.length === 0) return;
 
     setLoading(true);
 
@@ -111,10 +129,13 @@ export function PaymentConfirmation() {
       await new Promise(r => setTimeout(r, 1500));
 
       // Place the order
+      const addressString = deliveryAddress
+        ? deliveryAddress.address + (deliveryAddress.landmark ? ` (Near: ${deliveryAddress.landmark})` : '')
+        : 'Self Pickup';
       const order = placeOrder({
         name: buyerName.trim(),
         phone: buyerPhone.trim(),
-        address: deliveryAddress.address + (deliveryAddress.landmark ? ` (Near: ${deliveryAddress.landmark})` : ''),
+        address: addressString,
         orgId,
         paymentMethod: selectedPayment,
         specialInstructions: specialInstructions.trim() || undefined,
@@ -122,16 +143,23 @@ export function PaymentConfirmation() {
 
       // Clear stored data
       localStorage.removeItem('deliveryAddress');
+      localStorage.removeItem('deliveryOption');
+      localStorage.removeItem('deliveryFee');
 
-      // Navigate to order tracking
-      navigate(`/buyer/order/${order.id}`);
+      // Navigate depending on delivery method
+      if (order.deliveryMethod === 'pickup') {
+        navigate(`/buyer/pickup/${order.id}`);
+      } else {
+        navigate(`/buyer/order/${order.id}`);
+      }
     } catch (error) {
       console.error('Error placing order:', error);
       setLoading(false);
     }
   };
 
-  if (!deliveryAddress) {
+  const isPickup = storedOption === 'pickup';
+  if (!deliveryAddress && !isPickup) {
     return (
       <MobileLayout>
         <div className="flex-1 flex items-center justify-center">
@@ -155,6 +183,11 @@ export function PaymentConfirmation() {
       </div>
 
       <div className="flex-1 overflow-y-auto">
+        {deliveryFee === 0 && (
+          <div className="bg-yellow-50 px-5 py-3 text-yellow-800 text-sm">
+            Self pickup selected — no delivery charges will apply.
+          </div>
+        )}
         {/* Order Summary */}
         <div className="bg-red-50 px-5 py-4 border-b border-red-100">
           <h3 className="text-stone-700 font-bold mb-3">Order Summary</h3>
@@ -185,94 +218,99 @@ export function PaymentConfirmation() {
           </div>
         </div>
 
-        {/* Delivery Address */}
-        <div className="px-5 py-4 border-b border-gray-100">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h3 className="text-stone-700 font-bold mb-2">Delivery Address</h3>
-              <div className="flex items-start gap-2">
-                <MapPin size={14} className="text-red-700 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-stone-600 text-sm">{deliveryAddress.address}</p>
-                  {deliveryAddress.landmark && (
-                    <p className="text-stone-500 text-xs mt-0.5">Near: {deliveryAddress.landmark}</p>
-                  )}
+        {/* Delivery Address (only when delivery chosen) */}
+        {deliveryFee > 0 && deliveryAddress && (
+          <div className="px-5 py-4 border-b border-gray-100">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="text-stone-700 font-bold mb-2">Delivery Address</h3>
+                <div className="flex items-start gap-2">
+                  <MapPin size={14} className="text-red-700 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-stone-600 text-sm">{deliveryAddress.address}</p>
+                    {deliveryAddress.landmark && (
+                      <p className="text-stone-500 text-xs mt-0.5">Near: {deliveryAddress.landmark}</p>
+                    )}
+                  </div>
                 </div>
               </div>
+              <button
+                onClick={() => navigate('/buyer/delivery')}
+                className="text-red-700 text-sm font-semibold hover:text-red-800 transition-colors"
+              >
+                Change
+              </button>
             </div>
-            <button
-              onClick={() => navigate('/buyer/address-selection')}
-              className="text-red-700 text-sm font-semibold hover:text-red-800 transition-colors"
-            >
-              Change
-            </button>
           </div>
-        </div>
+        )}
 
         {/* Contact Details */}
-        <div className="px-5 py-4 border-b border-gray-100">
-          <h3 className="text-stone-700 font-bold mb-3">Contact Details</h3>
-          <div className="space-y-3">
-            <div>
-              <input
-                type="text"
-                value={buyerName}
-                onChange={(e) => {
-                  setBuyerName(e.target.value);
-                  if (errors.name) setErrors(p => ({ ...p, name: '' }));
-                }}
-                placeholder="Your Full Name *"
-                className={`w-full border-2 rounded-xl px-4 py-3 text-sm focus:outline-none bg-gray-50 ${
-                  errors.name ? 'border-red-300' : 'border-gray-200 focus:border-red-600'
-                }`}
-              />
-              {errors.name && (
-                <p className="text-red-700 text-xs mt-0.5 flex items-center gap-1">
-                  <AlertCircle size={11} />{errors.name}
-                </p>
-              )}
-            </div>
-            <div>
-              <input
-                type="tel"
-                value={buyerPhone}
-                onChange={(e) => {
-                  setBuyerPhone(e.target.value);
-                  if (errors.phone) setErrors(p => ({ ...p, phone: '' }));
-                }}
-                placeholder="Phone Number *"
-                className={`w-full border-2 rounded-xl px-4 py-3 text-sm focus:outline-none bg-gray-50 ${
-                  errors.phone ? 'border-red-300' : 'border-gray-200 focus:border-red-600'
-                }`}
-              />
-              {errors.phone && (
-                <p className="text-red-700 text-xs mt-0.5 flex items-center gap-1">
-                  <AlertCircle size={11} />{errors.phone}
-                </p>
-              )}
+        {!isPickup && (
+          <div className="px-5 py-4 border-b border-gray-100">
+            <h3 className="text-stone-700 font-bold mb-3">Contact Details</h3>
+            <div className="space-y-3">
+              <div>
+                <input
+                  type="text"
+                  value={buyerName}
+                  onChange={(e) => {
+                    setBuyerName(e.target.value);
+                    if (errors.name) setErrors(p => ({ ...p, name: '' }));
+                  }}
+                  placeholder="Your Full Name *"
+                  className={`w-full border-2 rounded-xl px-4 py-3 text-sm focus:outline-none bg-gray-50 ${
+                    errors.name ? 'border-red-300' : 'border-gray-200 focus:border-red-600'
+                  }`}
+                />
+                {errors.name && (
+                  <p className="text-red-700 text-xs mt-0.5 flex items-center gap-1">
+                    <AlertCircle size={11} />{errors.name}
+                  </p>
+                )}
+              </div>
+              <div>
+                <input
+                  type="tel"
+                  value={buyerPhone}
+                  onChange={(e) => {
+                    setBuyerPhone(e.target.value);
+                    if (errors.phone) setErrors(p => ({ ...p, phone: '' }));
+                  }}
+                  placeholder="Phone Number *"
+                  className={`w-full border-2 rounded-xl px-4 py-3 text-sm focus:outline-none bg-gray-50 ${
+                    errors.phone ? 'border-red-300' : 'border-gray-200 focus:border-red-600'
+                  }`}
+                />
+                {errors.phone && (
+                  <p className="text-red-700 text-xs mt-0.5 flex items-center gap-1">
+                    <AlertCircle size={11} />{errors.phone}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Payment Method */}
-        <div className="px-5 py-4 border-b border-gray-100">
-          <h3 className="text-stone-700 font-bold mb-3">Payment Method</h3>
-          <div className="space-y-2">
-            {PAYMENT_OPTIONS.map((option) => {
-              const Icon = option.icon;
-              return (
-                <button
-                  key={option.id}
-                  onClick={() => option.enabled && setSelectedPayment(option.id)}
-                  disabled={!option.enabled}
-                  className={`w-full flex items-center gap-3 p-4 border-2 rounded-xl text-left transition-all ${
-                    selectedPayment === option.id && option.enabled
-                      ? 'border-red-600 bg-red-50'
-                      : option.enabled
-                      ? 'border-gray-200 bg-white hover:border-gray-300'
-                      : 'border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed'
-                  }`}
-                >
+        {!isPickup && (
+          <div className="px-5 py-4 border-b border-gray-100">
+            <h3 className="text-stone-700 font-bold mb-3">Payment Method</h3>
+            <div className="space-y-2">
+              {PAYMENT_OPTIONS.map((option) => {
+                const Icon = option.icon;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => option.enabled && setSelectedPayment(option.id)}
+                    disabled={!option.enabled}
+                    className={`w-full flex items-center gap-3 p-4 border-2 rounded-xl text-left transition-all ${
+                      selectedPayment === option.id && option.enabled
+                        ? 'border-red-600 bg-red-50'
+                        : option.enabled
+                        ? 'border-gray-200 bg-white hover:border-gray-300'
+                        : 'border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed'
+                    }`}
+                  >
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
                     selectedPayment === option.id && option.enabled ? 'bg-red-700' : 'bg-gray-200'
                   }`}>
@@ -293,8 +331,9 @@ export function PaymentConfirmation() {
                 </button>
               );
             })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Special Instructions */}
         <div className="px-5 py-4">
@@ -309,7 +348,6 @@ export function PaymentConfirmation() {
         </div>
       </div>
 
-      {/* Place Order Button */}
       <div className="p-5 bg-white border-t border-gray-100 shadow-[0_-4px_15px_rgba(0,0,0,0.06)]">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Lock size={14} className="text-gray-500" />

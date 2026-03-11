@@ -29,6 +29,7 @@ export function DeliveryTracker() {
   const rider = order.riderId ? riders.find(r => r.id === order.riderId) : null;
   const chatOpen = isChatOpen(order);
   
+  const deliveryFee = order.deliveryMethod === 'pickup' ? 0 : 50;
   const isOutForDelivery = order.status === 'picked_up';
   const isDelivered = order.status === 'delivered';
 
@@ -148,7 +149,7 @@ export function DeliveryTracker() {
               ))}
               <div className="border-t border-gray-100 pt-2 flex justify-between">
                 <span className="text-stone-700 font-bold">Total</span>
-                <span className="text-red-800 font-bold">Rs. {order.total + 50}</span>
+                <span className="text-red-800 font-bold">Rs. {order.total + deliveryFee}</span>
               </div>
             </div>
           </div>
