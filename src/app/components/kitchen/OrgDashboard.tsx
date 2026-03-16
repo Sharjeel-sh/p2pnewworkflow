@@ -16,6 +16,18 @@ import {
 } from "lucide-react";
 
 import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
+
+import {
   Select,
   SelectTrigger,
   SelectValue,
@@ -66,6 +78,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
   const { currentUser, branches, orders, riders } = useApp();
   const [dateRange, setDateRange] = useState<DateRange>("week");
   const [kitchenFilter, setKitchenFilter] = useState<string>("all");
+  const [expandedRider, setExpandedRider] = useState<string | null>(null);
 
   const orgId = currentUser?.orgId;
 
@@ -92,13 +105,128 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
     const orgBranchIds = new Set(orgBranches.map((b) => b.id));
 
     const orgOrders = orders.filter((o) => o.orgId === orgId);
+
     const rangeOrders = orgOrders.filter((o) => {
       const dt = new Date(o.createdAt);
       return !Number.isNaN(dt.getTime()) && dt >= rangeStart;
     });
+
     const todayOrders = orgOrders.filter((o) => {
       const dt = new Date(o.createdAt);
       return !Number.isNaN(dt.getTime()) && dt >= todayStart;
+    });
+
+    const yesterdayStart = new Date(todayStart);
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+    const yesterdayOrders = orgOrders.filter((o) => {
+      const dt = new Date(o.createdAt);
+      return !Number.isNaN(dt.getTime()) && dt >= yesterdayStart && dt < todayStart;
+    });
+
+    const orgRiders = riders.filter((r) => orgBranchIds.has(r.branchId));
+    const activeRiders = orgRiders.filter((r) => r.isAvailable).length;
+    const inactiveRiders = orgRiders.length - activeRiders;
+
+    type RiderStat = {
+      rider: typeof orgRiders[number];
+      deliveries: number;
+      notDelivered: number;
+      revenue: number;
+      totalDeliveryMinutes: number;
+      deliveryCountForAvg: number;
+    };
+
+    const riderStatsMap: Record<string, RiderStat> = {};
+    orgRiders.forEach((rider) => {
+      riderStatsMap[rider.id] = {
+        rider,
+        deliveries: 0,
+        notDelivered: 0,
+        revenue: 0,
+        totalDeliveryMinutes: 0,
+        deliveryCountForAvg: 0,
+      };
+    });
+
+    rangeOrders.forEach((o) => {
+      const riderId = o.riderId;
+      if (!riderId) return;
+      const stats = riderStatsMap[riderId];
+      if (!stats) return;
+
+      if (o.status === "delivered") {
+        stats.deliveries += 1;
+        stats.revenue += o.total;
+        if (o.createdAt && o.deliveredAt) {
+          const created = new Date(o.createdAt).getTime();
+          const delivered = new Date(o.deliveredAt).getTime();
+          if (!Number.isNaN(created) && !Number.isNaN(delivered) && delivered > created) {
+            stats.totalDeliveryMinutes += (delivered - created) / 60000;
+            stats.deliveryCountForAvg += 1;
+          }
+        }
+      } else {
+        stats.notDelivered += 1;
+      }
+    });
+
+    const totalDelivered = Object.values(riderStatsMap).reduce((sum, stat) => sum + stat.deliveries, 0);
+    const totalUndelivered = Object.values(riderStatsMap).reduce((sum, stat) => sum + stat.notDelivered, 0);
+    const totalCancelled = rangeOrders.reduce(
+      (sum, o) => sum + ((o.status as string) === "cancelled" ? 1 : 0),
+      0
+    );
+
+    const totalDeliveryMinutes = Object.values(riderStatsMap).reduce(
+      (sum, stat) => sum + stat.totalDeliveryMinutes,
+      0
+    );
+    const totalDeliveryCount = Object.values(riderStatsMap).reduce(
+      (sum, stat) => sum + stat.deliveryCountForAvg,
+      0
+    );
+
+    const averageDeliveryMinutes = totalDeliveryCount
+      ? totalDeliveryMinutes / totalDeliveryCount
+      : 0;
+
+    const riderLeaderboard = Object.values(riderStatsMap)
+      .sort((a, b) => b.deliveries - a.deliveries)
+      .slice(0, 5)
+      .map((stat) => ({
+        id: stat.rider.id,
+        name: stat.rider.name,
+        branchId: stat.rider.branchId,
+        deliveries: stat.deliveries,
+        notDelivered: stat.notDelivered,
+        revenue: stat.revenue,
+        avgDeliveryMinutes: stat.deliveryCountForAvg
+          ? stat.totalDeliveryMinutes / stat.deliveryCountForAvg
+          : 0,
+        isAvailable: stat.rider.isAvailable,
+      }));
+
+    const delayedOrders = orgOrders.filter((o) => {
+      if (o.status === "delivered") return false;
+      const created = new Date(o.createdAt).getTime();
+      if (Number.isNaN(created)) return false;
+      const minutesSinceCreated = (Date.now() - created) / 60000;
+      return minutesSinceCreated > 45;
+    }).length;
+
+    const last7Days = Array.from({ length: 7 }).map((_, idx) => {
+      const day = new Date(todayStart);
+      day.setDate(day.getDate() - (6 - idx));
+      const label = day.toLocaleDateString(undefined, { weekday: "short" });
+      const count = orgOrders.filter((o) => {
+        const dt = new Date(o.createdAt);
+        return (
+          !Number.isNaN(dt.getTime()) &&
+          dt.toDateString() === day.toDateString() &&
+          o.status === "delivered"
+        );
+      }).length;
+      return { label, count };
     });
 
     const kitchens: KitchenInfo[] = orgBranches.map((branch) => {
@@ -127,7 +255,18 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
       inactiveKitchens: kitchens.filter((k) => k.status === "Inactive").length,
       totalOrders: kitchens.reduce((sum, k) => sum + k.totalOrders, 0),
       totalOrdersToday: todayOrders.length,
-      totalRiders: riders.filter((r) => orgBranchIds.has(r.branchId)).length,
+      totalRiders: orgRiders.length,
+      activeRiders,
+      inactiveRiders,
+      delayedOrders,
+      totalDeliveredOrders: totalDelivered,
+      totalPendingOrders: totalUndelivered,
+      totalCancelledOrders: totalCancelled,
+      averageDeliveryMins: averageDeliveryMinutes,
+      riderLeaderboard,
+      todayOrdersCount: todayOrders.length,
+      yesterdayOrdersCount: yesterdayOrders.length,
+      weeklyDeliveryTrend: last7Days,
       totalRevenue: kitchens.reduce((sum, k) => sum + k.revenue, 0),
       totalRevenueToday: todayOrders.reduce((sum, o) => sum + o.total, 0),
       kitchens,
@@ -147,6 +286,13 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
   const todaysRevenue = filteredKitchens.reduce((sum, k) => sum + k.revenueToday, 0);
 
   const formatCurrency = (amount: number) => `Rs. ${Math.round(amount).toLocaleString()}`;
+
+  const formatMinutes = (mins: number) => {
+    if (!mins || Number.isNaN(mins)) return "—";
+    const hours = Math.floor(mins / 60);
+    const minutes = Math.round(mins % 60);
+    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  };
 
   return (
     <div className="flex-1 min-h-0 overflow-y-auto">
@@ -248,7 +394,9 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
             </div>
             <p className="text-xl font-bold text-gray-900">{data.totalRiders}</p>
             <p className="text-xs text-gray-500">Total Riders</p>
-            <p className="text-xs text-purple-600 mt-1.5">Across all branches</p>
+            <p className="text-xs text-purple-600 mt-1.5">
+              {data.activeRiders} active · {data.inactiveRiders} inactive
+            </p>
           </div>
 
           <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
@@ -308,6 +456,120 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Rider Performance */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-gray-900">Rider Performance</h3>
+            <div className="flex items-center gap-2">
+              {data.delayedOrders > 0 && (
+                <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                  {data.delayedOrders} delayed
+                </span>
+              )}
+              <span className="text-xs text-gray-400">{data.totalRiders} riders</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-green-600" />
+                  <span className="text-xs font-semibold text-gray-900">Deliveries</span>
+                </div>
+              </div>
+              <p className="text-2xl font-bold text-gray-900">{data.totalDeliveredOrders}</p>
+              <p className="text-xs text-gray-500">Delivered</p>
+              <div className="mt-2 text-xs text-gray-600">
+                <div className="flex justify-between">
+                  <span>Pending</span>
+                  <span className="font-medium">{data.totalPendingOrders}</span>
+                </div>
+                <div className="flex justify-between mt-1">
+                  <span>Cancelled</span>
+                  <span className="font-medium">{data.totalCancelledOrders}</span>
+                </div>
+                <div className="flex justify-between mt-1">
+                  <span>Avg delivery</span>
+                  <span className="font-medium">{formatMinutes(data.averageDeliveryMins)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <TrendingUp size={16} className="text-indigo-600" />
+                  <span className="text-xs font-semibold text-gray-900">Weekly Trend</span>
+                </div>
+              </div>
+              <div className="h-32">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={data.weeklyDeliveryTrend}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                    <XAxis dataKey="label" tickLine={false} axisLine={false} />
+                    <YAxis hide />
+                    <Tooltip formatter={(value: any) => [`${value}`, "Deliveries"]} />
+                    <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-xs text-gray-400 mt-2">Today vs yesterday</p>
+            </div>
+          </div>
+
+          <div className="mt-4 bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-xs font-semibold text-gray-900">Top riders</h4>
+              <span className="text-xs text-gray-400">Top 5</span>
+            </div>
+            <div className="space-y-2">
+              {data.riderLeaderboard.map((r) => {
+                const branchName = branches.find((b) => b.id === r.branchId)?.name || "Unknown";
+                const isExpanded = expandedRider === r.id;
+                return (
+                  <div
+                    key={r.id}
+                    className="border border-gray-100 rounded-lg overflow-hidden"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setExpandedRider(isExpanded ? null : r.id)}
+                      className="w-full text-left p-3 flex items-center justify-between"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{r.name}</p>
+                        <p className="text-xs text-gray-400">{branchName}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-gray-900">{r.deliveries}</p>
+                        <p className="text-xs text-gray-500">delivered</p>
+                      </div>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="bg-gray-50 p-3 border-t border-gray-100 text-xs text-gray-600">
+                        <div className="flex justify-between mb-1">
+                          <span>Revenue</span>
+                          <span className="font-medium">{formatCurrency(r.revenue)}</span>
+                        </div>
+                        <div className="flex justify-between mb-1">
+                          <span>Avg delivery</span>
+                          <span className="font-medium">{formatMinutes(r.avgDeliveryMinutes)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Pending</span>
+                          <span className="font-medium">{r.notDelivered}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
