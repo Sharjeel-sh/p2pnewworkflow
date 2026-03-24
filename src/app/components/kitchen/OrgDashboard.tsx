@@ -399,16 +399,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
             </p>
           </div>
 
-          <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
-                <Clock size={16} className="text-amber-600" />
-              </div>
-            </div>
-            <p className="text-xl font-bold text-gray-900">{formatCurrency(todaysRevenue)}</p>
-            <p className="text-xs text-gray-500">Today's Revenue</p>
-            <p className="text-xs text-amber-600 mt-1.5">{ordersToday} orders</p>
-          </div>
+
         </div>
 
         <div>
@@ -524,7 +515,6 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
           <div className="mt-4 bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-xs font-semibold text-gray-900">Top riders</h4>
-              <span className="text-xs text-gray-400">Top 5</span>
             </div>
             <div className="space-y-2">
               {data.riderLeaderboard.map((r) => {
