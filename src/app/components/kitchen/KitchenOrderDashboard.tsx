@@ -67,8 +67,9 @@ import {
 } from "recharts";
 
 export function KitchenOrderDashboard() {
-  const { currentUser, orders, dishes } = useApp();
+  const { currentUser, orders, dishes, riders } = useApp();
   const orgId = currentUser?.orgId;
+  const branchId = currentUser?.branchId;
   const [selectedTimeRange, setSelectedTimeRange] = useState("today");
   const [customStartDate, setCustomStartDate] = useState(() => {
     const d = new Date();
@@ -304,6 +305,71 @@ export function KitchenOrderDashboard() {
     });
   }, [last7Days, rangeOrders]);
 
+  const branchRangeOrders = useMemo(() => {
+    if (!branchId) return rangeOrders;
+    return rangeOrders.filter(o => o.branchId === branchId);
+  }, [rangeOrders, branchId]);
+
+  const branchRiders = useMemo(() => {
+    if (!orgId || !riders) return [];
+    return riders.filter(r => r.orgId === orgId && (!branchId || r.branchId === branchId));
+  }, [orgId, riders, branchId]);
+
+  const branchRiderPerformance = useMemo(() => {
+    type RiderPerf = {
+      id: string;
+      name: string;
+      branchId: string;
+      deliveries: number;
+      pending: number;
+      revenue: number;
+      averageDeliveryMinutes: number;
+    };
+
+    const riderStats = branchRiders.reduce<Record<string, { deliveries: number; pending: number; revenue: number; totalDeliveryMinutes: number; deliveryCount: number }>>((acc, rider) => {
+      acc[rider.id] = { deliveries: 0, pending: 0, revenue: 0, totalDeliveryMinutes: 0, deliveryCount: 0 };
+      return acc;
+    }, {});
+
+    branchRangeOrders.forEach(order => {
+      const riderId = order.riderId;
+      if (!riderId || !riderStats[riderId]) return;
+
+      if (order.status === 'delivered') {
+        riderStats[riderId].deliveries += 1;
+        riderStats[riderId].revenue += order.total || 0;
+
+        if (order.createdAt && order.deliveredAt) {
+          const created = new Date(order.createdAt).getTime();
+          const delivered = new Date(order.deliveredAt).getTime();
+          if (!Number.isNaN(created) && !Number.isNaN(delivered) && delivered > created) {
+            const mins = (delivered - created) / 60000;
+            riderStats[riderId].totalDeliveryMinutes += mins;
+            riderStats[riderId].deliveryCount += 1;
+          }
+        }
+      } else {
+        riderStats[riderId].pending += 1;
+      }
+    });
+
+    const perf: RiderPerf[] = branchRiders.map(rider => {
+      const stats = riderStats[rider.id];
+      const avg = stats.deliveryCount ? stats.totalDeliveryMinutes / stats.deliveryCount : 0;
+      return {
+        id: rider.id,
+        name: rider.name,
+        branchId: rider.branchId,
+        deliveries: stats.deliveries,
+        pending: stats.pending,
+        revenue: stats.revenue,
+        averageDeliveryMinutes: avg,
+      };
+    });
+
+    return perf.sort((a, b) => b.deliveries - a.deliveries).slice(0, 5);
+  }, [branchRiders, branchRangeOrders]);
+
   const statusData = useMemo(() => {
     const completed = stats?.delivered ?? 0;
     const cancelled = stats?.cancelled ?? 0;
@@ -335,7 +401,7 @@ export function KitchenOrderDashboard() {
         <div className="flex-1 overflow-y-auto pb-20">
           <div className="px-5 mt-4 mb-6">
             <h2 className="text-2xl font-semibold text-gray-400">
-              {currentUser?.orgId ? `Org: ${currentUser.orgId}` : "SoftOpsHub"}
+              SoftOpsHub
             </h2>
           </div>
           {/* Orders Card */}
@@ -460,8 +526,41 @@ export function KitchenOrderDashboard() {
 
           </div>
 
-          {/* Best Selling Dishes */}
-
+          {/* Branch Rider Performance */}
+          <div className="px-5 mt-6">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-semibold text-gray-800 flex items-center">
+                <Truck size={18} className="text-indigo-500 mr-2" />
+                Rider Performance ({branchId ? 'Branch' : 'Org'})
+              </h3>
+              <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">{rangeLabel}</span>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm p-4">
+              {branchRiderPerformance.length > 0 ? (
+                <div className="space-y-3">
+                  {branchRiderPerformance.map((rider, index) => (
+                    <div key={rider.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center">
+                          <span className="text-xs font-bold text-blue-600">#{index + 1}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">{rider.name}</p>
+                          <p className="text-xs text-gray-400">Deliveries: {rider.deliveries} · Pending: {rider.pending}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-gray-900">{Math.round(rider.averageDeliveryMinutes)}m</p>
+                        <p className="text-xs text-gray-500">Avg delivery time</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400 text-center py-3">No rider delivery data available yet</p>
+              )}
+            </div>
+          </div>
           {/* Best Selling Dishes */}
           <div className="px-5 mt-6">
             <div className="flex justify-between items-center mb-3">
@@ -503,6 +602,8 @@ export function KitchenOrderDashboard() {
               )}
             </div>
           </div>
+
+
 
           {/* Recent Orders */}
           <div className="px-5 mt-6">
