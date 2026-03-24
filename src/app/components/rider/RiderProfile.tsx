@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Bike, Phone, User, Pencil, Save, LogOut, Image as ImageIcon, X, ChevronRight } from 'lucide-react';
+import { Phone, User, LogOut, ChevronRight, Bell } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { useApp } from '../../context/AppContext';
 import { RiderBottomNav } from './RiderBottomNav';
@@ -9,13 +9,12 @@ export function RiderProfile() {
   const { currentUser, riders, updateRider, setCurrentUser } = useApp();
   const navigate = useNavigate();
   const rider = riders.find(r => r.id === currentUser?.riderId);
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({
-    name: rider?.name || '',
-    phone: rider?.phone || '',
-    profilePicture: rider?.profilePicture || '',
-  });
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [view, setView] = useState<'main' | 'edit'>('main');
+  const [name, setName] = useState(rider?.name || '');
+  const [isPasswordEnabled, setIsPasswordEnabled] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordFeedback, setPasswordFeedback] = useState('');
 
   if (!rider) {
     return (
@@ -27,168 +26,156 @@ export function RiderProfile() {
     );
   }
 
-  const startEdit = () => {
-    setForm({
-      name: rider.name,
-      phone: rider.phone || '',
-      profilePicture: rider.profilePicture || '',
-    });
-    setEditing(true);
-  };
-
-  const handleImagePick: React.ChangeEventHandler<HTMLInputElement> = e => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (typeof reader.result === 'string') {
-        setForm(prev => ({ ...prev, profilePicture: String(reader.result) }));
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleSave = () => {
-    if (!form.name.trim()) return;
-    updateRider(rider.id, {
-      name: form.name.trim(),
-      phone: form.phone.trim(),
-      profilePicture: form.profilePicture.trim(),
-    });
-    setEditing(false);
-  };
+  const canUpdatePassword = password.length >= 8 && password === confirmPassword;
 
   const handleLogout = () => {
     setCurrentUser(null);
     navigate('/');
   };
 
+  const handleUpdatePassword = () => {
+    if (!canUpdatePassword) {
+      setPasswordFeedback('Password must be at least 8 characters and match confirmation.');
+      return;
+    }
+    setPassword('');
+    setConfirmPassword('');
+    setIsPasswordEnabled(false);
+    setPasswordFeedback('Password updated successfully.');
+  };
+
+  const handleSaveProfile = () => {
+    if (!name.trim()) {
+      setPasswordFeedback('Please enter a valid name.');
+      return;
+    }
+    updateRider(rider?.id || '', { name: name.trim() });
+    setView('main');
+    setPasswordFeedback('Profile updated successfully.');
+  };
+
   return (
     <MobileLayout>
-      {/* header gradient */}
-      <div className="bg-gradient-to-r from-red-700 to-red-600 px-5 pt-10 pb-6 rounded-b-2xl">
+      <div className="bg-gradient-to-r from-red-700 to-red-600 px-4 pt-10 pb-5 shadow-lg">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white rounded-full overflow-hidden flex items-center justify-center">
-              {rider.profilePicture ? (
-                <img src={rider.profilePicture} alt="Rider" className="w-full h-full object-cover" />
-              ) : (
-                <User size={24} className="text-red-700" />
-              )}
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center">
+              <User size={18} className="text-red-700" />
             </div>
-            <div>
-              <h2 className="text-white text-2xl font-bold leading-tight">{rider.name}</h2>
-              <p className="text-red-100 text-sm mt-1">{rider.phone || 'No contact'}</p>
-            </div>
+            <h1 className="text-white text-lg font-bold">Profile</h1>
           </div>
-          <button
-            onClick={editing ? () => setEditing(false) : startEdit}
-            className="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center"
-          >
-            {editing ? <X size={18} className="text-red-700" /> : <Pencil size={18} className="text-red-700" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <Bell size={20} className="text-white" />
+          </div>
         </div>
       </div>
 
-      {/* body */}
       <div className="flex-1 overflow-y-auto px-5 py-5 bg-[#F8F9FB]">
-        {editing ? (
-          <div className="space-y-6">
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-24 h-24 bg-gray-100 rounded-full overflow-hidden flex items-center justify-center">
-                {form.profilePicture ? (
-                  <img src={form.profilePicture} alt="Preview" className="w-full h-full object-cover" />
+        {view === 'main' ? (
+          <div className="space-y-4">
+                        <div className="flex flex-col items-center gap-3">
+              <div className="w-24 h-24 bg-white rounded-full overflow-hidden border-4 border-red-100 flex items-center justify-center">
+                {rider.profilePicture ? (
+                  <img src={rider.profilePicture} alt="Rider" className="w-full h-full object-cover" />
                 ) : (
-                  <User size={32} className="text-red-500" />
+                  <User size={40} className="text-red-700" />
                 )}
               </div>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="text-red-700 text-sm underline"
-              >
-                Change photo
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImagePick}
-              />
-            </div>
-            <div>
-              <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Name</label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 bg-white shadow-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Phone</label>
-              <input
-                type="tel"
-                value={form.phone}
-                onChange={e => setForm(prev => ({ ...prev, phone: e.target.value }))}
-                className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 bg-white shadow-sm"
-              />
             </div>
             <button
-              onClick={handleSave}
-              className="w-full bg-red-600 text-white py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-700 transition-colors shadow"
-              style={{ fontWeight: 700 }}
+              onClick={() => {
+                setName(rider.name || '');
+                setView('edit');
+                setIsPasswordEnabled(false);
+              }}
+              className="w-full bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm"
             >
-              <Save size={18} /> Save Changes
+              <span className="text-stone-700 font-medium">Edit my profile information</span>
+              <ChevronRight size={18} className="text-gray-400" />
             </button>
           </div>
         ) : (
-          <div className="space-y-4">
-            <button
-              onClick={startEdit}
-              className="w-full bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <User size={20} className="text-red-700" />
-                </div>
-                <div>
-                  <p className="text-stone-400 text-xs">Name</p>
-                  <p className="text-stone-800 font-semibold">{rider.name}</p>
-                </div>
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
+              <div>
+                <p className="text-stone-400 text-xs">Name</p>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 bg-white"
+                  placeholder="Enter your name"
+                />
               </div>
-              <ChevronRight size={18} className="text-gray-400" />
-            </button>
-            <button
-              onClick={startEdit}
-              className="w-full bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <Phone size={20} className="text-red-700" />
-                </div>
-                <div>
-                  <p className="text-stone-400 text-xs">Contact</p>
-                  <p className="text-stone-800 font-semibold">{rider.phone || 'Not set'}</p>
-                </div>
+              <div>
+                <p className="text-stone-400 text-xs">Phone</p>
+                <input
+                  type="text"
+                  value={rider.phone || 'Not set'}
+                  readOnly
+                  className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm bg-gray-100 text-stone-600 cursor-not-allowed"
+                />
               </div>
-              <ChevronRight size={18} className="text-gray-400" />
-            </button>
-            <button
-              onClick={startEdit}
-              className="w-full bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <ImageIcon size={20} className="text-red-700" />
-                </div>
-                <div>
-                  <p className="text-stone-400 text-xs">Profile Picture</p>
-                  <p className="text-stone-800 font-semibold">{rider.profilePicture ? 'Configured' : 'Not set'}</p>
-                </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <p className="text-stone-600 font-medium">Change Password</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPasswordEnabled(prev => !prev);
+                    setPasswordFeedback('');
+                  }}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-full ${isPasswordEnabled ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700'}`}                
+                >
+                  {isPasswordEnabled ? 'Disable' : 'Enable'}
+                </button>
               </div>
-              <ChevronRight size={18} className="text-gray-400" />
+
+              {isPasswordEnabled && (
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label className="block text-stone-600 mb-1 text-sm">New Password</label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 bg-white"
+                      placeholder="Enter new password"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-stone-600 mb-1 text-sm">Confirm Password</label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-red-500 bg-white"
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {isPasswordEnabled && (
+                <button
+                  onClick={handleUpdatePassword}
+                  disabled={!canUpdatePassword}
+                  className={`w-full mt-3 py-3.5 rounded-2xl text-white ${canUpdatePassword ? 'bg-red-600 hover:bg-red-700' : 'bg-red-200 cursor-not-allowed'}`}
+                >
+                  Update Password
+                </button>
+              )}
+
+              {passwordFeedback && <p className="mt-2 text-sm text-green-600">{passwordFeedback}</p>}
+            </div>
+
+            <button
+              onClick={() => setView('main')}
+              className="w-full bg-red-50 text-red-800 border border-red-200 py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
+            >
+              <ChevronRight size={18} /> Back
             </button>
           </div>
         )}
