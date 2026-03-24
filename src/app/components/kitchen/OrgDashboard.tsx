@@ -51,6 +51,9 @@ interface KitchenInfo {
   location: string;
   ordersToday: number;
   revenueToday: number;
+  avgOrderValue?: number;
+  cancellationRate?: number;
+  deliveryRate?: number;
 }
 
 interface BestSellingDish {
@@ -376,6 +379,10 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
       const revenue = branchRangeOrders.reduce((sum, o) => sum + o.total, 0);
       const revenueToday = branchTodayOrders.reduce((sum, o) => sum + o.total, 0);
 
+      const cancelled = branchRangeOrders.filter((o) => (o.status as string) === "cancelled").length;
+      const delivered = branchRangeOrders.filter((o) => o.status === "delivered").length;
+      const avgOrderValue = branchRangeOrders.length ? revenue / branchRangeOrders.length : 0;
+
       return {
         id: branch.id,
         name: branch.name,
@@ -387,6 +394,9 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
         location: branch.address,
         ordersToday: branchTodayOrders.length,
         revenueToday,
+        avgOrderValue,
+        cancellationRate: branchRangeOrders.length ? (cancelled / branchRangeOrders.length) * 100 : 0,
+        deliveryRate: branchRangeOrders.length ? (delivered / branchRangeOrders.length) * 100 : 0,
       };
     });
 
@@ -606,15 +616,28 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
                     <p className="text-sm font-semibold text-gray-900">{kitchen.totalOrders}</p>
                   </div>
                   <div>
+                    <p className="text-xs text-gray-400">Avg order value</p>
+                    <p className="text-sm font-semibold text-gray-900">{formatCurrency(kitchen.avgOrderValue ?? 0)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400">Delivery rate</p>
+                    <p className="text-sm font-semibold text-green-700">{kitchen.deliveryRate?.toFixed(1)}%</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-50">
+                  <div>
                     <p className="text-xs text-gray-400">Revenue</p>
                     <p className="text-sm font-semibold text-gray-900">{formatCurrency(kitchen.revenue)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400">Net</p>
-                    <p className="text-sm font-semibold text-red-700">
-                      {formatCurrency(kitchen.revenue - kitchen.commission)}
-                    </p>
+                    <p className="text-xs text-gray-400">Cancellation rate</p>
+                    <p className="text-sm font-semibold text-red-700">{kitchen.cancellationRate?.toFixed(1)}%</p>
                   </div>
+                </div>
+
+                <div className="mt-2 text-xs text-gray-500">
+                  {kitchen.status === 'Active' ? `Net: ${formatCurrency(kitchen.revenue - kitchen.commission)}` : 'Inactive branch'}
                 </div>
               </div>
             ))}
@@ -624,60 +647,47 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
         {/* Orders Analysis */}
         <div className="mt-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-gray-900">Orders Analysis</h3>
-            <span className="text-xs text-gray-400">{dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'This Week' : 'This Month'}</span>
+            <h3 className="text-xl font-bold text-slate-900">Orders Analysis</h3>
+            <span className="text-sm text-gray-500">{dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'This Week' : 'This Month'}</span>
           </div>
-          <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-xs font-semibold text-gray-900">Orders Analysis details</h4>
-              <button onClick={() => setShowOrdersAnalysis((s) => !s)} className="text-blue-600 text-xs font-medium">
-                {showOrdersAnalysis ? 'Hide' : 'Show'}
-              </button>
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-gray-700">Repeat Customer Rate</p>
+                <p className="text-xs text-gray-500">vs new users</p>
+              </div>
+              <div className="mt-3 h-2 w-full rounded-full bg-gray-100">
+                <div className="h-full rounded-full bg-indigo-600" style={{ width: `${data.repeatCustomerStats?.repeatPct ?? 0}%` }} />
+              </div>
+              <div className="mt-2 flex items-end justify-between">
+                <p className="text-xs text-gray-500">{data.repeatCustomerStats?.repeat ?? 0} repeat</p>
+                <p className="text-xs font-semibold text-slate-900">{Number(data.repeatCustomerStats?.repeatPct ?? 0).toFixed(1)}%</p>
+              </div>
             </div>
 
-            {showOrdersAnalysis ? (
-              <>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <div className="rounded-lg bg-indigo-50 p-3 text-xs">
-                    <p className="font-medium text-gray-700">New vs Repeat Customers</p>
-                    <p>{data.repeatCustomerStats?.new ?? 0} new ({data.repeatCustomerStats?.newPct ?? 0}%)</p>
-                    <p>{data.repeatCustomerStats?.repeat ?? 0} repeat ({data.repeatCustomerStats?.repeatPct ?? 0}%)</p>
-                  </div>
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+              <p className="text-sm font-semibold text-gray-700">Peak Order Hour</p>
+              <p className="text-2xl font-bold text-emerald-700">{data.peakOrderTime?.hour ?? '00:00'}</p>
+              <p className="text-xs text-gray-500">{data.peakOrderTime?.count ?? 0} orders</p>
+            </div>
 
-                  <div className="rounded-lg bg-green-50 p-3 text-xs">
-                    <p className="font-medium text-gray-700">Peak Order Hour</p>
-                    <p>{data.peakOrderTime?.hour ?? '0:00'} ({data.peakOrderTime?.count ?? 0} orders)</p>
-                  </div>
 
-                  <div className="rounded-lg bg-blue-50 p-3 text-xs">
-                    <p className="font-medium text-gray-700">Top Category</p>
-                    <p>{data.orderCategoryStats?.[0]?.category || '—'}</p>
-                    <p>{data.orderCategoryStats?.[0]?.orders ?? 0} orders • {formatCurrency(data.orderCategoryStats?.[0]?.revenue ?? 0)}</p>
-                  </div>
-                </div>
 
-                <div className="mt-4 h-44">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.peakOrderTimeline || []} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
-                      <YAxis allowDecimals={false} />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="orders" stroke="#2563eb" strokeWidth={2} dot={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="mt-4 space-y-1 text-xs">
-                  <p className="font-medium text-gray-700">Orders by Category</p>
-                  {data.orderCategoryStats?.slice(0, 4).map((c: any) => (
-                    <p key={c.category}>{c.category}: {c.orders} orders • {c.quantity} items • {formatCurrency(c.revenue)}</p>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p className="text-xs text-gray-400">Click "Show" to view detailed orders analysis for the selected date range.</p>
-            )}
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm lg:col-span-2">
+              <p className="text-sm font-semibold text-gray-700">Hourly Order Trend</p>
+              <div className="mt-2 h-40">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={data.peakOrderTimeline || []} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="orders" stroke="#2563eb" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -694,9 +704,9 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
               <p className="text-xs text-gray-500">
                 Zinger Burger trend: {data.zingerTrend?.direction === "up" ? "▲ Trending up" : data.zingerTrend?.direction === "down" ? "▼ Trending down" : "— Flat"}
               </p>
-              <p className="text-xs text-gray-500">
+              {/* <p className="text-xs text-gray-500">
                 {data.zingerTrend?.currentQty ?? 0} sold {dateRange === 'today' ? 'today' : dateRange === 'week' ? 'this week' : 'this month'} vs {data.zingerTrend?.previousQty ?? 0} in previous period ({data.zingerTrend?.changePct?.toFixed(1)}% change)
-              </p>
+              </p> */}
             </div>
 
             {data.lowStockDishes && data.lowStockDishes.length > 0 && (
