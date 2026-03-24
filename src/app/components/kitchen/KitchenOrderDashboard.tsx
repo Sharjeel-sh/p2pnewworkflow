@@ -26,7 +26,7 @@ import {
   TrendingDown,
   Activity,
   BarChart3,
-  PieChart,
+  PieChart as PieChartIcon,
   CreditCard,
   Smartphone,
   Watch,
@@ -51,9 +51,23 @@ import {
 import { MobileLayout } from "../shared/MobileLayout";
 import { KitchenBottomNav } from "./KitchenBottomNav";
 import { useApp } from "../../context/AppContext";
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 export function KitchenOrderDashboard() {
-  const { currentUser, orders, menuItems, reviews } = useApp();
+  const { currentUser, orders, dishes } = useApp();
   const orgId = currentUser?.orgId;
   const [selectedTimeRange, setSelectedTimeRange] = useState("today");
   const [customStartDate, setCustomStartDate] = useState(() => {
@@ -75,20 +89,19 @@ export function KitchenOrderDashboard() {
     const endOfToday = new Date(today);
     endOfToday.setHours(23, 59, 59, 999);
 
-    if (selectedTimeRange === "last7") {
+    if (selectedTimeRange === "week") {
       const start = new Date(today);
       start.setDate(start.getDate() - 6);
       return { start, end: endOfToday };
     }
 
-    if (selectedTimeRange === "last30") {
-      const start = new Date(today);
-      start.setDate(start.getDate() - 29);
+    if (selectedTimeRange === "month") {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
       return { start, end: endOfToday };
     }
 
-    if (selectedTimeRange === "monthToDate") {
-      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    if (selectedTimeRange === "year") {
+      const start = new Date(today.getFullYear(), 0, 1);
       return { start, end: endOfToday };
     }
 
@@ -112,9 +125,9 @@ export function KitchenOrderDashboard() {
 
   const rangeLabel = useMemo(() => {
     if (selectedTimeRange === "today") return "Today";
-    if (selectedTimeRange === "last7") return "Last 7 days";
-    if (selectedTimeRange === "last30") return "Last 30 days";
-    if (selectedTimeRange === "monthToDate") return "Month to date";
+    if (selectedTimeRange === "week") return "Last 7 days";
+    if (selectedTimeRange === "month") return "Month to date";
+    if (selectedTimeRange === "year") return "Year to date";
     if (selectedTimeRange === "custom") return `${customStartDate} → ${customEndDate}`;
     return "Custom";
   }, [selectedTimeRange, customStartDate, customEndDate]);
@@ -180,8 +193,8 @@ export function KitchenOrderDashboard() {
       processing: filtered.filter(o => o.status === "preparing").length,
       ready: filtered.filter(o => o.status === "ready").length,
       delivered: filtered.filter(o => o.status === "delivered").length,
-      rejected: filtered.filter(o => o.status === "rejected").length,
-      cancelled: filtered.filter(o => o.status === "cancelled").length,
+      rejected: filtered.filter(o => (o.status as any) === "rejected").length,
+      cancelled: filtered.filter(o => (o.status as any) === "cancelled").length,
       revenue: totalRevenue,
       todayRevenue: totalRevenue,
       avgOrder,
@@ -190,7 +203,7 @@ export function KitchenOrderDashboard() {
   }, [orgId, rangeOrders]);
 
   const bestSellingEnhanced = useMemo(() => {
-    if (!orgId || !menuItems) return mockBestSelling;
+    if (!orgId || !dishes) return mockBestSelling;
 
     const sales: Record<string, number> = {};
     rangeOrders
@@ -209,25 +222,25 @@ export function KitchenOrderDashboard() {
       .slice(0, 5);
 
     return result.length > 0 ? result : mockBestSelling;
-  }, [orgId, orders, menuItems]);
+  }, [orgId, orders, dishes]);
 
   const recentOrders = useMemo(() => {
     if (!orgId) return mockRecentOrders;
 
     const result = orders
       .filter(o => o.orgId === orgId)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 5);
 
     return result.length > 0 ? result : mockRecentOrders;
   }, [orgId, orders]);
 
   const menuAlerts = useMemo(() => {
-    if (!orgId || !menuItems) return [];
-    return menuItems
-      .filter(item => item.orgId === orgId && item.stock < 10)
+    if (!orgId || !dishes) return [];
+    return dishes
+      .filter(item => item.orgId === orgId && (item as any).stock < 10)
       .slice(0, 3);
-  }, [orgId, menuItems]);
+  }, [orgId, dishes]);
 
   const orderTrends = useMemo(() => {
     if (!orgId) return { increase: 0, percentage: 0 };
@@ -252,19 +265,62 @@ export function KitchenOrderDashboard() {
   }, [orgId, orders]);
 
   const peakHours = useMemo(() => {
-    const hourCounts = {};
-    orders
-      .filter(o => o.orgId === orgId)
-      .forEach(order => {
-        const hour = new Date(order.createdAt).getHours();
-        hourCounts[hour] = (hourCounts[hour] || 0) + 1;
-      });
+    const hourCounts: Record<number, number> = {};
+    orgOrders.forEach(order => {
+      const hour = new Date(order.createdAt).getHours();
+      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+    });
 
-    const peakHour = Object.entries(hourCounts)
-      .sort((a, b) => b[1] - a[1])[0];
+    const peakHourEntry = Object.entries(hourCounts)
+      .sort((a, b) => Number(b[1]) - Number(a[1]))[0];
 
-    return peakHour ? `${peakHour[0]}:00` : "12:00";
-  }, [orgId, orders]);
+    return peakHourEntry ? `${peakHourEntry[0]}:00` : "12:00";
+  }, [orgOrders]);
+
+  const last7Days = useMemo(() => {
+    const today = new Date();
+    return Array.from({ length: 7 }, (_, idx) => {
+      const dt = new Date(today);
+      dt.setDate(today.getDate() - 6 + idx);
+      return dt;
+    });
+  }, []);
+
+  const revenueTrendData = useMemo(() => {
+    return last7Days.map(dt => {
+      const day = dt.toISOString().slice(5, 10);
+      const revenue = rangeOrders
+        .filter(o => new Date(o.createdAt).toDateString() === dt.toDateString())
+        .reduce((sum, o) => sum + (o.total || 0), 0);
+      return { day, revenue };
+    });
+  }, [last7Days, rangeOrders]);
+
+  const dailyOrdersData = useMemo(() => {
+    return last7Days.map(dt => {
+      const day = dt.toISOString().slice(5, 10);
+      const ordersCount = rangeOrders.filter(o => new Date(o.createdAt).toDateString() === dt.toDateString()).length;
+      return { day, orders: ordersCount };
+    });
+  }, [last7Days, rangeOrders]);
+
+  const statusData = useMemo(() => {
+    const completed = stats?.delivered ?? 0;
+    const cancelled = stats?.cancelled ?? 0;
+    return [
+      { name: "Completed", value: completed, color: "#34D399" },
+      { name: "Cancelled", value: cancelled, color: "#F87171" },
+    ];
+  }, [stats]);
+
+  const peakHourHeatmap = useMemo(() => {
+    const counts = Array.from({ length: 24 }, (_, h) => {
+      const value = orgOrders.filter(order => new Date(order.createdAt).getHours() === h).length;
+      return { hour: h, value };
+    });
+    const max = Math.max(...counts.map(c => c.value), 1);
+    return counts.map(c => ({ ...c, intensity: c.value / max }));
+  }, [orgOrders]);
 
   if (!stats) return null;
 
@@ -276,15 +332,12 @@ export function KitchenOrderDashboard() {
           <h1 className="text-red-600 text-2xl font-bold">P2P</h1>
           <Bell size={22} className="text-red-600" />
         </div>
-
-        {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto pb-20">
           <div className="px-5 mt-4 mb-6">
             <h2 className="text-2xl font-semibold text-gray-400">
-              {currentUser?.organizationName || "SoftOpsHub"}
+              {currentUser?.orgId ? `Org: ${currentUser.orgId}` : "SoftOpsHub"}
             </h2>
           </div>
-
           {/* Orders Card */}
           <div className="px-5">
             <div className="bg-white rounded-3xl shadow-lg p-6">
@@ -326,83 +379,88 @@ export function KitchenOrderDashboard() {
             </div>
           </div>
 
-          {/* Revenue & Performance Card */}
-          <div className="px-5 mt-4">
-            <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h3 className="text-gray-800 text-lg font-semibold">Performance</h3>
-                  <p className="text-gray-400 text-xs">Overview for {rangeLabel}</p>
+
+          <div className="px-5 mt-4 mb-6 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-extrabold text-slate-900">Performance</h2>
+              <p className="text-gray-500 mt-1">Overview for {rangeLabel}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedTimeRange}
+                onChange={e => setSelectedTimeRange(e.target.value)}
+                className="text-xs bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-sm"
+              >
+                <option value="today">Today</option>
+                <option value="week">Weekly</option>
+                <option value="month">Monthly</option>
+                <option value="year">Annual</option>
+                <option value="custom">Custom Date</option>
+              </select>
+              {selectedTimeRange === "custom" && (
+                <div className="flex space-x-2">
+                  <input
+                    type="date"
+                    value={customStartDate}
+                    onChange={e => setCustomStartDate(e.target.value)}
+                    className="text-xs bg-white border border-gray-200 rounded-lg px-2 py-2"
+                  />
+                  <span className="text-xs text-gray-500">to</span>
+                  <input
+                    type="date"
+                    value={customEndDate}
+                    onChange={e => setCustomEndDate(e.target.value)}
+                    className="text-xs bg-white border border-gray-200 rounded-lg px-2 py-2"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="px-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-green-50 rounded-3xl p-5 shadow-sm border border-green-100">
+              <p className="text-xs font-semibold text-green-700 uppercase">Revenue</p>
+              <p className="text-2xl font-bold text-slate-900 mt-2">${stats.todayRevenue.toFixed(0)}</p>
+            </div>
+            <div className="bg-blue-50 rounded-3xl p-5 shadow-sm border border-blue-100">
+              <p className="text-xs font-semibold text-blue-700 uppercase">Orders</p>
+              <p className="text-2xl font-bold text-slate-900 mt-2">{stats.total}</p>
+            </div>
+          </div>
+
+          <div className="px-5 mt-4 grid grid-cols-1 xl:grid-cols-2 gap-4">
+
+            {/* Other cards */}
+
+            {/* FULL WIDTH CARD */}
+            <div className="xl:col-span-2">
+              <div className="bg-white rounded-3xl shadow-lg p-4 border border-gray-100 w-full">
+                <h3 className="text-gray-700 font-semibold mb-3">
+                  Peak Hour Distribution
+                </h3>
+
+                <div className="w-full h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={peakHourHeatmap}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="hour" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="value" fill="#14B8A6" />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <select
-                    value={selectedTimeRange}
-                    onChange={e => setSelectedTimeRange(e.target.value)}
-                    className="text-xs bg-white border border-gray-200 rounded-lg px-2 py-1 shadow-sm"
-                  >
-                    <option value="today">Today</option>
-                    <option value="last7">Last 7 days</option>
-                    <option value="last30">Last 30 days</option>
-                    <option value="monthToDate">Month to date</option>
-                    <option value="custom">Custom</option>
-                  </select>
-
-                  {selectedTimeRange === "custom" && (
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="date"
-                        value={customStartDate}
-                        onChange={e => setCustomStartDate(e.target.value)}
-                        className="text-xs bg-white border border-gray-200 rounded-lg px-2 py-1"
-                      />
-                      <span className="text-xs text-gray-400">to</span>
-                      <input
-                        type="date"
-                        value={customEndDate}
-                        onChange={e => setCustomEndDate(e.target.value)}
-                        className="text-xs bg-white border border-gray-200 rounded-lg px-2 py-1"
-                      />
-                    </div>
-                  )}
-
-                  <div className="bg-indigo-50 rounded-xl p-2">
-                    <DollarSign size={20} className="text-indigo-600" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-green-50 rounded-xl p-4">
-                  <p className="text-gray-500 text-xs uppercase tracking-wide">Revenue</p>
-                  <p className="text-gray-900 text-2xl font-bold mt-1">${stats.todayRevenue}</p>
-                  <p className="text-green-600 text-xs mt-1">+{orderTrends.percentage.toFixed(1)}% vs yesterday</p>
-                </div>
-                <div className="bg-blue-50 rounded-xl p-4">
-                  <p className="text-gray-500 text-xs uppercase tracking-wide">Orders</p>
-                  <p className="text-gray-900 text-2xl font-bold mt-1">{stats.delivered}</p>
-                  <p className="text-blue-600 text-xs mt-1">Avg ${stats.avgOrder} / order</p>
-                </div>
-              </div>
-
-              <div className="border-t border-gray-100 my-5"></div>
-
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="bg-purple-50 rounded-lg py-3">
-                  <p className="text-gray-500 text-xs uppercase">Peak Hour</p>
-                  <p className="text-purple-600 font-semibold mt-1">{peakHours}</p>
-                </div>
-                <div className="bg-orange-50 rounded-lg py-3">
-                  <p className="text-gray-500 text-xs uppercase">Total Revenue</p>
-                  <p className="text-orange-600 font-semibold mt-1">${stats.revenue}</p>
-                </div>
-                <div className="bg-red-50 rounded-lg py-3">
-                  <p className="text-gray-500 text-xs uppercase">Completion</p>
-                  <p className="text-red-600 font-semibold mt-1">{stats.total ? Math.round((stats.delivered / stats.total) * 100) : 0}%</p>
+                <div className="mt-3 text-center">
+                  <p className="text-2xl font-bold text-indigo-600">{peakHours}</p>
+                  <p className="text-sm text-gray-500">Highest activity level</p>
                 </div>
               </div>
             </div>
+
           </div>
+
+          {/* Best Selling Dishes */}
 
           {/* Best Selling Dishes */}
           <div className="px-5 mt-6">
@@ -422,11 +480,11 @@ export function KitchenOrderDashboard() {
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center mr-3 ${index === 0 ? 'bg-yellow-100' :
                           index === 1 ? 'bg-gray-100' :
                             index === 2 ? 'bg-orange-100' : 'bg-blue-50'
-                        }`}>
+                          }`}>
                           <span className={`text-xs font-bold ${index === 0 ? 'text-yellow-600' :
                             index === 1 ? 'text-gray-600' :
                               index === 2 ? 'text-orange-600' : 'text-blue-600'
-                          }`}>
+                            }`}>
                             #{index + 1}
                           </span>
                         </div>
@@ -473,7 +531,7 @@ export function KitchenOrderDashboard() {
                                 order.status === 'rejected' ? 'bg-red-100 text-red-700' :
                                   order.status === 'cancelled' ? 'bg-gray-100 text-gray-700' :
                                     'bg-gray-100 text-gray-700'
-                        }`}>
+                          }`}>
                           {order.status}
                         </span>
                       </div>
@@ -511,7 +569,7 @@ export function KitchenOrderDashboard() {
                 <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">{menuAlerts.length} items</span>
               </div>
               <div className="bg-white rounded-2xl shadow-sm p-4">
-                {menuAlerts.map((item, index) => (
+                {menuAlerts.map((item: any, index: number) => (
                   <div key={index} className="flex items-center justify-between py-2">
                     <span className="text-sm text-gray-700">{item.name}</span>
                     <span className="text-sm font-bold text-red-600">{item.stock} left</span>
