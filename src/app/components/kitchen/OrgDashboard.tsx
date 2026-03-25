@@ -55,6 +55,22 @@ interface KitchenInfo {
   cancellationRate?: number;
   deliveryRate?: number;
 }
+interface KitchenInfo {
+  id: string;
+  name: string;
+  orders: number;
+  totalOrders: number;
+  deliveredOrders: number; // Add this
+  revenue: number;
+  commission: number;
+  status: "Active" | "Inactive";
+  location: string;
+  ordersToday: number;
+  revenueToday: number;
+  avgOrderValue?: number;
+  cancellationRate?: number;
+  deliveryRate?: number;
+}
 
 interface BestSellingDish {
   name: string;
@@ -279,27 +295,27 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
       { name: "Cheese Pizza Slice", qty: 63, revenue: 4410 },
     ];
 
-    const previousBranchOrders = selectedBranchId
+const previousBranchOrders = selectedBranchId
       ? previousRangeOrders.filter((o) => o.branchId === selectedBranchId)
       : previousRangeOrders;
 
-    const calculateDishStats = (ordersArray: typeof branchOrders) =>
-      ordersArray
-        .filter((o) => o.status === "delivered")
-        .reduce<Record<string, { name: string; qty: number; revenue: number }>>((acc, order) => {
-          order.items?.forEach((item) => {
-            const name = (item as any)?.dish?.name || (item as any)?.name || "Unknown";
-            const qty = (item as any)?.quantity || 0;
-            const price = (item as any)?.dish?.price || 0;
-            if (!acc[name]) acc[name] = { name, qty: 0, revenue: 0 };
-            acc[name].qty += qty;
-            acc[name].revenue += qty * price;
-          });
-          return acc;
-        }, {});
+const calculateDishStats = (ordersArray: typeof branchOrders) =>
+  ordersArray
+    .filter((o) => o.status === "delivered")
+    .reduce<Record<string, { name: string; qty: number; revenue: number }>>((acc, order) => {
+      order.items?.forEach((item) => {
+        const name = (item as any)?.dish?.name || (item as any)?.name || "Unknown";
+        const qty = (item as any)?.quantity || 0;
+        const price = (item as any)?.dish?.price || 0;
+        if (!acc[name]) acc[name] = { name, qty: 0, revenue: 0 };
+        acc[name].qty += qty;
+        acc[name].revenue += qty * price;
+      });
+      return acc;
+    }, {});
 
-    const currentDishStats = calculateDishStats(branchOrders);
-    const previousDishStats = calculateDishStats(previousBranchOrders);
+const currentDishStats = calculateDishStats(branchOrders);
+const previousDishStats = calculateDishStats(previousBranchOrders);
 
     const totalDishRevenue = Object.values(currentDishStats).reduce((sum, item) => sum + item.revenue, 0);
     const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty - a.qty).slice(0, 5);
@@ -355,6 +371,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
     const newCustomers = totalCustomers - repeatCustomers;
     const repeatCustomerPct = totalCustomers ? (repeatCustomers / totalCustomers) * 100 : 0;
     const newCustomerPct = totalCustomers ? (newCustomers / totalCustomers) * 100 : 0;
+    
 
     // Peak order times
     const hourlyOrderCounts = Array.from({ length: 24 }, (_, hour) => ({ hour, count: 0 }));
@@ -387,6 +404,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
         name: branch.name,
         orders: branchRangeOrders.length,
         totalOrders: branchRangeOrders.length,
+        deliveredOrders: delivered,
         revenue,
         commission: revenue * COMMISSION_RATE,
         status: branchRangeOrders.length > 0 ? "Active" : "Inactive",
@@ -559,29 +577,33 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
             </div>
           </div>
 
-          <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
-                <ShoppingBag size={16} className="text-red-700" />
-              </div>
-            </div>
-            <p className="text-xl font-bold text-gray-900">{totalOrders.toLocaleString()}</p>
-            <p className="text-xs text-gray-500">Total Orders</p>
-            <p className="text-xs text-red-700 mt-1.5">+{ordersToday} today</p>
-          </div>
-
-          <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
-                <Bike size={16} className="text-purple-600" />
-              </div>
-            </div>
-            <p className="text-xl font-bold text-gray-900">{data.totalRiders}</p>
-            <p className="text-xs text-gray-500">Total Riders</p>
-            <p className="text-xs text-purple-600 mt-1.5">
-              {data.activeRiders} active · {data.inactiveRiders} inactive
-            </p>
-          </div>
+<div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+  <div className="flex items-center gap-2 mb-2">
+    <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
+      <ShoppingBag size={16} className="text-red-700" />
+    </div>
+  </div>
+  <p className="text-xl font-bold text-gray-900">{totalOrders.toLocaleString()}</p>
+  <p className="text-xs text-gray-500">Total Orders</p>
+  
+  {/* Add pending and delivered orders */}
+  <div className="mt-2 pt-2 border-t border-gray-100">
+    <div className="flex justify-between items-center mb-1">
+      <span className="text-xs text-gray-500">Delivered:</span>
+      <span className="text-xs font-semibold text-green-600">{data.totalDeliveredOrders.toLocaleString()}</span>
+    </div>
+    <div className="flex justify-between items-center">
+      <span className="text-xs text-gray-500">Pending:</span>
+      <span className="text-xs font-semibold text-orange-600">{data.totalPendingOrders.toLocaleString()}</span>
+    </div>
+       <div className="flex justify-between items-center">
+      <span className="text-xs text-gray-500">Cancelled:</span>
+      <span className="text-xs font-semibold text-red-600">{data.totalCancelledOrders.toLocaleString()}</span>
+    </div>
+  </div>
+  
+  <p className="text-xs text-red-700 mt-1.5">+{ordersToday} today</p>
+</div>
         </div>
 
         <div>
