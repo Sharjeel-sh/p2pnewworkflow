@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
-export type UserRole = 'buyer' | 'kitchen' | 'rider';
+export type UserRole = 'buyer' | 'kitchen' | 'rider' | 'system';
 export type OrgType = 'homemade' | 'restaurant';
 export type OrderStatus = 'pending' | 'accepted' | 'preparing' | 'ready' | 'picked_up' | 'delivered';
 
@@ -72,6 +72,8 @@ export interface CartItem {
 }
 
 export interface OrderItem {
+  price: number;
+  name: any;
   dish: Dish;
   quantity: number;
 }
@@ -700,18 +702,50 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       {
         id: `msg-${generateId()}`,
         orderId: order2Id,
-        senderName: 'Mock Buyer Pickup',
-        senderRole: 'buyer',
-        message: 'Please deliver quickly.',
-        timestamp: new Date(now - 15 * 60 * 1000).toISOString(),
+        senderName: 'System',
+        senderRole: 'system',
+        message: `Order Summary (Order #${order2Id.slice(-6).toUpperCase()}): 1x Chicken Karahi, 1x Garlic Naan, 1x Mango Lassi (Add extra spicy sauce)`,
+        timestamp: new Date(now - 20 * 60 * 1000).toISOString(),
       },
       {
         id: `msg-${generateId()}`,
         orderId: order2Id,
         senderName: 'Mock Kitchen',
         senderRole: 'kitchen',
-        message: 'Order is ready for rider pickup.',
+        message: 'Order received! Beginning preparation now. (Estimated 15 mins)',
+        timestamp: new Date(now - 18 * 60 * 1000).toISOString(),
+      },
+      {
+        id: `msg-${generateId()}`,
+        orderId: order2Id,
+        senderName: 'Mock Rider',
+        senderRole: 'rider',
+        message: 'Hello all, Rider here. I\'m on my way to the kitchen.',
+        timestamp: new Date(now - 15 * 60 * 1000).toISOString(),
+      },
+      {
+        id: `msg-${generateId()}`,
+        orderId: order2Id,
+        senderName: 'Mock Buyer Pickup',
+        senderRole: 'buyer',
+        message: 'Great, thanks for the update! Please ensure the order includes the extra sauce.',
         timestamp: new Date(now - 12 * 60 * 1000).toISOString(),
+      },
+      {
+        id: `msg-${generateId()}`,
+        orderId: order2Id,
+        senderName: 'Mock Kitchen',
+        senderRole: 'kitchen',
+        message: '@Mock Buyer Pickup Noted on the extra sauce. Packing up now.',
+        timestamp: new Date(now - 10 * 60 * 1000).toISOString(),
+      },
+      {
+        id: `msg-${generateId()}`,
+        orderId: order2Id,
+        senderName: 'Mock Buyer Pickup',
+        senderRole: 'buyer',
+        message: 'Thanks, Kitchen!',
+        timestamp: new Date(now - 8 * 60 * 1000).toISOString(),
       },
     ];
 

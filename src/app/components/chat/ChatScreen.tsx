@@ -8,13 +8,15 @@ import type { UserRole } from '../../context/AppContext';
 const ROLE_COLORS: Record<UserRole, { bubble: string; name: string; bg: string }> = {
   buyer: { bubble: 'bg-blue-500 text-white', name: 'text-blue-600', bg: 'bg-blue-50' },
   kitchen: { bubble: 'bg-red-700 text-white', name: 'text-red-800', bg: 'bg-red-50' },
-  rider: { bubble: 'bg-red-600 text-white', name: 'text-red-700', bg: 'bg-red-50' },
+  rider: { bubble: 'bg-indigo-600 text-white', name: 'text-indigo-700', bg: 'bg-indigo-50' },
+  system: { bubble: 'bg-gray-200 text-stone-700', name: 'text-stone-500', bg: 'bg-gray-50' },
 };
 
 const ROLE_EMOJI: Record<UserRole, string> = {
   buyer: '🛍️',
   kitchen: '🍳',
   rider: '🚴',
+  system: '⚙️',
 };
 
 function formatTimeAgo(iso: string) {
@@ -165,24 +167,42 @@ export function ChatScreen() {
           </div>
         ) : (
           orderMessages.map(msg => {
-            const isMe = msg.senderName === userInfo.name && msg.senderRole === userInfo.role;
-            const colors = ROLE_COLORS[msg.senderRole];
+            const isSystem = msg.senderRole === 'system' || msg.senderName === 'System';
+            const isMe = !isSystem && msg.senderName === userInfo.name && msg.senderRole === userInfo.role;
+            const colors = ROLE_COLORS[msg.senderRole] || ROLE_COLORS.buyer;
+
+            if (isSystem) {
+              return (
+                <div key={msg.id} className="flex justify-center">
+                  <div className="max-w-[84%] bg-gray-100 border border-gray-200 text-gray-700 rounded-2xl p-3"> 
+                    <p className="text-xs text-gray-500 mb-1 flex items-center gap-2">
+                      <span>{ROLE_EMOJI.system}</span>
+                      <strong>System</strong>
+                      <span className="text-stone-400 font-normal">{formatTimeAgo(msg.timestamp)}</span>
+                    </p>
+                    <p style={{ fontSize: '0.92rem', lineHeight: 1.45 }}>{msg.message}</p>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[78%] ${isMe ? '' : ''}`}>
+                <div className={`max-w-[78%] ${isMe ? 'text-right' : 'text-left'}`}>
                   {!isMe && (
-                    <p className={`text-xs mb-1 flex items-center gap-1 ${colors.name}`} style={{ fontWeight: 600 }}>
-                      {ROLE_EMOJI[msg.senderRole]} {msg.senderName}
-                      <span className="text-stone-400 font-normal">{formatTimeAgo(msg.timestamp)}</span>
+                    <p className={`text-xs mb-1 flex items-center gap-1 ${colors.name}`} style={{ fontWeight: 700 }}>
+                      <span>{ROLE_EMOJI[msg.senderRole]}</span>
+                      {msg.senderName}
+                      <span className="text-stone-400 font-normal ml-1">{formatTimeAgo(msg.timestamp)}</span>
                     </p>
                   )}
                   <div className={`px-4 py-2.5 rounded-2xl ${
                     isMe ? `${colors.bubble} rounded-br-sm` : `bg-white border border-gray-100 text-stone-800 rounded-bl-sm shadow-sm`
                   }`}>
-                    <p style={{ fontSize: '0.9rem', lineHeight: 1.45 }}>{msg.message}</p>
+                    <p style={{ fontSize: '0.92rem', lineHeight: 1.45 }}>{msg.message}</p>
                   </div>
                   {isMe && (
-                    <p className="text-stone-400 text-xs mt-1 text-right">{formatTimeAgo(msg.timestamp)}</p>
+                    <p className="text-stone-400 text-xs mt-1">{formatTimeAgo(msg.timestamp)}</p>
                   )}
                 </div>
               </div>
