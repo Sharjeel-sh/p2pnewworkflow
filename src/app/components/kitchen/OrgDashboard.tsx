@@ -93,7 +93,6 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
   const [dateRange, setDateRange] = useState<DateRange>("week");
   const [kitchenFilter, setKitchenFilter] = useState<string>("all");
   const [expandedRider, setExpandedRider] = useState<string | null>(null);
-  const [showOrdersAnalysis, setShowOrdersAnalysis] = useState<boolean>(true);
 
   const orgId = currentUser?.orgId;
 
@@ -447,6 +446,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
       totalRevenue: kitchens.reduce((sum, k) => sum + k.revenue, 0),
       totalRevenueToday: todayOrders.reduce((sum, o) => sum + o.total, 0),
       kitchens,
+      selectedBranchId, // Add this to know if a specific branch is selected
     };
   }, [orgId, branches, orders, riders, dateRange, kitchenFilter]);
 
@@ -474,6 +474,9 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
   const topDishMaxQty = data.bestSellingDishes && data.bestSellingDishes.length
     ? Math.max(...data.bestSellingDishes.map((d: any) => d.qty))
     : 1;
+
+  // Determine if a specific branch is selected (not "all")
+  const isSpecificBranchSelected = kitchenFilter !== "all";
 
   return (
     <div className="flex-1 min-h-0 overflow-y-auto">
@@ -579,8 +582,6 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
               {data.activeRiders} active · {data.inactiveRiders} inactive
             </p>
           </div>
-
-
         </div>
 
         <div>
@@ -644,132 +645,127 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
           </div>
         </div>
 
-        {/* Orders Analysis */}
-        <div className="mt-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xl font-bold text-slate-900">Orders Analysis</h3>
-            <span className="text-sm text-gray-500">{dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'This Week' : 'This Month'}</span>
+        {/* Conditional Rendering: Orders Analysis for Specific Branch OR Top Rated Dishes for All Branches */}
+        {isSpecificBranchSelected ? (
+          // Show Orders Analysis when a specific branch is selected
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xl font-bold text-slate-900">Orders Analysis - {kitchenFilter}</h3>
+              <span className="text-sm text-gray-500">{dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'This Week' : 'This Month'}</span>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-gray-700">Repeat Customer Rate</p>
+                  <p className="text-xs text-gray-500">vs new users</p>
+                </div>
+                <div className="mt-3 h-2 w-full rounded-full bg-gray-100">
+                  <div className="h-full rounded-full bg-indigo-600" style={{ width: `${data.repeatCustomerStats?.repeatPct ?? 0}%` }} />
+                </div>
+                <div className="mt-2 flex items-end justify-between">
+                  <p className="text-xs text-gray-500">{data.repeatCustomerStats?.repeat ?? 0} repeat</p>
+                  <p className="text-xs font-semibold text-slate-900">{Number(data.repeatCustomerStats?.repeatPct ?? 0).toFixed(1)}%</p>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <p className="text-sm font-semibold text-gray-700">Peak Order Hour</p>
+                <p className="text-2xl font-bold text-emerald-700">{data.peakOrderTime?.hour ?? '00:00'}</p>
+                <p className="text-xs text-gray-500">{data.peakOrderTime?.count ?? 0} orders</p>
+              </div>
+
+              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm lg:col-span-2">
+                <p className="text-sm font-semibold text-gray-700">Hourly Order Trend</p>
+                <div className="mt-2 h-40">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data.peakOrderTimeline || []} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="orders" stroke="#2563eb" strokeWidth={2} dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-gray-700">Repeat Customer Rate</p>
-                <p className="text-xs text-gray-500">vs new users</p>
-              </div>
-              <div className="mt-3 h-2 w-full rounded-full bg-gray-100">
-                <div className="h-full rounded-full bg-indigo-600" style={{ width: `${data.repeatCustomerStats?.repeatPct ?? 0}%` }} />
-              </div>
-              <div className="mt-2 flex items-end justify-between">
-                <p className="text-xs text-gray-500">{data.repeatCustomerStats?.repeat ?? 0} repeat</p>
-                <p className="text-xs font-semibold text-slate-900">{Number(data.repeatCustomerStats?.repeatPct ?? 0).toFixed(1)}%</p>
-              </div>
+        ) : (
+          // Show Top Rated Dishes when "All Branches" is selected
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-gray-900">Top Rated Dishes</h3>
+              <span className="text-xs text-gray-400">{dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'This Week' : 'This Month'}</span>
             </div>
-
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-              <p className="text-sm font-semibold text-gray-700">Peak Order Hour</p>
-              <p className="text-2xl font-bold text-emerald-700">{data.peakOrderTime?.hour ?? '00:00'}</p>
-              <p className="text-xs text-gray-500">{data.peakOrderTime?.count ?? 0} orders</p>
-            </div>
-
-
-
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm lg:col-span-2">
-              <p className="text-sm font-semibold text-gray-700">Hourly Order Trend</p>
-              <div className="mt-2 h-40">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data.peakOrderTimeline || []} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="orders" stroke="#2563eb" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
+            <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+              <div className="mb-3 space-y-1">
+                <p className="text-xs text-gray-500">
+                  Zinger Burger trend: {data.zingerTrend?.direction === "up" ? "▲ Trending up" : data.zingerTrend?.direction === "down" ? "▼ Trending down" : "— Flat"}
+                </p>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Rider Performance */}
-
-        {/* Top Rated Dishes */}
-        <div className="mt-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-gray-900">Top Rated Dishes</h3>
-            <span className="text-xs text-gray-400">{dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'This Week' : 'This Month'}</span>
-          </div>
-          <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-            <div className="mb-3 space-y-1">
-              <p className="text-xs text-gray-500">
-                Zinger Burger trend: {data.zingerTrend?.direction === "up" ? "▲ Trending up" : data.zingerTrend?.direction === "down" ? "▼ Trending down" : "— Flat"}
-              </p>
-              {/* <p className="text-xs text-gray-500">
-                {data.zingerTrend?.currentQty ?? 0} sold {dateRange === 'today' ? 'today' : dateRange === 'week' ? 'this week' : 'this month'} vs {data.zingerTrend?.previousQty ?? 0} in previous period ({data.zingerTrend?.changePct?.toFixed(1)}% change)
-              </p> */}
-            </div>
-
-            {data.lowStockDishes && data.lowStockDishes.length > 0 && (
-              <div className="mb-3 rounded-lg bg-red-50 p-2 text-xs text-red-800">
-                <strong>Low stock alert:</strong> {data.lowStockDishes.map((dish: any) => `${dish.name} (${dish.stock} left)`).join(', ')}
-              </div>
-            )}
-
-            <div className="h-40 mb-3">
-              {data.orderCountChart && data.orderCountChart.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.orderCountChart} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip formatter={(value: number) => `${value} orders`} />
-                    <Bar dataKey="qty" fill="#f97316" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 text-xs text-gray-500">
-                  No top-rated dish activity to display
+              {data.lowStockDishes && data.lowStockDishes.length > 0 && (
+                <div className="mb-3 rounded-lg bg-red-50 p-2 text-xs text-red-800">
+                  <strong>Low stock alert:</strong> {data.lowStockDishes.map((dish: any) => `${dish.name} (${dish.stock} left)`).join(', ')}
                 </div>
               )}
-            </div>
 
-            <div className="space-y-3">
-              {data.bestSellingDishes && data.bestSellingDishes.length > 0 ? (
-                data.bestSellingDishes.map((dish: any, idx: number) => {
-                  const ratio = topDishMaxQty ? Math.min(100, Math.round((dish.qty / topDishMaxQty) * 100)) : 0;
-                  return (
-                    <div key={dish.name} className="rounded-xl border border-gray-100 p-3 hover:shadow-md transition">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-slate-900 truncate">{idx + 1}. {dish.name}</p>
-                          <p className="text-xs text-gray-500">{dish.qty} sold • {formatCurrency(dish.revenue)}</p>
-                          {dish.lowStock && dish.stock !== null && (
-                            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
-                              Low stock: {dish.stock} left
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1 text-yellow-500 text-xs font-semibold">
-                            <Star size={14} />
-                            {dish.rating?.toFixed(1) ?? "4.8"}
+              <div className="h-40 mb-3">
+                {data.orderCountChart && data.orderCountChart.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={data.orderCountChart} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip formatter={(value: number) => `${value} orders`} />
+                      <Bar dataKey="qty" fill="#f97316" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 text-xs text-gray-500">
+                    No top-rated dish activity to display
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                {data.bestSellingDishes && data.bestSellingDishes.length > 0 ? (
+                  data.bestSellingDishes.map((dish: any, idx: number) => {
+                    const ratio = topDishMaxQty ? Math.min(100, Math.round((dish.qty / topDishMaxQty) * 100)) : 0;
+                    return (
+                      <div key={dish.name} className="rounded-xl border border-gray-100 p-3 hover:shadow-md transition">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-slate-900 truncate">{idx + 1}. {dish.name}</p>
+                            <p className="text-xs text-gray-500">{dish.qty} sold • {formatCurrency(dish.revenue)}</p>
+                            {dish.lowStock && dish.stock !== null && (
+                              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                                Low stock: {dish.stock} left
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 text-yellow-500 text-xs font-semibold">
+                              <Star size={14} />
+                              {dish.rating?.toFixed(1) ?? "4.8"}
+                            </div>
                           </div>
                         </div>
+                        <div className="mt-2 h-2 rounded-full bg-slate-100 overflow-hidden">
+                          <div className="h-full rounded-full bg-orange-400" style={{ width: `${ratio}%` }} />
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">Top dish intensity {ratio}%</p>
                       </div>
-                      <div className="mt-2 h-2 rounded-full bg-slate-100 overflow-hidden">
-                        <div className="h-full rounded-full bg-orange-400" style={{ width: `${ratio}%` }} />
-                      </div>
-                      <p className="mt-1 text-xs text-gray-500">Top dish intensity {ratio}%</p>
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="text-xs text-gray-400">No dish ordering data yet.</p>
-              )}
+                    );
+                  })
+                ) : (
+                  <p className="text-xs text-gray-400">No dish ordering data yet.</p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-
+        )}
       </div>
     </div>
   );
