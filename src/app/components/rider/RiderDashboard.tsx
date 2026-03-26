@@ -172,10 +172,10 @@ export function RiderDashboard() {
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-indigo-400">
-            <div>
+            {/* <div>
               <p className="text-indigo-100 text-xs">Rating</p>
               <p className="font-semibold">4.8 ★</p>
-            </div>
+            </div> */}
             <div>
               <p className="text-indigo-100 text-xs">Deliveries</p>
               <p className="font-semibold">{deliveredOrders.length}</p>

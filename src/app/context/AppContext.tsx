@@ -201,7 +201,7 @@ const INITIAL_BRANCHES: Branch[] = [
 ];
 
 const INITIAL_RIDERS: Rider[] = [
-  { id: 'rider-001', orgId: 'org-001', branchId: 'branch-001', name: 'Ali Hassan', phone: '0312-9876543', password: 'pass123', isAvailable: true },
+  { id: 'rider-001', orgId: 'org-001', branchId: 'branch-001', name: 'jerry', phone: '0312-9876543', password: 'pass123', isAvailable: true },
   { id: 'rider-002', orgId: 'org-001', branchId: 'branch-002', name: 'Bilal Sheikh', phone: '0333-2345678', password: 'pass123', isAvailable: true },
   { id: 'rider-003', orgId: 'org-002', branchId: 'branch-003', name: 'Zubair Ahmad', phone: '0344-5678901', password: 'pass123', isAvailable: true },
 ];
