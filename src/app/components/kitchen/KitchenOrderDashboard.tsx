@@ -3,18 +3,22 @@ import {
   Bell, TrendingUp, Clock, ChefHat, Users, ShoppingBag,
   Eye, DollarSign, Calendar, Filter, Printer, Download,
   AlertCircle, CheckCircle, RefreshCw, Truck, Award, Flame,
-  TrendingDown, Activity, BarChart3, MoreVertical, Star, Timer, Zap, AlertTriangle, Gauge, Navigation, Phone,
-  Package, Utensils, Bike, MapPin, TrendingUp as TrendingUpIcon, X, ChevronLeft, ChevronRight
+  TrendingDown, Activity, BarChart3, MoreVertical, Star, Timer, 
+  AlertTriangle, Gauge, Navigation, Phone, Package, Utensils, 
+  Bike, MapPin, X, ChevronLeft, ChevronRight, PieChart,
+  GitCompare, Zap
 } from "lucide-react";
 import { MobileLayout } from "../shared/MobileLayout";
 import { KitchenBottomNav } from "./KitchenBottomNav";
 import { useApp } from "../../context/AppContext";
 import {
   LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, Legend
+  ResponsiveContainer, BarChart, Bar, PieChart as RePieChart, 
+  Pie, Cell, AreaChart, Area, Legend, RadarChart, PolarGrid,
+  PolarAngleAxis, PolarRadiusAxis, Radar
 } from "recharts";
 
-// Types for better type safety
+// Types
 interface DashboardStats {
   totalOrders: number;
   totalRevenue: number;
@@ -39,7 +43,6 @@ interface TopItem {
   revenue: number;
   trend: 'up' | 'down' | 'stable';
   price?: number;
-  image?: string;
 }
 
 interface RiderPerformance {
@@ -54,12 +57,12 @@ interface RiderPerformance {
   status: 'available' | 'on-break' | 'unavailable';
   efficiency: number;
   zone?: string;
-  contact?: string;
-  avatar?: string;
-}
-
-interface ExtendedRiderPerformance extends RiderPerformance {
-  efficiencyScore: number;
+  totalOrders: number;
+  delivered: number;
+  cancelled: number;
+  pending: number;
+  active: number;
+  onTimeRate?: number;
 }
 
 interface PeakHourData {
@@ -67,95 +70,119 @@ interface PeakHourData {
   orders: number;
 }
 
-// Mock riders data
+// Mock Riders Data
 const mockRiders = [
   {
     id: 'r1',
     name: 'John Doe',
-    avatar: 'JD',
     phone: '+1 234-567-8901',
     zone: 'Downtown',
     status: 'available' as const,
-    rating: 4.8,
     deliveries: 156,
     avgDeliveryTime: 28,
     lateDeliveries: 8,
     revenue: 4680,
-    efficiency: 92
+    efficiency: 92,
+    totalOrders: 172,
+    delivered: 156,
+    cancelled: 4,
+    pending: 8,
+    active: 4,
+    onTimeRate: 85
   },
   {
     id: 'r2',
     name: 'Sarah Johnson',
-    avatar: 'SJ',
     phone: '+1 234-567-8902',
     zone: 'Uptown',
     status: 'available' as const,
-    rating: 4.9,
     deliveries: 142,
     avgDeliveryTime: 24,
     lateDeliveries: 4,
     revenue: 4260,
-    efficiency: 95
+    efficiency: 95,
+    totalOrders: 158,
+    delivered: 142,
+    cancelled: 2,
+    pending: 10,
+    active: 4,
+    onTimeRate: 92
   },
   {
     id: 'r3',
     name: 'Mike Wilson',
-    avatar: 'MW',
     phone: '+1 234-567-8903',
     zone: 'East Side',
     status: 'unavailable' as const,
-    rating: 4.5,
     deliveries: 98,
     avgDeliveryTime: 32,
     lateDeliveries: 12,
     revenue: 2940,
-    efficiency: 82
+    efficiency: 82,
+    totalOrders: 112,
+    delivered: 98,
+    cancelled: 8,
+    pending: 4,
+    active: 2,
+    onTimeRate: 70
   },
   {
     id: 'r4',
     name: 'Emma Davis',
-    avatar: 'ED',
     phone: '+1 234-567-8904',
     zone: 'West Side',
-    status: 'active' as const,
-    rating: 4.7,
+    status: 'available' as const,
     deliveries: 134,
     avgDeliveryTime: 26,
     lateDeliveries: 6,
     revenue: 4020,
-    efficiency: 90
+    efficiency: 90,
+    totalOrders: 148,
+    delivered: 134,
+    cancelled: 5,
+    pending: 6,
+    active: 3,
+    onTimeRate: 88
   },
   {
     id: 'r5',
     name: 'Chris Brown',
-    avatar: 'CB',
     phone: '+1 234-567-8905',
     zone: 'North End',
-    status: 'unavailable' as const,
-    rating: 4.2,
+    status: 'on-break' as const,
     deliveries: 67,
     avgDeliveryTime: 38,
     lateDeliveries: 14,
     revenue: 2010,
-    efficiency: 75
+    efficiency: 75,
+    totalOrders: 82,
+    delivered: 67,
+    cancelled: 9,
+    pending: 4,
+    active: 2,
+    onTimeRate: 62
   },
   {
     id: 'r6',
     name: 'Lisa Martinez',
-    avatar: 'LM',
     phone: '+1 234-567-8906',
     zone: 'South Park',
     status: 'available' as const,
-    rating: 4.9,
     deliveries: 178,
     avgDeliveryTime: 22,
     lateDeliveries: 3,
     revenue: 5340,
-    efficiency: 97
+    efficiency: 97,
+    totalOrders: 195,
+    delivered: 178,
+    cancelled: 3,
+    pending: 10,
+    active: 4,
+    onTimeRate: 96
   }
 ];
 
-// Mock orders data
+// Generate mock orders
 const generateMockOrders = () => {
   const orders = [];
   const statuses = ['pending payment', 'accepted', 'preparing', 'ready-for-pickup', 'delivered', 'cancelled'];
@@ -224,8 +251,12 @@ export function KitchenOrderDashboard() {
   const [customEndDate, setCustomEndDate] = useState<Date>(new Date());
   const [sortBy, setSortBy] = useState<'deliveries' | 'avgTime' | 'rating'>('deliveries');
   const [selectedRider, setSelectedRider] = useState<string | null>(null);
+  const [riderView, setRiderView] = useState<'list' | 'graph'>('list');
+  const [compareRider1, setCompareRider1] = useState<string>('');
+  const [compareRider2, setCompareRider2] = useState<string>('');
+  const [showComparison, setShowComparison] = useState(false);
 
-  // Date range calculation with proper timezone handling
+  // Date range calculation
   const dateRange = useMemo(() => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -270,7 +301,7 @@ export function KitchenOrderDashboard() {
     });
   }, [orgId, orders, dateRange, mockOrders]);
 
-  // Calculate comprehensive dashboard stats
+  // Calculate dashboard stats
   const dashboardStats = useMemo<DashboardStats>(() => {
     if (!filteredOrders.length) {
       return {
@@ -288,14 +319,26 @@ export function KitchenOrderDashboard() {
           cancelled: 0
         },
         trendData: [],
-        topItems: [
-          { name: 'Zinger Burger', quantity: 124, revenue: 1114.76, trend: 'up' as const, price: 8.99 },
-          { name: 'Chicken Shawarma', quantity: 98, revenue: 783.02, trend: 'up' as const, price: 7.99 },
-          { name: 'Loaded Fries', quantity: 86, revenue: 515.14, trend: 'up' as const, price: 5.99 },
-          { name: 'Grilled Sandwich', quantity: 74, revenue: 517.26, trend: 'stable' as const, price: 6.99 },
-          { name: 'Cheese Pizza Slice', quantity: 63, revenue: 314.37, trend: 'stable' as const, price: 4.99 }
-        ],
-        riderPerformance: []
+        topItems: [],
+        riderPerformance: riders.map(rider => ({
+          id: rider.id,
+          name: rider.name,
+          deliveries: 0,
+          avgDeliveryTime: 0,
+          rating: 0,
+          lateDeliveries: 0,
+          lateDeliveryPercent: 0,
+          revenue: 0,
+          status: rider.status || 'available',
+          efficiency: 0,
+          zone: rider.zone,
+          totalOrders: 0,
+          delivered: 0,
+          cancelled: 0,
+          pending: 0,
+          active: 0,
+          onTimeRate: 0
+        }))
       };
     }
 
@@ -304,7 +347,7 @@ export function KitchenOrderDashboard() {
     const totalOrders = filteredOrders.length;
     const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
-    // Calculate completion rate (delivered vs total excluding cancelled)
+    // Calculate completion rate
     const nonCancelledOrders = filteredOrders.filter(o => o.status !== 'cancelled');
     const deliveredOrders = filteredOrders.filter(o => o.status === 'delivered').length;
     const completionRate = nonCancelledOrders.length > 0 ? (deliveredOrders / nonCancelledOrders.length) * 100 : 0;
@@ -318,7 +361,7 @@ export function KitchenOrderDashboard() {
     const peakHourIndex = hourCounts.indexOf(Math.max(...hourCounts));
     const peakHour = `${peakHourIndex.toString().padStart(2, '0')}:00`;
 
-    // Group orders by status with all statuses
+    // Group orders by status
     const ordersByStatus = {
       'pending payment': 0,
       accepted: 0,
@@ -335,7 +378,7 @@ export function KitchenOrderDashboard() {
       }
     });
 
-    // Calculate trend data for last 7 days
+    // Calculate trend data
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - (6 - i));
@@ -354,7 +397,7 @@ export function KitchenOrderDashboard() {
       };
     });
 
-    // Calculate top selling items with trends
+    // Calculate top items
     const itemSales = new Map<string, { quantity: number; revenue: number; price?: number }>();
     filteredOrders.forEach(order => {
       order.items?.forEach(item => {
@@ -382,105 +425,56 @@ export function KitchenOrderDashboard() {
       .sort((a, b) => b.quantity - a.quantity)
       .slice(0, 5);
 
-    // Calculate rider performance with late deliveries
-    const riderStats = new Map<string, { 
-      id: string;
-      deliveries: number; 
-      totalTime: number; 
-      rating: number;
-      lateDeliveries: number;
-      revenue: number;
-      status: 'available' | 'on-break' | 'unavailable';
-      zone?: string;
-      contact?: string;
-      avatar?: string;
-    }>();
-    
-    // Define what constitutes a late delivery (e.g., > 45 minutes)
-    const LATE_DELIVERY_THRESHOLD = 45; // minutes
-    
-    filteredOrders
-      .filter(order => order.status === 'delivered' && order.riderId)
-      .forEach(order => {
-        const rider = riders.find(r => r.id === order.riderId);
-        if (!rider) return;
-        
-        const current = riderStats.get(rider.id) || { 
-          id: rider.id,
-          deliveries: 0, 
-          totalTime: 0, 
-          rating: 0,
-          lateDeliveries: 0,
-          revenue: 0,
-          status: rider.status || 'available',
-          zone: rider.zone,
-          contact: rider.phone,
-          avatar: rider.avatar
-        };
-        
-        const deliveryTime = order.deliveredAt && order.createdAt 
-          ? (new Date(order.deliveredAt).getTime() - new Date(order.createdAt).getTime()) / 60000
-          : 0;
-        
-        // Check if delivery is late
-        const isLate = deliveryTime > LATE_DELIVERY_THRESHOLD;
-        
-        riderStats.set(rider.id, {
-          ...current,
-          deliveries: current.deliveries + 1,
-          totalTime: current.totalTime + deliveryTime,
-          rating: current.rating + (order.riderRating || 3),
-          lateDeliveries: current.lateDeliveries + (isLate ? 1 : 0),
-          revenue: current.revenue + (order.total || 0)
+    // Calculate rider performance with order counts
+    const riderPerformance = riders.map(rider => {
+      const riderOrders = filteredOrders.filter(o => o.riderId === rider.id);
+      const deliveredOrdersCount = riderOrders.filter(o => o.status === 'delivered').length;
+      const cancelledOrdersCount = riderOrders.filter(o => o.status === 'cancelled').length;
+      const pendingOrdersCount = riderOrders.filter(o => o.status === 'ready' || o.status === 'accepted').length;
+      const activeOrdersCount = riderOrders.filter(o => o.status === 'picked_up').length;
+      
+      const deliveryTimes = riderOrders
+        .filter(o => o.status === 'delivered' && o.deliveredAt)
+        .map(o => {
+          const start = new Date(o.createdAt).getTime();
+          const end = new Date(o.deliveredAt!).getTime();
+          return (end - start) / 60000;
         });
-      });
-
-    // Also include riders from mock data that might not have deliveries
-    riders.forEach(rider => {
-      if (!riderStats.has(rider.id)) {
-        riderStats.set(rider.id, {
-          id: rider.id,
-          deliveries: 0,
-          totalTime: 0,
-          rating: 0,
-          lateDeliveries: 0,
-          revenue: 0,
-          status: rider.status || 'available',
-          zone: rider.zone,
-          contact: rider.phone,
-          avatar: rider.avatar
-        });
-      }
+      
+      const avgDeliveryTime = deliveryTimes.length > 0 
+        ? deliveryTimes.reduce((a, b) => a + b, 0) / deliveryTimes.length 
+        : 0;
+      
+      const lateDeliveries = deliveryTimes.filter(t => t > 45).length;
+      const lateDeliveryPercent = deliveredOrdersCount > 0 ? (lateDeliveries / deliveredOrdersCount) * 100 : 0;
+      
+      const onTimeDeliveries = deliveryTimes.filter(t => t <= 30).length;
+      const onTimeRate = deliveredOrdersCount > 0 ? (onTimeDeliveries / deliveredOrdersCount) * 100 : 0;
+      
+      const efficiency = deliveredOrdersCount > 0 
+        ? Math.max(0, Math.min(100, 100 - (lateDeliveryPercent * 0.8) - (avgDeliveryTime / 3)))
+        : 50;
+      
+      return {
+        id: rider.id,
+        name: rider.name,
+        deliveries: deliveredOrdersCount,
+        avgDeliveryTime,
+        rating: rider.rating || 4.5,
+        lateDeliveries,
+        lateDeliveryPercent,
+        revenue: riderOrders.reduce((sum, o) => sum + (o.total || 0), 0),
+        status: rider.status || 'available',
+        efficiency,
+        zone: rider.zone,
+        totalOrders: riderOrders.length,
+        delivered: deliveredOrdersCount,
+        cancelled: cancelledOrdersCount,
+        pending: pendingOrdersCount,
+        active: activeOrdersCount,
+        onTimeRate
+      };
     });
-
-    const riderPerformance = Array.from(riderStats.values())
-      .map(stats => {
-        const avgDeliveryTime = stats.deliveries > 0 ? stats.totalTime / stats.deliveries : 0;
-        const rating = stats.deliveries > 0 ? stats.rating / stats.deliveries : 0;
-        const lateDeliveryPercent = stats.deliveries > 0 ? (stats.lateDeliveries / stats.deliveries) * 100 : 0;
-        const efficiency = stats.deliveries > 0 
-          ? Math.max(0, Math.min(100, 100 - (lateDeliveryPercent * 0.8) - (avgDeliveryTime / 3)))
-          : 50;
-        
-        const rider = riders.find(r => r.id === stats.id);
-        
-        return {
-          id: stats.id,
-          name: rider?.name || 'Unknown Rider',
-          deliveries: stats.deliveries,
-          avgDeliveryTime,
-          rating,
-          lateDeliveries: stats.lateDeliveries,
-          lateDeliveryPercent,
-          revenue: stats.revenue,
-          status: stats.status,
-          efficiency,
-          zone: stats.zone,
-          contact: stats.contact,
-          avatar: stats.avatar
-        };
-      })
-      .sort((a, b) => b.deliveries - a.deliveries);
 
     return {
       totalOrders,
@@ -495,7 +489,7 @@ export function KitchenOrderDashboard() {
     };
   }, [filteredOrders, riders]);
 
-  // Calculate peak hours data
+  // Calculate peak hours
   const peakHours = useMemo<PeakHourData[]>(() => {
     const hourCounts = new Array(24).fill(0);
     filteredOrders.forEach(order => {
@@ -508,31 +502,6 @@ export function KitchenOrderDashboard() {
       orders: count
     }));
   }, [filteredOrders]);
-
-  // Calculate rider summary
-  const riderSummary = useMemo(() => {
-    const riders = dashboardStats.riderPerformance.filter(r => r.deliveries > 0);
-    if (riders.length === 0) {
-      return {
-        avgDeliveryTime: 0,
-        ordersPerRider: 0,
-        lateDeliveryPercent: 0,
-        efficiencyScore: 0
-      };
-    }
-    
-    const avgDeliveryTime = riders.reduce((sum, r) => sum + r.avgDeliveryTime, 0) / riders.length;
-    const ordersPerRider = riders.reduce((sum, r) => sum + r.deliveries, 0) / riders.length;
-    const lateDeliveryPercent = riders.reduce((sum, r) => sum + r.lateDeliveryPercent, 0) / riders.length;
-    const efficiencyScore = riders.reduce((sum, r) => sum + r.efficiency, 0) / riders.length;
-    
-    return {
-      avgDeliveryTime,
-      ordersPerRider,
-      lateDeliveryPercent,
-      efficiencyScore
-    };
-  }, [dashboardStats.riderPerformance]);
 
   // Sort riders based on selected criteria
   const sortedRiders = useMemo(() => {
@@ -549,6 +518,43 @@ export function KitchenOrderDashboard() {
     }
   }, [dashboardStats.riderPerformance, sortBy]);
 
+  // Get selected riders for comparison
+  const selectedRider1 = dashboardStats.riderPerformance.find(r => r.id === compareRider1);
+  const selectedRider2 = dashboardStats.riderPerformance.find(r => r.id === compareRider2);
+
+  // Radar chart data for comparison
+  const radarData = useMemo(() => {
+    if (!selectedRider1 || !selectedRider2) return [];
+    
+    return [
+      {
+        metric: 'Deliveries',
+        rider1: (selectedRider1.deliveries / Math.max(selectedRider1.deliveries, selectedRider2.deliveries)) * 100,
+        rider2: (selectedRider2.deliveries / Math.max(selectedRider1.deliveries, selectedRider2.deliveries)) * 100
+      },
+      {
+        metric: 'Efficiency',
+        rider1: selectedRider1.efficiency,
+        rider2: selectedRider2.efficiency
+      },
+      {
+        metric: 'On-Time Rate',
+        rider1: selectedRider1.onTimeRate || 0,
+        rider2: selectedRider2.onTimeRate || 0
+      },
+      {
+        metric: 'Avg Delivery',
+        rider1: Math.max(0, 100 - (selectedRider1.avgDeliveryTime / 0.6)),
+        rider2: Math.max(0, 100 - (selectedRider2.avgDeliveryTime / 0.6))
+      },
+      {
+        metric: 'Success Rate',
+        rider1: (selectedRider1.delivered / Math.max(selectedRider1.totalOrders, 1)) * 100,
+        rider2: (selectedRider2.delivered / Math.max(selectedRider2.totalOrders, 1)) * 100
+      }
+    ];
+  }, [selectedRider1, selectedRider2]);
+
   // Get range label
   const rangeLabel = useMemo(() => {
     switch(selectedPeriod) {
@@ -560,7 +566,7 @@ export function KitchenOrderDashboard() {
     }
   }, [selectedPeriod]);
 
-  // Handle custom date selection
+  // Handle custom date
   const handleCustomDateApply = () => {
     setSelectedPeriod('custom');
     setShowCustomDatePicker(false);
@@ -627,26 +633,7 @@ export function KitchenOrderDashboard() {
     }
   };
 
-  const getRatingStars = (rating: number) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    return (
-      <div className="flex items-center gap-0.5 mt-0.5">
-        {[...Array(5)].map((_, i) => (
-          <Star 
-            key={i} 
-            size={12} 
-            className={`${i < fullStars ? 'fill-yellow-400 text-yellow-400' : 
-                        i === fullStars && hasHalfStar ? 'fill-yellow-400 text-yellow-400 opacity-50' : 
-                        'text-gray-300'}`}
-          />
-        ))}
-        <span className="text-xs text-gray-500 ml-1">({rating.toFixed(1)})</span>
-      </div>
-    );
-  };
-
-  // Handle refresh with loading state
+  // Handle refresh
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -674,9 +661,7 @@ export function KitchenOrderDashboard() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-xl font-bold text-gray-900">Kitchen Dashboard</h1>
-              <p className="text-xs text-gray-500 mt-0.5">
-                {formatDateRange()}
-              </p>
+              <p className="text-xs text-gray-500 mt-0.5">{formatDateRange()}</p>
             </div>
             <div className="flex items-center gap-2">
               <button 
@@ -695,7 +680,7 @@ export function KitchenOrderDashboard() {
         </div>
 
         <div className="flex-1 overflow-y-auto pb-20">
-          {/* Period Selector with Custom Date */}
+          {/* Period Selector */}
           <div className="px-5 pt-4 pb-2">
             <div className="bg-white rounded-xl p-1 flex gap-1 shadow-sm flex-wrap">
               {(['today', 'week', 'month', 'custom'] as const).map(period => (
@@ -733,7 +718,6 @@ export function KitchenOrderDashboard() {
                   </button>
                 </div>
                 
-                {/* Quick Select Options */}
                 <div className="p-4 border-b border-gray-100">
                   <p className="text-xs text-gray-500 mb-3">Quick Select</p>
                   <div className="flex gap-2">
@@ -754,7 +738,6 @@ export function KitchenOrderDashboard() {
                   </div>
                 </div>
                 
-                {/* Date Inputs */}
                 <div className="p-4 space-y-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-2">Start Date</label>
@@ -776,7 +759,6 @@ export function KitchenOrderDashboard() {
                   </div>
                 </div>
                 
-                {/* Action Buttons */}
                 <div className="p-4 border-t border-gray-100 flex gap-3">
                   <button
                     onClick={() => setShowCustomDatePicker(false)}
@@ -841,7 +823,7 @@ export function KitchenOrderDashboard() {
                 </div>
               </div>
 
-              {/* Order Status Summary - Enhanced with all statuses */}
+              {/* Order Status Summary */}
               <div className="px-5 mt-4">
                 <div className="bg-white rounded-2xl p-4 shadow-sm">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
@@ -894,7 +876,7 @@ export function KitchenOrderDashboard() {
                 </div>
               </div>
 
-              {/* Best Selling Dishes - Updated to match screenshot style */}
+              {/* Best Selling Dishes */}
               <div className="px-5 mt-6 mb-6">
                 <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                   <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 border-b border-orange-100">
@@ -906,7 +888,7 @@ export function KitchenOrderDashboard() {
                         </h3>
                         <p className="text-xs text-gray-500 mt-1">{rangeLabel}</p>
                       </div>
-                      <TrendingUpIcon size={20} className="text-green-500" />
+                      <TrendingUp size={20} className="text-green-500" />
                     </div>
                   </div>
                   
@@ -1044,55 +1026,34 @@ export function KitchenOrderDashboard() {
           )}
 
           {selectedView === 'riders' && (
-            <>
-              {/* Rider Section */}
-              <div className="px-5 mt-6">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-semibold text-gray-800 flex items-center">
-                    <Truck size={18} className="text-indigo-500 mr-2" />
-                    Rider Performance
-                  </h3>
-                  <div className="flex items-center gap-2">
-
-                    <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
-                      {rangeLabel}
-                    </span>
-                  </div>
+            <div className="px-5 mt-6">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-semibold text-gray-800 flex items-center">
+                  <Truck size={18} className="text-indigo-500 mr-2" />
+                  Riders Performance
+                </h3>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setRiderView('list')}
+                    className={`px-2 py-1 text-xs rounded-lg transition ${
+                      riderView === 'list' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    List
+                  </button>
+                  <button
+                    onClick={() => setRiderView('graph')}
+                    className={`px-2 py-1 text-xs rounded-lg transition ${
+                      riderView === 'graph' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    Analytics
+                  </button>
                 </div>
+              </div>
 
-                {/* Rider Summary Cards */}
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-2xl p-3 text-white">
-                    <div className="flex items-center justify-between mb-1">
-                      <Timer size={14} className="opacity-80" />
-                      <span className="text-xs opacity-80">Avg Delivery</span>
-                    </div>
-                    <p className="text-xl font-bold">{formatTime(riderSummary.avgDeliveryTime)}</p>
-                  </div>
-                  <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-3 text-white">
-                    <div className="flex items-center justify-between mb-1">
-                      <Users size={14} className="opacity-80" />
-                      <span className="text-xs opacity-80">Orders/Rider</span>
-                    </div>
-                    <p className="text-xl font-bold">{riderSummary.ordersPerRider.toFixed(1)}</p>
-                  </div>
-                  <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl p-3 text-white">
-                    <div className="flex items-center justify-between mb-1">
-                      <AlertCircle size={14} className="opacity-80" />
-                      <span className="text-xs opacity-80">Late Delivery</span>
-                    </div>
-                    <p className="text-xl font-bold">{riderSummary.lateDeliveryPercent.toFixed(1)}%</p>
-                  </div>
-                  <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl p-3 text-white">
-                    <div className="flex items-center justify-between mb-1">
-                      <Gauge size={14} className="opacity-80" />
-                      <span className="text-xs opacity-80">Efficiency</span>
-                    </div>
-                    <p className="text-xl font-bold">{riderSummary.efficiencyScore.toFixed(0)}%</p>
-                  </div>
-                </div>
-
-                {/* Rider List */}
+              {/* LIST VIEW */}
+              {riderView === 'list' && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                   {sortedRiders.length > 0 ? (
                     <div>
@@ -1104,71 +1065,58 @@ export function KitchenOrderDashboard() {
                           }`}
                           onClick={() => setSelectedRider(selectedRider === rider.id ? null : rider.id)}
                         >
-                          <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                                 index === 0 ? 'bg-yellow-100' : 'bg-indigo-100'
                               }`}>
                                 <span className="text-sm font-bold text-indigo-600">
-                                  {rider.avatar || rider.name.charAt(0)}
+                                  {rider.name.charAt(0)}
                                 </span>
                               </div>
                               <div>
                                 <div className="flex items-center gap-2">
                                   <p className="font-medium text-gray-800">{rider.name}</p>
                                   <span className={`px-2 py-0.5 rounded-full text-xs ${getStatusColor(rider.status)}`}>
-                                    {rider.status === 'available' ? 'Available' : rider.status === 'on-break' ? 'On Break' : 'Unavailable'}
+                                    {rider.status === 'available' ? 'Available' : 
+                                     rider.status === 'on-break' ? 'On Break' : 
+                                     'Unavailable'}
                                   </span>
                                 </div>
-                                {/* {getRatingStars(rider.rating)} */}
                               </div>
                             </div>
-
+                            <div className="text-right">
+                              <p className="text-sm font-semibold text-gray-800">{rider.totalOrders || 0}</p>
+                              <p className="text-xs text-gray-400">Total Orders</p>
+                            </div>
                           </div>
                           
-                          {/* Expanded Details */}
                           {selectedRider === rider.id && (
                             <div className="mt-3 pt-3 border-t border-gray-100">
-                              <div className="grid grid-cols-3 gap-3 text-center text-xs">
+                              <div className="grid grid-cols-4 gap-2 text-center">
                                 <div>
-                                  <p className="text-gray-500">Avg Time</p>
-                                  <p className="font-semibold text-gray-800">{formatTime(rider.avgDeliveryTime)}</p>
-                                </div>
-                                <div>
-                                  <p className="text-gray-500">Late %</p>
-                                  <p className={`font-semibold ${rider.lateDeliveryPercent > 15 ? 'text-red-600' : 'text-green-600'}`}>
-                                    {rider.lateDeliveryPercent.toFixed(1)}%
-                                  </p>
+                                  <p className="text-gray-500 text-xs">Delivered</p>
+                                  <p className="font-semibold text-green-600 text-sm">{rider.delivered || 0}</p>
                                 </div>
                                 <div>
-                                  <p className="text-gray-500">Orders Delivered</p>
-                                  <p className="font-semibold text-gray-800">{rider.deliveries}</p>
+                                  <p className="text-gray-500 text-xs">Cancelled</p>
+                                  <p className="font-semibold text-red-600 text-sm">{rider.cancelled || 0}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500 text-xs">Pending</p>
+                                  <p className="font-semibold text-orange-600 text-sm">{rider.pending || 0}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500 text-xs">Active</p>
+                                  <p className="font-semibold text-blue-600 text-sm">{rider.active || 0}</p>
                                 </div>
                               </div>
-                              <div className="mt-2 flex items-center justify-between text-xs">
-                                {/* <div className="flex items-center gap-2">
-                                  <MapPin size={12} className="text-gray-400" />
-                                  <span className="text-gray-600">{rider.zone || 'All Zones'}</span>
-                                </div> */}
-                                {/* rider.contact &&  */}
-
-                                {/* <div className="flex items-center gap-2">
-                                  <Phone size={12} className="text-gray-400" />
-                                  <span className="text-gray-600">{rider.contact || 'N/A'}</span>
-                                </div> */}
-                              </div>
-                              <div className="mt-2">
-                                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                                  <span>Efficiency</span>
-                                  <span>{rider.efficiency.toFixed(0)}%</span>
+                              {rider.zone && (
+                                <div className="mt-2 text-center">
+                                  <p className="text-gray-500 text-xs">Zone</p>
+                                  <p className="font-medium text-gray-800 text-sm">{rider.zone}</p>
                                 </div>
-                                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                  <div 
-                                    className="bg-green-500 h-1.5 rounded-full" 
-                                    style={{ width: `${rider.efficiency}%` }}
-                                  ></div>
-                                </div>
-                              </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -1177,33 +1125,326 @@ export function KitchenOrderDashboard() {
                   ) : (
                     <div className="p-8 text-center">
                       <Truck size={32} className="text-gray-300 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">No rider data available</p>
+                      <p className="text-sm text-gray-500">No riders available</p>
                     </div>
                   )}
                 </div>
+              )}
 
-                {/* Rider Performance Chart */}
-                {dashboardStats.riderPerformance.filter(r => r.deliveries > 0).length > 0 && (
-                  <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Performance Comparison</h4>
-                    <div className="h-64">
+              {/* GRAPH/ANALYTICS VIEW */}
+              {riderView === 'graph' && (
+                <div className="space-y-4">
+                  {/* Comparison Section */}
+                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <GitCompare size={16} className="text-purple-500" />
+                        Rider Comparison
+                      </h4>
+                      <button
+                        onClick={() => setShowComparison(!showComparison)}
+                        className="text-xs text-purple-600 hover:text-purple-700"
+                      >
+                        {showComparison ? 'Hide Comparison' : 'Compare Riders'}
+                      </button>
+                    </div>
+                    
+                    {showComparison && (
+                      <div className="space-y-4">
+                        {/* Select Riders */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 block">Select Rider 1</label>
+                            <select
+                              value={compareRider1}
+                              onChange={(e) => setCompareRider1(e.target.value)}
+                              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            >
+                              <option value="">Select Rider</option>
+                              {sortedRiders.map(rider => (
+                                <option key={rider.id} value={rider.id}>{rider.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-xs text-gray-500 mb-1 block">Select Rider 2</label>
+                            <select
+                              value={compareRider2}
+                              onChange={(e) => setCompareRider2(e.target.value)}
+                              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            >
+                              <option value="">Select Rider</option>
+                              {sortedRiders.map(rider => (
+                                <option key={rider.id} value={rider.id}>{rider.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        
+                        {/* Comparison Stats Cards */}
+                        {selectedRider1 && selectedRider2 && (
+                          <>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-3">
+                                <p className="text-xs text-gray-500 mb-1">{selectedRider1.name}</p>
+                                <p className="text-lg font-bold text-indigo-600">{selectedRider1.deliveries}</p>
+                                <p className="text-xs text-gray-400">Deliveries</p>
+                              </div>
+                              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-3">
+                                <p className="text-xs text-gray-500 mb-1">{selectedRider2.name}</p>
+                                <p className="text-lg font-bold text-indigo-600">{selectedRider2.deliveries}</p>
+                                <p className="text-xs text-gray-400">Deliveries</p>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="bg-white rounded-xl p-2 border border-gray-100">
+                                <p className="text-xs text-gray-500">Efficiency</p>
+                                <p className={`text-sm font-semibold ${selectedRider1.efficiency >= 90 ? 'text-green-600' : selectedRider1.efficiency >= 70 ? 'text-orange-600' : 'text-red-600'}`}>
+                                  {selectedRider1.efficiency.toFixed(0)}%
+                                </p>
+                              </div>
+                              <div className="bg-white rounded-xl p-2 border border-gray-100">
+                                <p className="text-xs text-gray-500">Efficiency</p>
+                                <p className={`text-sm font-semibold ${selectedRider2.efficiency >= 90 ? 'text-green-600' : selectedRider2.efficiency >= 70 ? 'text-orange-600' : 'text-red-600'}`}>
+                                  {selectedRider2.efficiency.toFixed(0)}%
+                                </p>
+                              </div>
+                              <div className="bg-white rounded-xl p-2 border border-gray-100">
+                                <p className="text-xs text-gray-500">On-Time Rate</p>
+                                <p className="text-sm font-semibold text-blue-600">{selectedRider1.onTimeRate?.toFixed(0) || 0}%</p>
+                              </div>
+                              <div className="bg-white rounded-xl p-2 border border-gray-100">
+                                <p className="text-xs text-gray-500">On-Time Rate</p>
+                                <p className="text-sm font-semibold text-blue-600">{selectedRider2.onTimeRate?.toFixed(0) || 0}%</p>
+                              </div>
+                              <div className="bg-white rounded-xl p-2 border border-gray-100">
+                                <p className="text-xs text-gray-500">Avg Delivery</p>
+                                <p className="text-sm font-semibold text-orange-600">{formatTime(selectedRider1.avgDeliveryTime)}</p>
+                              </div>
+                              <div className="bg-white rounded-xl p-2 border border-gray-100">
+                                <p className="text-xs text-gray-500">Avg Delivery</p>
+                                <p className="text-sm font-semibold text-orange-600">{formatTime(selectedRider2.avgDeliveryTime)}</p>
+                              </div>
+                            </div>
+                            
+                            {/* Radar Chart */}
+                            <div className="h-80 mt-2">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <RadarChart data={radarData}>
+                                  <PolarGrid stroke="#E5E7EB" />
+                                  <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10 }} />
+                                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 8 }} />
+                                  <Radar name={selectedRider1.name} dataKey="rider1" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
+                                  <Radar name={selectedRider2.name} dataKey="rider2" stroke="#EF4444" fill="#EF4444" fillOpacity={0.3} />
+                                  <Legend />
+                                  <Tooltip />
+                                </RadarChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Top Riders Chart */}
+                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      <BarChart3 size={16} className="text-blue-500" />
+                      Top Performing Riders
+                    </h4>
+                    <div className="space-y-3">
+                      {sortedRiders.slice(0, 5).map((rider, idx) => {
+                        const maxDeliveries = Math.max(...sortedRiders.map(r => r.delivered || 0), 1);
+                        const percentage = ((rider.delivered || 0) / maxDeliveries) * 100;
+                        
+                        return (
+                          <div key={rider.id}>
+                            <div className="flex justify-between text-xs mb-1">
+                              <span className="font-medium text-gray-700">{rider.name}</span>
+                              <span className="text-gray-500">{rider.delivered || 0} deliveries</span>
+                            </div>
+                            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                              <div 
+                                className="bg-green-500 h-2 rounded-full transition-all duration-500"
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Delivery Status Distribution */}
+                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      <PieChart size={16} className="text-purple-500" />
+                      Overall Delivery Status
+                    </h4>
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-600">Delivered</span>
+                          <span className="text-sm font-semibold text-green-600">
+                            {sortedRiders.reduce((sum, r) => sum + (r.delivered || 0), 0)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-600">Cancelled</span>
+                          <span className="text-sm font-semibold text-red-600">
+                            {sortedRiders.reduce((sum, r) => sum + (r.cancelled || 0), 0)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-600">Pending</span>
+                          <span className="text-sm font-semibold text-orange-600">
+                            {sortedRiders.reduce((sum, r) => sum + (r.pending || 0), 0)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-600">Active</span>
+                          <span className="text-sm font-semibold text-blue-600">
+                            {sortedRiders.reduce((sum, r) => sum + (r.active || 0), 0)}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Simple Donut Chart */}
+                      <div className="relative w-24 h-24">
+                        <svg className="w-full h-full transform -rotate-90">
+                          <circle cx="48" cy="48" r="40" fill="none" stroke="#E5E7EB" strokeWidth="16" />
+                          {(() => {
+                            const total = sortedRiders.reduce((sum, r) => sum + (r.delivered || 0) + (r.cancelled || 0) + (r.pending || 0) + (r.active || 0), 0);
+                            if (total === 0) return null;
+                            
+                            const delivered = sortedRiders.reduce((sum, r) => sum + (r.delivered || 0), 0);
+                            const cancelled = sortedRiders.reduce((sum, r) => sum + (r.cancelled || 0), 0);
+                            const pending = sortedRiders.reduce((sum, r) => sum + (r.pending || 0), 0);
+                            const active = sortedRiders.reduce((sum, r) => sum + (r.active || 0), 0);
+                            
+                            let currentAngle = 0;
+                            const segments = [
+                              { value: delivered, color: "#10B981" },
+                              { value: cancelled, color: "#EF4444" },
+                              { value: pending, color: "#F97316" },
+                              { value: active, color: "#3B82F6" }
+                            ];
+                            
+                            return segments.map((segment, i) => {
+                              if (segment.value === 0) return null;
+                              const angle = (segment.value / total) * 360;
+                              const startAngle = currentAngle;
+                              const endAngle = startAngle + angle;
+                              currentAngle = endAngle;
+                              
+                              const startRad = (startAngle * Math.PI) / 180;
+                              const endRad = (endAngle * Math.PI) / 180;
+                              const x1 = 48 + 40 * Math.cos(startRad);
+                              const y1 = 48 + 40 * Math.sin(startRad);
+                              const x2 = 48 + 40 * Math.cos(endRad);
+                              const y2 = 48 + 40 * Math.sin(endRad);
+                              const largeArcFlag = angle > 180 ? 1 : 0;
+                              
+                              return (
+                                <path
+                                  key={i}
+                                  d={`M 48 48 L ${x1} ${y1} A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
+                                  fill={segment.color}
+                                />
+                              );
+                            });
+                          })()}
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-xs font-bold text-gray-700">
+                            {sortedRiders.reduce((sum, r) => sum + (r.delivered || 0), 0)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Legend */}
+                    <div className="flex flex-wrap gap-3 mt-3 pt-3 border-t border-gray-100">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span className="text-xs text-gray-600">Delivered</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                        <span className="text-xs text-gray-600">Cancelled</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                        <span className="text-xs text-gray-600">Pending</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span className="text-xs text-gray-600">Active</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Rider Efficiency Bars */}
+                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      <Activity size={16} className="text-indigo-500" />
+                      Rider Efficiency
+                    </h4>
+                    <div className="space-y-3">
+                      {sortedRiders.slice(0, 5).map((rider) => {
+                        const total = (rider.delivered || 0) + (rider.cancelled || 0);
+                        const efficiency = total > 0 ? ((rider.delivered || 0) / total) * 100 : 0;
+                        
+                        return (
+                          <div key={rider.id}>
+                            <div className="flex justify-between text-xs mb-1">
+                              <span className="font-medium text-gray-700">{rider.name}</span>
+                              <span className={efficiency >= 90 ? 'text-green-600' : efficiency >= 70 ? 'text-orange-600' : 'text-red-600'}>
+                                {efficiency.toFixed(0)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                              <div 
+                                className={`h-2 rounded-full transition-all duration-500 ${
+                                  efficiency >= 90 ? 'bg-green-500' : 
+                                  efficiency >= 70 ? 'bg-orange-500' : 
+                                  'bg-red-500'
+                                }`}
+                                style={{ width: `${efficiency}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Comparison Bar Chart */}
+                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      <Zap size={16} className="text-yellow-500" />
+                      Performance Comparison (Top 5)
+                    </h4>
+                    <div className="h-80">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={dashboardStats.riderPerformance.filter(r => r.deliveries > 0).slice(0, 5)}>
+                        <BarChart data={sortedRiders.slice(0, 5)}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                           <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
                           <YAxis yAxisId="left" tick={{ fontSize: 10 }} />
                           <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} />
                           <Tooltip />
                           <Legend />
-                          <Bar yAxisId="left" dataKey="deliveries" name="Deliveries" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                          <Bar yAxisId="left" dataKey="delivered" name="Delivered" fill="#10B981" radius={[4, 4, 0, 0]} />
                           <Bar yAxisId="right" dataKey="avgDeliveryTime" name="Avg Time (min)" fill="#F59E0B" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
-                )}
-              </div>
-            </>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
