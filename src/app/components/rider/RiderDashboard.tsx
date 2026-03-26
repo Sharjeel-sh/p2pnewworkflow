@@ -184,107 +184,14 @@ export function RiderDashboard() {
               <p className="text-indigo-100 text-xs">Active Hours</p>
               <p className="font-semibold">{Math.round((deliveredTimesInMin.reduce((a, b) => a + b, 0) / 60))}h</p>
             </div>
-          </div>
-        </div>
-
-        {/* Metrics Grid - Key Performance Indicators */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Delivered Orders Card */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <Package size={18} className="text-green-600" />
-              <span className="text-xs text-gray-400">Total</span>
+            <div>
+              <p className="text-indigo-100 text-xs">Success Rate</p>
+              <p className="font-semibold">{completionRate}%</p>
             </div>
-            <p className="text-2xl font-bold text-green-700">{deliveredOrders.length}</p>
-            <p className="text-xs text-gray-500 mt-1">Delivered Orders</p>
-            <div className="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full bg-green-500 rounded-full" style={{ width: `${completionRate}%` }} />
+            <div>
+              <p className="text-indigo-100 text-xs">Cancelled</p>
+              <p className="font-semibold">{cancellationRate}%</p>
             </div>
-          </div>
-
-          {/* Average Delivery Time Card */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <Clock size={18} className="text-blue-600" />
-              <span className="text-xs text-gray-400">Average</span>
-            </div>
-            <p className="text-2xl font-bold text-blue-700">{avgDeliveryTime || 'N/A'}m</p>
-            <p className="text-xs text-gray-500 mt-1">Delivery Time</p>
-            <p className="text-xs text-green-600 mt-1">{onTimeRate}% on-time</p>
-          </div>
-
-          {/* Success Rate Card */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <TrendingUp size={18} className="text-purple-600" />
-              <span className="text-xs text-gray-400">Rate</span>
-            </div>
-            <p className="text-2xl font-bold text-purple-700">{completionRate}%</p>
-            <p className="text-xs text-gray-500 mt-1">Success Rate</p>
-            <p className="text-xs text-red-500 mt-1">{cancellationRate}% cancelled</p>
-          </div>
-        </div>
-
-        {/* Achievements Section - Gamification */}
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-slate-800">🏆 Achievements</h2>
-            <span className="text-xs text-gray-500">{earnedAchievements.length}/{achievements.length} earned</span>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {achievements.map((achievement, idx) => {
-              const Icon = achievement.icon;
-              const earned = achievement.condition;
-              return (
-                <div 
-                  key={idx}
-                  className={`flex-shrink-0 bg-white rounded-xl p-3 min-w-[120px] ${
-                    earned ? 'opacity-100' : 'opacity-50'
-                  }`}
-                >
-                  <Icon size={24} className={`${earned ? achievement.color : 'text-gray-400'} mb-2`} />
-                  <p className="text-xs font-semibold">{achievement.label}</p>
-                  <p className="text-[10px] text-gray-500">{achievement.description}</p>
-                </div>
-              );
-            })}
-          </div>
-          {nextAchievement && (
-            <div className="mt-2 pt-2 border-t border-yellow-200">
-              <p className="text-xs text-gray-600">Next: {nextAchievement.description}</p>
-              <div className="h-1 bg-yellow-200 rounded-full mt-1 overflow-hidden">
-                <div className="h-full bg-yellow-500 rounded-full" style={{ width: '45%' }} />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Recent Activity - Order Timeline */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <h2 className="text-sm font-semibold text-slate-800 mb-3">Recent Activity</h2>
-          <div className="space-y-3">
-            {riderOrders.slice(-4).reverse().map(order => (
-              <div key={order.id} className="flex items-start gap-3">
-                <div className={`p-1.5 rounded-full ${
-                  order.status === 'delivered' ? 'bg-green-100' :
-                  order.status === 'cancelled' ? 'bg-red-100' : 'bg-blue-100'
-                }`}>
-                  {order.status === 'delivered' ? <CheckCircle size={14} className="text-green-600" /> :
-                   order.status === 'cancelled' ? <XCircle size={14} className="text-red-600" /> :
-                   <Package size={14} className="text-blue-600" />}
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs text-slate-700">
-                    <span className="font-semibold">#{order.id.slice(-6)}</span> - {order.status}
-                  </p>
-                  <p className="text-[10px] text-gray-400">{formatDateTime(order.createdAt)}</p>
-                </div>
-                <ChevronRight size={14} className="text-gray-400" />
-              </div>
-            ))}
-            {!riderOrders.length && (
-              <p className="text-xs text-gray-400 text-center py-4">No recent orders yet</p>
-            )}
           </div>
         </div>
 

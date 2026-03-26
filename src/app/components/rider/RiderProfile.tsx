@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Phone, User, LogOut, ChevronRight, Bell } from 'lucide-react';
+import { Phone, User, LogOut, ChevronRight, Bell, CheckCircle, XCircle, Package } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { useApp } from '../../context/AppContext';
 import { RiderBottomNav } from './RiderBottomNav';
 
 export function RiderProfile() {
-  const { currentUser, riders, updateRider, setCurrentUser } = useApp();
+  const { currentUser, riders, updateRider, setCurrentUser, orders } = useApp();
   const navigate = useNavigate();
   const rider = riders.find(r => r.id === currentUser?.riderId);
-  const [view, setView] = useState<'main' | 'edit'>('main');
+  const [view, setView] = useState<'main' | 'edit' | 'history'>('main');
   const [name, setName] = useState(rider?.name || '');
   const [isPasswordEnabled, setIsPasswordEnabled] = useState(false);
   const [password, setPassword] = useState('');
@@ -25,6 +25,8 @@ export function RiderProfile() {
       </MobileLayout>
     );
   }
+
+  const riderOrders = orders.filter(o => o.riderId === rider.id);
 
   const canUpdatePassword = password.length >= 8 && password === confirmPassword;
 
@@ -73,7 +75,7 @@ export function RiderProfile() {
       <div className="flex-1 overflow-y-auto px-5 py-5 bg-[#F8F9FB]">
         {view === 'main' ? (
           <div className="space-y-4">
-                        <div className="flex flex-col items-center gap-3">
+            <div className="flex flex-col items-center gap-3">
               <div className="w-24 h-24 bg-white rounded-full overflow-hidden border-4 border-red-100 flex items-center justify-center">
                 {rider.profilePicture ? (
                   <img src={rider.profilePicture} alt="Rider" className="w-full h-full object-cover" />
@@ -93,8 +95,15 @@ export function RiderProfile() {
               <span className="text-stone-700 font-medium">Edit my profile information</span>
               <ChevronRight size={18} className="text-gray-400" />
             </button>
+            <button
+              onClick={() => setView('history')}
+              className="w-full bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm"
+            >
+              <span className="text-stone-700 font-medium">History</span>
+              <ChevronRight size={18} className="text-gray-400" />
+            </button>
           </div>
-        ) : (
+        ) : view === 'edit' ? (
           <div className="space-y-6">
             <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
               <div>
@@ -171,6 +180,42 @@ export function RiderProfile() {
               {passwordFeedback && <p className="mt-2 text-sm text-green-600">{passwordFeedback}</p>}
             </div>
 
+            <button
+              onClick={() => setView('main')}
+              className="w-full bg-red-50 text-red-800 border border-red-200 py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
+            >
+              <ChevronRight size={18} /> Back
+            </button>
+          </div>
+        ) : (
+          // History view
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+              <h2 className="text-sm font-semibold text-slate-800 mb-3">Recent Activity</h2>
+              <div className="space-y-3">
+                {riderOrders.slice(-10).reverse().map(order => (
+                  <div key={order.id} className="flex items-start gap-3">
+                    <div className={`p-1.5 rounded-full ${
+                      order.status === 'delivered' ? 'bg-green-100' :
+                      (order.status as string) === 'cancelled' ? 'bg-red-100' : 'bg-blue-100'
+                    }`}>
+                      {order.status === 'delivered' ? <CheckCircle size={14} className="text-green-600" /> :
+                       (order.status as string) === 'cancelled' ? <XCircle size={14} className="text-red-600" /> :
+                       <Package size={14} className="text-blue-600" />}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-slate-700">
+                        <span className="font-semibold">#{order.id.slice(-6)}</span> - {order.status}
+                      </p>
+                      <p className="text-[10px] text-gray-400">{new Date(order.createdAt).toLocaleString('en-PK', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+                    </div>
+                  </div>
+                ))}
+                {!riderOrders.length && (
+                  <p className="text-xs text-gray-400 text-center py-4">No recent orders yet</p>
+                )}
+              </div>
+            </div>
             <button
               onClick={() => setView('main')}
               className="w-full bg-red-50 text-red-800 border border-red-200 py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
