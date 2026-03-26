@@ -117,7 +117,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
   const cancelledOrders = 3;
 
   const navigate = useNavigate();
-  const { currentUser, branches, orders, riders, dishes } = useApp();
+  const { currentUser, branches, orders, riders, dishes, organizations } = useApp();
   const [dateRange, setDateRange] = useState<DateRange>("week");
   const [kitchenFilter, setKitchenFilter] = useState<string>("all");
   const [expandedRider, setExpandedRider] = useState<string | null>(null);
@@ -512,6 +512,25 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
   // Determine if a specific branch is selected (not "all")
   const isSpecificBranchSelected = kitchenFilter !== "all";
 
+  // Helper to get kitchen/org name for a dish
+  const getKitchenNameForDish = (dishName: string) => {
+    // Find the dish in all dishes (across orgs)
+    const dishObj = dishes.find((d) => d.name === dishName);
+    if (dishObj) {
+      const org = organizations.find((o) => o.id === dishObj.orgId);
+      return org ? org.orgName : null;
+    }
+    // If not found in real dishes, try to guess for mock dishes
+    // Map mock dish names to orgs by searching for a similar dish name in orgDishes
+    for (const org of organizations) {
+      const orgDishes = dishes.filter((d) => d.orgId === org.id);
+      if (orgDishes.some((d) => d.name.toLowerCase().includes(dishName.toLowerCase().split(' ')[0]))) {
+        return org.orgName;
+      }
+    }
+    return 'Unknown Kitchen';
+  };
+
   return (
     <div className="flex-1 min-h-0 overflow-y-auto">
       {showHeader && (
@@ -764,11 +783,15 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
                 {data.bestSellingDishes && data.bestSellingDishes.length > 0 ? (
                   data.bestSellingDishes.map((dish: any, idx: number) => {
                     const ratio = topDishMaxQty ? Math.min(100, Math.round((dish.qty / topDishMaxQty) * 100)) : 0;
+                    const kitchenName = getKitchenNameForDish(dish.name);
                     return (
                       <div key={dish.name} className="rounded-xl border border-gray-100 p-3 hover:shadow-md transition">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-slate-900 truncate">{idx + 1}. {dish.name}</p>
+                            {kitchenName && (
+                              <p className="text-xs font-semibold text-red-700">Kitchen: {kitchenName}</p>
+                            )}
                             <p className="text-xs text-gray-500">{dish.qty} sold • {formatCurrency(dish.revenue)}</p>
                             {dish.lowStock && dish.stock !== null && (
                               <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
