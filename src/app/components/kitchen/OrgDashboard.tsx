@@ -14,7 +14,10 @@ import {
   XCircle,
   ArrowLeft,
   Star,
+  Package,
+  CheckCircle,
 } from "lucide-react";
+
 
 import {
   ResponsiveContainer,
@@ -27,6 +30,8 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+
+
 
 import {
   Select,
@@ -104,6 +109,13 @@ function getRangeStart(now: Date, range: DateRange): Date {
 }
 
 export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
+  // Dashboard card variables must be in scope for all JSX below
+  const performanceScore = 85;
+  const readyForPickup = 12;
+  const inProgressOrders = 8;
+  const completedOrders = 45;
+  const cancelledOrders = 3;
+
   const navigate = useNavigate();
   const { currentUser, branches, orders, riders, dishes } = useApp();
   const [dateRange, setDateRange] = useState<DateRange>("week");
@@ -316,9 +328,9 @@ const calculateDishStats = (ordersArray: typeof branchOrders) =>
 
 const currentDishStats = calculateDishStats(branchOrders);
 const previousDishStats = calculateDishStats(previousBranchOrders);
-
-    const totalDishRevenue = Object.values(currentDishStats).reduce((sum, item) => sum + item.revenue, 0);
-    const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty - a.qty).slice(0, 5);
+// Define the variables for the dashboard cards
+const totalDishRevenue = Object.values(currentDishStats).reduce((sum, item) => sum + item.revenue, 0);
+const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty - a.qty).slice(0, 5);
 
     const enrichedBestSellingDishes: BestSellingDish[] = (currentBestDishes.length > 0 ? currentBestDishes : mockBestSellingDishes).map((dish, idx) => {
       const framedStock = orgDishes.find((d) => d.name === dish.name);
@@ -417,6 +429,9 @@ const previousDishStats = calculateDishStats(previousBranchOrders);
       };
     });
 
+    // Calculate total ready for pickup orders
+    const totalReadyForPickupOrders = branchOrders.filter((o) => o.status === "ready_for_pickup" || o.status === "readyForPickup").length;
+
     return {
       totalKitchens: orgBranches.length,
       activeKitchens: kitchens.filter((k) => k.status === "Active").length,
@@ -465,6 +480,7 @@ const previousDishStats = calculateDishStats(previousBranchOrders);
       totalRevenueToday: todayOrders.reduce((sum, o) => sum + o.total, 0),
       kitchens,
       selectedBranchId, // Add this to know if a specific branch is selected
+      totalReadyForPickupOrders, // <-- Add this line
     };
   }, [orgId, branches, orders, riders, dateRange, kitchenFilter]);
 
@@ -540,23 +556,32 @@ const previousDishStats = calculateDishStats(previousBranchOrders);
       </div>
 
       <div className="px-4 py-4 space-y-5">
-        <div className="bg-gradient-to-br from-red-700 to-red-800 rounded-2xl p-4 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <TrendingUp size={18} />
-              <span className="text-sm font-medium opacity-90">Total Revenue</span>
-            </div>
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
-              {dateRange === "today" ? "Today" : dateRange === "week" ? "This Week" : "This Month"}
-            </span>
-          </div>
-          <p className="text-2xl font-bold mb-1">{formatCurrency(totalRevenue)}</p>
-          <div className="flex items-center gap-4 text-sm opacity-80">
-            <span>Commission: {formatCurrency(totalCommission)}</span>
-            <span>•</span>
-            <span>Net: {formatCurrency(netRevenue)}</span>
-          </div>
-        </div>
+<div className="bg-gradient-to-br from-red-700 to-red-800 rounded-2xl p-4 text-white shadow-lg">
+  <div className="flex items-center justify-between mb-3">
+    <div className="flex items-center gap-2">
+      <TrendingUp size={18} />
+      <span className="text-sm font-medium opacity-90">Total Revenue</span>
+    </div>
+    <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+      {dateRange === "today" ? "Today" : dateRange === "week" ? "This Week" : "This Month"}
+    </span>
+  </div>
+  <p className="text-2xl font-bold mb-1">{formatCurrency(totalRevenue)}</p>
+  
+  {/* Performance Score */}
+  <div className="mt-3 pt-3 border-t border-white/20">
+    <div className="flex items-center justify-between text-sm">
+      <span className="opacity-80">Performance Score</span>
+      <span className="font-semibold">{performanceScore}%</span>
+    </div>
+    <div className="w-full bg-white/20 rounded-full h-1.5 mt-1">
+      <div 
+        className="bg-white rounded-full h-1.5 transition-all duration-500"
+        style={{ width: `${performanceScore}%` }}
+      />
+    </div>
+  </div>
+</div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
@@ -588,6 +613,10 @@ const previousDishStats = calculateDishStats(previousBranchOrders);
   
   {/* Add pending and delivered orders */}
   <div className="mt-2 pt-2 border-t border-gray-100">
+    <div className="flex justify-between items-center mb-1">
+      <span className="text-xs text-gray-500">Ready for Pickup:</span>
+      <span className="text-xs font-semibold text-green-600">{data.totalReadyForPickupOrders.toLocaleString()}</span>
+    </div>
     <div className="flex justify-between items-center mb-1">
       <span className="text-xs text-gray-500">Delivered:</span>
       <span className="text-xs font-semibold text-green-600">{data.totalDeliveredOrders.toLocaleString()}</span>
@@ -643,25 +672,11 @@ const previousDishStats = calculateDishStats(previousBranchOrders);
                     <p className="text-sm font-semibold text-gray-900">{formatCurrency(kitchen.avgOrderValue ?? 0)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400">Delivery rate</p>
-                    <p className="text-sm font-semibold text-green-700">{kitchen.deliveryRate?.toFixed(1)}%</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-50">
-                  <div>
                     <p className="text-xs text-gray-400">Revenue</p>
                     <p className="text-sm font-semibold text-gray-900">{formatCurrency(kitchen.revenue)}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Cancellation rate</p>
-                    <p className="text-sm font-semibold text-red-700">{kitchen.cancellationRate?.toFixed(1)}%</p>
-                  </div>
                 </div>
 
-                <div className="mt-2 text-xs text-gray-500">
-                  {kitchen.status === 'Active' ? `Net: ${formatCurrency(kitchen.revenue - kitchen.commission)}` : 'Inactive branch'}
-                </div>
               </div>
             ))}
           </div>
@@ -672,36 +687,30 @@ const previousDishStats = calculateDishStats(previousBranchOrders);
           // Show Orders Analysis when a specific branch is selected
           <div className="mt-6">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xl font-bold text-slate-900">Orders Analysis - {kitchenFilter}</h3>
+              <h3 className="text-xl font-bold text-slate-900">Branch Order Insights</h3>
               <span className="text-sm text-gray-500">{dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'This Week' : 'This Month'}</span>
             </div>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-gray-700">Repeat Customer Rate</p>
-                  <p className="text-xs text-gray-500">vs new users</p>
-                </div>
-                <div className="mt-3 h-2 w-full rounded-full bg-gray-100">
-                  <div className="h-full rounded-full bg-indigo-600" style={{ width: `${data.repeatCustomerStats?.repeatPct ?? 0}%` }} />
-                </div>
-                <div className="mt-2 flex items-end justify-between">
-                  <p className="text-xs text-gray-500">{data.repeatCustomerStats?.repeat ?? 0} repeat</p>
-                  <p className="text-xs font-semibold text-slate-900">{Number(data.repeatCustomerStats?.repeatPct ?? 0).toFixed(1)}%</p>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                <p className="text-sm font-semibold text-gray-700">Peak Order Hour</p>
-                <p className="text-2xl font-bold text-emerald-700">{data.peakOrderTime?.hour ?? '00:00'}</p>
-                <p className="text-xs text-gray-500">{data.peakOrderTime?.count ?? 0} orders</p>
-              </div>
-
               <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm lg:col-span-2">
-                <p className="text-sm font-semibold text-gray-700">Hourly Order Trend</p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-semibold text-gray-700">Peak Hour</p>
+                  <span className="text-xs text-emerald-700 font-bold">
+                    {data.peakOrderTime?.hour ?? '00:00'} ({data.peakOrderTime?.count ?? 0} orders)
+                  </span>
+                </div>
+                <p className="text-sm font-semibold text-gray-700 mt-4">Hourly Order Trend</p>
                 <div className="mt-2 h-40">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.peakOrderTimeline || []} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <LineChart data={(data.peakOrderTimeline && data.peakOrderTimeline.length > 0) ? data.peakOrderTimeline : [
+              { hour: '10:00', orders: 5 },
+              { hour: '11:00', orders: 8 },
+              { hour: '12:00', orders: 15 },
+              { hour: '13:00', orders: 25 },
+              { hour: '14:00', orders: 18 },
+              { hour: '15:00', orders: 10 },
+              { hour: '16:00', orders: 7 },
+            ]} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
                       <YAxis allowDecimals={false} />

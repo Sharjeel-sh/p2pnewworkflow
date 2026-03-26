@@ -6,7 +6,7 @@ import {
   TrendingDown, Activity, BarChart3, MoreVertical, Star, Timer, 
   AlertTriangle, Gauge, Navigation, Phone, Package, Utensils, 
   Bike, MapPin, X, ChevronLeft, ChevronRight, PieChart,
-  GitCompare, Zap
+  GitCompare, Zap, User, UserCheck, UserX, UserMinus, ChevronDown
 } from "lucide-react";
 import { MobileLayout } from "../shared/MobileLayout";
 import { KitchenBottomNav } from "./KitchenBottomNav";
@@ -251,10 +251,7 @@ export function KitchenOrderDashboard() {
   const [customEndDate, setCustomEndDate] = useState<Date>(new Date());
   const [sortBy, setSortBy] = useState<'deliveries' | 'avgTime' | 'rating'>('deliveries');
   const [selectedRider, setSelectedRider] = useState<string | null>(null);
-  const [riderView, setRiderView] = useState<'list' | 'graph'>('list');
-  const [compareRider1, setCompareRider1] = useState<string>('');
-  const [compareRider2, setCompareRider2] = useState<string>('');
-  const [showComparison, setShowComparison] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Date range calculation
   const dateRange = useMemo(() => {
@@ -430,8 +427,8 @@ export function KitchenOrderDashboard() {
       const riderOrders = filteredOrders.filter(o => o.riderId === rider.id);
       const deliveredOrdersCount = riderOrders.filter(o => o.status === 'delivered').length;
       const cancelledOrdersCount = riderOrders.filter(o => o.status === 'cancelled').length;
-      const pendingOrdersCount = riderOrders.filter(o => o.status === 'ready' || o.status === 'accepted').length;
-      const activeOrdersCount = riderOrders.filter(o => o.status === 'picked_up').length;
+      const pendingOrdersCount = riderOrders.filter(o => o.status === 'pending payment' || o.status === 'accepted').length;
+      const activeOrdersCount = riderOrders.filter(o => o.status === 'preparing' || o.status === 'ready-for-pickup').length;
       
       const deliveryTimes = riderOrders
         .filter(o => o.status === 'delivered' && o.deliveredAt)
@@ -451,8 +448,13 @@ export function KitchenOrderDashboard() {
       const onTimeDeliveries = deliveryTimes.filter(t => t <= 30).length;
       const onTimeRate = deliveredOrdersCount > 0 ? (onTimeDeliveries / deliveredOrdersCount) * 100 : 0;
       
+      // Calculate efficiency based on multiple factors
       const efficiency = deliveredOrdersCount > 0 
-        ? Math.max(0, Math.min(100, 100 - (lateDeliveryPercent * 0.8) - (avgDeliveryTime / 3)))
+        ? Math.min(100, Math.max(0, 
+            (onTimeRate * 0.4) + 
+            (100 - (lateDeliveryPercent * 0.3)) + 
+            (Math.min(100, (100 - (avgDeliveryTime / 2))) * 0.3)
+          ))
         : 50;
       
       return {
@@ -518,42 +520,8 @@ export function KitchenOrderDashboard() {
     }
   }, [dashboardStats.riderPerformance, sortBy]);
 
-  // Get selected riders for comparison
-  const selectedRider1 = dashboardStats.riderPerformance.find(r => r.id === compareRider1);
-  const selectedRider2 = dashboardStats.riderPerformance.find(r => r.id === compareRider2);
-
-  // Radar chart data for comparison
-  const radarData = useMemo(() => {
-    if (!selectedRider1 || !selectedRider2) return [];
-    
-    return [
-      {
-        metric: 'Deliveries',
-        rider1: (selectedRider1.deliveries / Math.max(selectedRider1.deliveries, selectedRider2.deliveries)) * 100,
-        rider2: (selectedRider2.deliveries / Math.max(selectedRider1.deliveries, selectedRider2.deliveries)) * 100
-      },
-      {
-        metric: 'Efficiency',
-        rider1: selectedRider1.efficiency,
-        rider2: selectedRider2.efficiency
-      },
-      {
-        metric: 'On-Time Rate',
-        rider1: selectedRider1.onTimeRate || 0,
-        rider2: selectedRider2.onTimeRate || 0
-      },
-      {
-        metric: 'Avg Delivery',
-        rider1: Math.max(0, 100 - (selectedRider1.avgDeliveryTime / 0.6)),
-        rider2: Math.max(0, 100 - (selectedRider2.avgDeliveryTime / 0.6))
-      },
-      {
-        metric: 'Success Rate',
-        rider1: (selectedRider1.delivered / Math.max(selectedRider1.totalOrders, 1)) * 100,
-        rider2: (selectedRider2.delivered / Math.max(selectedRider2.totalOrders, 1)) * 100
-      }
-    ];
-  }, [selectedRider1, selectedRider2]);
+  // Get selected rider data
+  const selectedRiderData = dashboardStats.riderPerformance.find(r => r.id === selectedRider);
 
   // Get range label
   const rangeLabel = useMemo(() => {
@@ -607,6 +575,27 @@ export function KitchenOrderDashboard() {
       case 'unavailable': return 'bg-gray-100 text-gray-700';
       default: return 'bg-gray-100 text-gray-700';
     }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch(status) {
+      case 'available': return <UserCheck size={16} className="text-green-600" />;
+      case 'on-break': return <UserMinus size={16} className="text-yellow-600" />;
+      case 'unavailable': return <UserX size={16} className="text-gray-600" />;
+      default: return <User size={16} className="text-gray-600" />;
+    }
+  };
+
+  const getEfficiencyColor = (efficiency: number) => {
+    if (efficiency >= 90) return 'text-green-600';
+    if (efficiency >= 70) return 'text-orange-600';
+    return 'text-red-600';
+  };
+
+  const getEfficiencyBgColor = (efficiency: number) => {
+    if (efficiency >= 90) return 'bg-green-500';
+    if (efficiency >= 70) return 'bg-orange-500';
+    return 'bg-red-500';
   };
 
   const getOrderStatusColor = (status: string) => {
@@ -1026,424 +1015,175 @@ export function KitchenOrderDashboard() {
           )}
 
           {selectedView === 'riders' && (
-            <div className="px-5 mt-6">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-semibold text-gray-800 flex items-center">
-                  <Truck size={18} className="text-indigo-500 mr-2" />
-                  Riders Performance
-                </h3>
-                <div className="flex items-center gap-2">
+            <div className="px-5 mt-2 pb-6">
+              {/* Single Rider Performance Section */}
+              <div className="space-y-4">
+                {/* Custom Dropdown for Rider Selection */}
+                <div className="relative">
                   <button
-                    onClick={() => setRiderView('list')}
-                    className={`px-2 py-1 text-xs rounded-lg transition ${
-                      riderView === 'list' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'
-                    }`}
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow"
                   >
-                    List
-                  </button>
-                  <button
-                    onClick={() => setRiderView('graph')}
-                    className={`px-2 py-1 text-xs rounded-lg transition ${
-                      riderView === 'graph' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'
-                    }`}
-                  >
-                    Analytics
-                  </button>
-                </div>
-              </div>
-
-              {/* LIST VIEW */}
-              {riderView === 'list' && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                  {sortedRiders.length > 0 ? (
-                    <div>
-                      {sortedRiders.map((rider, index) => (
-                        <div 
-                          key={rider.id} 
-                          className={`p-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition cursor-pointer ${
-                            selectedRider === rider.id ? 'bg-indigo-50' : ''
-                          }`}
-                          onClick={() => setSelectedRider(selectedRider === rider.id ? null : rider.id)}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                index === 0 ? 'bg-yellow-100' : 'bg-indigo-100'
-                              }`}>
-                                <span className="text-sm font-bold text-indigo-600">
-                                  {rider.name.charAt(0)}
-                                </span>
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <p className="font-medium text-gray-800">{rider.name}</p>
-                                  <span className={`px-2 py-0.5 rounded-full text-xs ${getStatusColor(rider.status)}`}>
-                                    {rider.status === 'available' ? 'Available' : 
-                                     rider.status === 'on-break' ? 'On Break' : 
-                                     'Unavailable'}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm font-semibold text-gray-800">{rider.totalOrders || 0}</p>
-                              <p className="text-xs text-gray-400">Total Orders</p>
-                            </div>
-                          </div>
-                          
-                          {selectedRider === rider.id && (
-                            <div className="mt-3 pt-3 border-t border-gray-100">
-                              <div className="grid grid-cols-4 gap-2 text-center">
-                                <div>
-                                  <p className="text-gray-500 text-xs">Delivered</p>
-                                  <p className="font-semibold text-green-600 text-sm">{rider.delivered || 0}</p>
-                                </div>
-                                <div>
-                                  <p className="text-gray-500 text-xs">Cancelled</p>
-                                  <p className="font-semibold text-red-600 text-sm">{rider.cancelled || 0}</p>
-                                </div>
-                                <div>
-                                  <p className="text-gray-500 text-xs">Pending</p>
-                                  <p className="font-semibold text-orange-600 text-sm">{rider.pending || 0}</p>
-                                </div>
-                                <div>
-                                  <p className="text-gray-500 text-xs">Active</p>
-                                  <p className="font-semibold text-blue-600 text-sm">{rider.active || 0}</p>
-                                </div>
-                              </div>
-                              {rider.zone && (
-                                <div className="mt-2 text-center">
-                                  <p className="text-gray-500 text-xs">Zone</p>
-                                  <p className="font-medium text-gray-800 text-sm">{rider.zone}</p>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <Truck size={20} className="text-indigo-600" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-gray-700">Select Rider</p>
+                        <p className="text-xs text-gray-500">
+                          {selectedRiderData ? selectedRiderData.name : "Choose a rider to view details"}
+                        </p>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="p-8 text-center">
-                      <Truck size={32} className="text-gray-300 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">No riders available</p>
+                    <ChevronDown size={20} className={`text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 z-20 max-h-64 overflow-y-auto">
+                      <div className="p-2">
+                        {sortedRiders.map((rider) => (
+                          <button
+                            key={rider.id}
+                            onClick={() => {
+                              setSelectedRider(rider.id);
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                              selectedRider === rider.id
+                                ? 'bg-indigo-50 text-indigo-700'
+                                : 'hover:bg-gray-50 text-gray-700'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                  rider.status === 'available' ? 'bg-green-100' : 
+                                  rider.status === 'on-break' ? 'bg-yellow-100' : 'bg-gray-100'
+                                }`}>
+                                  <span className="text-sm font-semibold">{rider.name.charAt(0)}</span>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">{rider.name}</p>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${getStatusColor(rider.status)}`}>
+                                      {rider.status === 'available' ? 'Available' : 
+                                       rider.status === 'on-break' ? 'On Break' : 'Unavailable'}
+                                    </span>
+                                    <span className="text-xs text-gray-500">{rider.deliveries} deliveries</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <span className={`text-xs font-semibold ${getEfficiencyColor(rider.efficiency)}`}>
+                                {rider.efficiency.toFixed(0)}%
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
-              )}
 
-              {/* GRAPH/ANALYTICS VIEW */}
-              {riderView === 'graph' && (
-                <div className="space-y-4">
-                  {/* Comparison Section */}
-                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <GitCompare size={16} className="text-purple-500" />
-                        Rider Comparison
-                      </h4>
-                      <button
-                        onClick={() => setShowComparison(!showComparison)}
-                        className="text-xs text-purple-600 hover:text-purple-700"
-                      >
-                        {showComparison ? 'Hide Comparison' : 'Compare Riders'}
-                      </button>
-                    </div>
-                    
-                    {showComparison && (
-                      <div className="space-y-4">
-                        {/* Select Riders */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-xs text-gray-500 mb-1 block">Select Rider 1</label>
-                            <select
-                              value={compareRider1}
-                              onChange={(e) => setCompareRider1(e.target.value)}
-                              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            >
-                              <option value="">Select Rider</option>
-                              {sortedRiders.map(rider => (
-                                <option key={rider.id} value={rider.id}>{rider.name}</option>
-                              ))}
-                            </select>
+                {/* Single Rider Performance Card */}
+                {selectedRiderData ? (
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-5 text-white">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                            <span className="text-2xl font-bold">{selectedRiderData.name.charAt(0)}</span>
                           </div>
                           <div>
-                            <label className="text-xs text-gray-500 mb-1 block">Select Rider 2</label>
-                            <select
-                              value={compareRider2}
-                              onChange={(e) => setCompareRider2(e.target.value)}
-                              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            >
-                              <option value="">Select Rider</option>
-                              {sortedRiders.map(rider => (
-                                <option key={rider.id} value={rider.id}>{rider.name}</option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                        
-                        {/* Comparison Stats Cards */}
-                        {selectedRider1 && selectedRider2 && (
-                          <>
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-3">
-                                <p className="text-xs text-gray-500 mb-1">{selectedRider1.name}</p>
-                                <p className="text-lg font-bold text-indigo-600">{selectedRider1.deliveries}</p>
-                                <p className="text-xs text-gray-400">Deliveries</p>
-                              </div>
-                              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-3">
-                                <p className="text-xs text-gray-500 mb-1">{selectedRider2.name}</p>
-                                <p className="text-lg font-bold text-indigo-600">{selectedRider2.deliveries}</p>
-                                <p className="text-xs text-gray-400">Deliveries</p>
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="bg-white rounded-xl p-2 border border-gray-100">
-                                <p className="text-xs text-gray-500">Efficiency</p>
-                                <p className={`text-sm font-semibold ${selectedRider1.efficiency >= 90 ? 'text-green-600' : selectedRider1.efficiency >= 70 ? 'text-orange-600' : 'text-red-600'}`}>
-                                  {selectedRider1.efficiency.toFixed(0)}%
-                                </p>
-                              </div>
-                              <div className="bg-white rounded-xl p-2 border border-gray-100">
-                                <p className="text-xs text-gray-500">Efficiency</p>
-                                <p className={`text-sm font-semibold ${selectedRider2.efficiency >= 90 ? 'text-green-600' : selectedRider2.efficiency >= 70 ? 'text-orange-600' : 'text-red-600'}`}>
-                                  {selectedRider2.efficiency.toFixed(0)}%
-                                </p>
-                              </div>
-                              <div className="bg-white rounded-xl p-2 border border-gray-100">
-                                <p className="text-xs text-gray-500">On-Time Rate</p>
-                                <p className="text-sm font-semibold text-blue-600">{selectedRider1.onTimeRate?.toFixed(0) || 0}%</p>
-                              </div>
-                              <div className="bg-white rounded-xl p-2 border border-gray-100">
-                                <p className="text-xs text-gray-500">On-Time Rate</p>
-                                <p className="text-sm font-semibold text-blue-600">{selectedRider2.onTimeRate?.toFixed(0) || 0}%</p>
-                              </div>
-                              <div className="bg-white rounded-xl p-2 border border-gray-100">
-                                <p className="text-xs text-gray-500">Avg Delivery</p>
-                                <p className="text-sm font-semibold text-orange-600">{formatTime(selectedRider1.avgDeliveryTime)}</p>
-                              </div>
-                              <div className="bg-white rounded-xl p-2 border border-gray-100">
-                                <p className="text-xs text-gray-500">Avg Delivery</p>
-                                <p className="text-sm font-semibold text-orange-600">{formatTime(selectedRider2.avgDeliveryTime)}</p>
-                              </div>
-                            </div>
-                            
-                            {/* Radar Chart */}
-                            <div className="h-80 mt-2">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <RadarChart data={radarData}>
-                                  <PolarGrid stroke="#E5E7EB" />
-                                  <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10 }} />
-                                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 8 }} />
-                                  <Radar name={selectedRider1.name} dataKey="rider1" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
-                                  <Radar name={selectedRider2.name} dataKey="rider2" stroke="#EF4444" fill="#EF4444" fillOpacity={0.3} />
-                                  <Legend />
-                                  <Tooltip />
-                                </RadarChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Top Riders Chart */}
-                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                      <BarChart3 size={16} className="text-blue-500" />
-                      Top Performing Riders
-                    </h4>
-                    <div className="space-y-3">
-                      {sortedRiders.slice(0, 5).map((rider, idx) => {
-                        const maxDeliveries = Math.max(...sortedRiders.map(r => r.delivered || 0), 1);
-                        const percentage = ((rider.delivered || 0) / maxDeliveries) * 100;
-                        
-                        return (
-                          <div key={rider.id}>
-                            <div className="flex justify-between text-xs mb-1">
-                              <span className="font-medium text-gray-700">{rider.name}</span>
-                              <span className="text-gray-500">{rider.delivered || 0} deliveries</span>
-                            </div>
-                            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                              <div 
-                                className="bg-green-500 h-2 rounded-full transition-all duration-500"
-                                style={{ width: `${percentage}%` }}
-                              />
+                            <h3 className="text-xl font-bold">{selectedRiderData.name}</h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              {getStatusIcon(selectedRiderData.status)}
+                              <span className="text-sm opacity-90 capitalize">{selectedRiderData.status}</span>
                             </div>
                           </div>
-                        );
-                      })}
+                        </div>
+                        <div className="text-right">
+                          <div className="text-3xl font-bold">{selectedRiderData.efficiency.toFixed(0)}%</div>
+                          <div className="text-xs opacity-90">Efficiency Rate</div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Delivery Status Distribution */}
-                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                      <PieChart size={16} className="text-purple-500" />
-                      Overall Delivery Status
-                    </h4>
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">Delivered</span>
-                          <span className="text-sm font-semibold text-green-600">
-                            {sortedRiders.reduce((sum, r) => sum + (r.delivered || 0), 0)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">Cancelled</span>
-                          <span className="text-sm font-semibold text-red-600">
-                            {sortedRiders.reduce((sum, r) => sum + (r.cancelled || 0), 0)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">Pending</span>
-                          <span className="text-sm font-semibold text-orange-600">
-                            {sortedRiders.reduce((sum, r) => sum + (r.pending || 0), 0)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">Active</span>
-                          <span className="text-sm font-semibold text-blue-600">
-                            {sortedRiders.reduce((sum, r) => sum + (r.active || 0), 0)}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Simple Donut Chart */}
-                      <div className="relative w-24 h-24">
-                        <svg className="w-full h-full transform -rotate-90">
-                          <circle cx="48" cy="48" r="40" fill="none" stroke="#E5E7EB" strokeWidth="16" />
-                          {(() => {
-                            const total = sortedRiders.reduce((sum, r) => sum + (r.delivered || 0) + (r.cancelled || 0) + (r.pending || 0) + (r.active || 0), 0);
-                            if (total === 0) return null;
-                            
-                            const delivered = sortedRiders.reduce((sum, r) => sum + (r.delivered || 0), 0);
-                            const cancelled = sortedRiders.reduce((sum, r) => sum + (r.cancelled || 0), 0);
-                            const pending = sortedRiders.reduce((sum, r) => sum + (r.pending || 0), 0);
-                            const active = sortedRiders.reduce((sum, r) => sum + (r.active || 0), 0);
-                            
-                            let currentAngle = 0;
-                            const segments = [
-                              { value: delivered, color: "#10B981" },
-                              { value: cancelled, color: "#EF4444" },
-                              { value: pending, color: "#F97316" },
-                              { value: active, color: "#3B82F6" }
-                            ];
-                            
-                            return segments.map((segment, i) => {
-                              if (segment.value === 0) return null;
-                              const angle = (segment.value / total) * 360;
-                              const startAngle = currentAngle;
-                              const endAngle = startAngle + angle;
-                              currentAngle = endAngle;
-                              
-                              const startRad = (startAngle * Math.PI) / 180;
-                              const endRad = (endAngle * Math.PI) / 180;
-                              const x1 = 48 + 40 * Math.cos(startRad);
-                              const y1 = 48 + 40 * Math.sin(startRad);
-                              const x2 = 48 + 40 * Math.cos(endRad);
-                              const y2 = 48 + 40 * Math.sin(endRad);
-                              const largeArcFlag = angle > 180 ? 1 : 0;
-                              
-                              return (
-                                <path
-                                  key={i}
-                                  d={`M 48 48 L ${x1} ${y1} A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-                                  fill={segment.color}
-                                />
-                              );
-                            });
-                          })()}
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-xs font-bold text-gray-700">
-                            {sortedRiders.reduce((sum, r) => sum + (r.delivered || 0), 0)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Legend */}
-                    <div className="flex flex-wrap gap-3 mt-3 pt-3 border-t border-gray-100">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span className="text-xs text-gray-600">Delivered</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                        <span className="text-xs text-gray-600">Cancelled</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                        <span className="text-xs text-gray-600">Pending</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span className="text-xs text-gray-600">Active</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Rider Efficiency Bars */}
-                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                      <Activity size={16} className="text-indigo-500" />
-                      Rider Efficiency
-                    </h4>
-                    <div className="space-y-3">
-                      {sortedRiders.slice(0, 5).map((rider) => {
-                        const total = (rider.delivered || 0) + (rider.cancelled || 0);
-                        const efficiency = total > 0 ? ((rider.delivered || 0) / total) * 100 : 0;
-                        
-                        return (
-                          <div key={rider.id}>
-                            <div className="flex justify-between text-xs mb-1">
-                              <span className="font-medium text-gray-700">{rider.name}</span>
-                              <span className={efficiency >= 90 ? 'text-green-600' : efficiency >= 70 ? 'text-orange-600' : 'text-red-600'}>
-                                {efficiency.toFixed(0)}%
-                              </span>
-                            </div>
-                            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                              <div 
-                                className={`h-2 rounded-full transition-all duration-500 ${
-                                  efficiency >= 90 ? 'bg-green-500' : 
-                                  efficiency >= 70 ? 'bg-orange-500' : 
-                                  'bg-red-500'
-                                }`}
-                                style={{ width: `${efficiency}%` }}
-                              />
-                            </div>
+                    {/* Stats Grid */}
+                    <div className="p-5">
+                      {/* Main Stats - Delivered, Cancelled, Pending, Active */}
+                      <div className="grid grid-cols-4 gap-3 mb-6">
+                        <div className="text-center p-3 bg-green-50 rounded-xl">
+                          <div className="flex items-center justify-center mb-1">
+                            <Truck size={20} className="text-green-600" />
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                          <div className="text-xl font-bold text-green-600">{selectedRiderData.delivered}</div>
+                          <div className="text-xs text-gray-600">Delivered</div>
+                        </div>
+                        <div className="text-center p-3 bg-red-50 rounded-xl">
+                          <div className="flex items-center justify-center mb-1">
+                            <AlertCircle size={20} className="text-red-600" />
+                          </div>
+                          <div className="text-xl font-bold text-red-600">{selectedRiderData.cancelled}</div>
+                          <div className="text-xs text-gray-600">Cancelled</div>
+                        </div>
+                        <div className="text-center p-3 bg-yellow-50 rounded-xl">
+                          <div className="flex items-center justify-center mb-1">
+                            <Clock size={20} className="text-yellow-600" />
+                          </div>
+                          <div className="text-xl font-bold text-yellow-600">{selectedRiderData.pending}</div>
+                          <div className="text-xs text-gray-600">Pending</div>
+                        </div>
+                        <div className="text-center p-3 bg-blue-50 rounded-xl">
+                          <div className="flex items-center justify-center mb-1">
+                            <Package size={20} className="text-blue-600" />
+                          </div>
+                          <div className="text-xl font-bold text-blue-600">{selectedRiderData.active}</div>
+                          <div className="text-xs text-gray-600">Active</div>
+                        </div>
+                      </div>
 
-                  {/* Comparison Bar Chart */}
-                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                      <Zap size={16} className="text-yellow-500" />
-                      Performance Comparison (Top 5)
-                    </h4>
-                    <div className="h-80">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={sortedRiders.slice(0, 5)}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                          <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
-                          <YAxis yAxisId="left" tick={{ fontSize: 10 }} />
-                          <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} />
-                          <Tooltip />
-                          <Legend />
-                          <Bar yAxisId="left" dataKey="delivered" name="Delivered" fill="#10B981" radius={[4, 4, 0, 0]} />
-                          <Bar yAxisId="right" dataKey="avgDeliveryTime" name="Avg Time (min)" fill="#F59E0B" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
+                      {/* Efficiency Bar */}
+                      <div className="mb-6">
+
+                        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                          <div 
+                            className={`h-3 rounded-full transition-all duration-500 ${getEfficiencyBgColor(selectedRiderData.efficiency)}`}
+                            style={{ width: `${selectedRiderData.efficiency}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Additional Metrics */}
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="bg-gray-50 rounded-xl p-3">
+                          <div className="text-xs text-gray-500 mb-1">Total Orders</div>
+                          <div className="text-lg font-bold text-gray-800">{selectedRiderData.totalOrders}</div>
+                        </div>
+
+                      </div>
+
+                      {/* Zone Info */}
+                      {selectedRiderData.zone && (
+                        <div className="bg-indigo-50 rounded-xl p-3">
+                          <div className="flex items-center gap-2">
+                            <MapPin size={16} className="text-indigo-600" />
+                            <span className="text-sm text-gray-700">Delivery Zone:</span>
+                            <span className="text-sm font-medium text-indigo-600">{selectedRiderData.zone}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
+                    <User size={48} className="text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">Select a rider to view detailed performance metrics</p>
+                    <p className="text-xs text-gray-400 mt-2">Click the dropdown above to choose a rider</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
