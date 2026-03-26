@@ -29,7 +29,7 @@ export function RiderLoginScreen() {
     setLoading(false);
     if (rider) {
       setCurrentUser({ role: 'rider', riderId: rider.id, orgId: rider.orgId });
-      navigate('/rider/orders');
+      navigate('/rider');
     } else if (credentialsMatch && !credentialsMatch.isAvailable) {
       setError('Your rider account is inactive. Contact kitchen admin.');
     } else {

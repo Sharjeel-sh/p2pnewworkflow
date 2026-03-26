@@ -35,6 +35,7 @@ import { KitchenProfile } from './components/kitchen/KitchenProfile';
 import { KitchenCoupons } from './components/kitchen/KitchenCoupons';
 import { KitchenDiscounts } from './components/kitchen/KitchenDiscounts';
 import { KitchenSettings } from './components/kitchen/KitchenSettings';
+import { RiderDashboard } from './components/rider/RiderDashboard';
 import { RiderOrders } from './components/rider/RiderOrders';
 import { RiderProfile } from './components/rider/RiderProfile';
 import { RiderOrderDetails } from './components/rider/RiderOrderDetails';
@@ -82,6 +83,8 @@ export const router = createBrowserRouter([
       { path: 'kitchen/profile/coupons', element: <KitchenCoupons /> },
       { path: 'kitchen/profile/discounts', element: <KitchenDiscounts /> },
       { path: 'kitchen/profile/kitchen-info', element: <KitchenSettings /> },
+      { path: 'rider', element: <RiderDashboard /> },
+      { path: 'rider/dashboard', element: <RiderDashboard /> },
       { path: 'rider/orders', element: <RiderOrders /> },
       { path: 'rider/order/:orderId', element: <RiderOrderDetails /> },
       { path: 'rider/profile', element: <RiderProfile /> },

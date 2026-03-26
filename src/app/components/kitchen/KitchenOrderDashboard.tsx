@@ -11,7 +11,7 @@ import { KitchenBottomNav } from "./KitchenBottomNav";
 import { useApp } from "../../context/AppContext";
 import {
   LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area
+  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, Legend
 } from "recharts";
 
 // Types for better type safety
