@@ -1005,12 +1005,7 @@ export function KitchenOrderDashboard() {
                         {dashboardStats.topItems.length}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Active Riders</span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {dashboardStats.riderPerformance.filter(r => r.status === 'available').length}
-                      </span>
-                    </div>
+
                   </div>
                 </div>
               </div>
