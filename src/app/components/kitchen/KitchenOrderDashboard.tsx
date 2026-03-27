@@ -524,7 +524,7 @@ export function KitchenOrderDashboard() {
   }, [dashboardStats.riderPerformance, sortBy]);
 
   // Get selected rider data
-  const selectedRiderData = dashboardStats.riderPerformance.find(r => r.id === selectedRider);
+  const selectedRiderData = dashboardStats.riderPerformance.find(r => r.id);
 
   // Get range label
   const rangeLabel = useMemo(() => {
@@ -1022,11 +1022,10 @@ export function KitchenOrderDashboard() {
               {/* Single Rider Performance Section */}
               <div className="space-y-4">
                 {/* Rider List - no selector */}
-               
 
                 {/* Single Rider Performance Card */}
                 {selectedRiderData ? (
-                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <><div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="p-5">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-xl font-bold text-gray-700">
@@ -1070,8 +1069,7 @@ export function KitchenOrderDashboard() {
                                 strokeLinecap="round"
                                 strokeDasharray={`${(2 * Math.PI * 42).toFixed(2)}`}
                                 strokeDashoffset={`${((1 - Math.min(1, selectedRiderData.delivered / Math.max(1, selectedRiderData.totalOrders))) * 2 * Math.PI * 42).toFixed(2)}`}
-                                transform="rotate(-90 50 50)"
-                              />
+                                transform="rotate(-90 50 50)" />
                             </svg>
                             <div className="absolute inset-0 grid place-items-center">
                               <div className="text-center">
@@ -1083,7 +1081,63 @@ export function KitchenOrderDashboard() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div><div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                      <div className="p-5">
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-xl font-bold text-gray-700">
+                            {selectedRiderData.name.charAt(0)}
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-gray-900">{selectedRiderData.name}</h3>
+                            <p className="text-sm text-gray-500">{selectedRiderData.phone ?? '+0000000000'}</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-600">Pending</span>
+                              <span className="text-sm font-bold text-orange-600">{selectedRiderData.pending}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-600">Delivered</span>
+                              <span className="text-sm font-bold text-emerald-600">{selectedRiderData.delivered}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-600">Rejected</span>
+                              <span className="text-sm font-bold text-blue-600">{Math.max(0, selectedRiderData.totalOrders - (selectedRiderData.delivered + selectedRiderData.cancelled + selectedRiderData.pending))}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-600">Cancelled</span>
+                              <span className="text-sm font-bold text-red-600">{selectedRiderData.cancelled}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-center">
+                            <div className="relative w-28 h-28">
+                              <svg viewBox="0 0 100 100" className="w-full h-full">
+                                <circle cx="50" cy="50" r="42" stroke="#E5E7EB" strokeWidth="12" fill="none" />
+                                <circle
+                                  cx="50"
+                                  cy="50"
+                                  r="42"
+                                  stroke="#22C55E"
+                                  strokeWidth="12"
+                                  fill="none"
+                                  strokeLinecap="round"
+                                  strokeDasharray={`${(2 * Math.PI * 42).toFixed(2)}`}
+                                  strokeDashoffset={`${((1 - Math.min(1, selectedRiderData.delivered / Math.max(1, selectedRiderData.totalOrders))) * 2 * Math.PI * 42).toFixed(2)}`}
+                                  transform="rotate(-90 50 50)" />
+                              </svg>
+                              <div className="absolute inset-0 grid place-items-center">
+                                <div className="text-center">
+                                  <p className="text-2xl font-bold text-gray-900">{selectedRiderData.totalOrders}</p>
+                                  <p className="text-xs text-gray-500">Total</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div></>
                 ) : (
                   <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
                     <User size={48} className="text-gray-300 mx-auto mb-3" />
