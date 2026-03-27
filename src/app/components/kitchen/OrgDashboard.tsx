@@ -50,22 +50,10 @@ interface KitchenInfo {
   name: string;
   orders: number;
   totalOrders: number;
-  revenue: number;
-  commission: number;
-  status: "Active" | "Inactive";
-  location: string;
-  ordersToday: number;
-  revenueToday: number;
-  avgOrderValue?: number;
-  cancellationRate?: number;
-  deliveryRate?: number;
-}
-interface KitchenInfo {
-  id: string;
-  name: string;
-  orders: number;
-  totalOrders: number;
-  deliveredOrders: number; // Add this
+  deliveredOrders: number;
+  readyForPickupOrders: number;
+  pendingOrders: number;
+  cancelledOrders: number;
   revenue: number;
   commission: number;
   status: "Active" | "Inactive";
@@ -139,6 +127,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
         totalDeliveredOrders: 0,
         totalPendingOrders: 0,
         totalCancelledOrders: 0,
+        totalReadyForPickupOrders: 0,
         averageDeliveryMins: 0,
         riderLeaderboard: [],
         weeklyDeliveryTrend: [],
@@ -409,6 +398,13 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
 
       const cancelled = branchRangeOrders.filter((o) => (o.status as string) === "cancelled").length;
       const delivered = branchRangeOrders.filter((o) => o.status === "delivered").length;
+      const readyForPickup = branchRangeOrders.filter((o) =>
+        (o.status as string) === "ready" ||
+        (o.status as string) === "picked_up"
+      ).length;
+      const pending = branchRangeOrders.filter((o) =>
+        ["pending", "accepted", "preparing"].includes(o.status as string)
+      ).length;
       const avgOrderValue = branchRangeOrders.length ? revenue / branchRangeOrders.length : 0;
 
       return {
@@ -417,6 +413,9 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
         orders: branchRangeOrders.length,
         totalOrders: branchRangeOrders.length,
         deliveredOrders: delivered,
+        readyForPickupOrders: readyForPickup,
+        pendingOrders: pending,
+        cancelledOrders: cancelled,
         revenue,
         commission: revenue * COMMISSION_RATE,
         status: branchRangeOrders.length > 0 ? "Active" : "Inactive",
@@ -430,7 +429,10 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
     });
 
     // Calculate total ready for pickup orders
-    const totalReadyForPickupOrders = branchOrders.filter((o) => o.status === "ready_for_pickup" || o.status === "readyForPickup").length;
+    const totalReadyForPickupOrders = branchOrders.filter((o) =>
+      (o.status as string) === "ready" ||
+      (o.status as string) === "picked_up"
+    ).length;
 
     return {
       totalKitchens: orgBranches.length,
@@ -575,74 +577,53 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
       </div>
 
       <div className="px-4 py-4 space-y-5">
-<div className="flex flex-col md:flex-row gap-3">
-  {/* Left: Revenue + Branches */}
-  <div className="flex-1 flex flex-col gap-3">
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 text-gray-900 shadow-lg">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <TrendingUp size={18} className="text-blue-700" />
-          <span className="text-sm font-medium opacity-90">Total Revenue</span>
-        </div>
-        <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full text-gray-700">
-          {dateRange === "today" ? "Today" : dateRange === "week" ? "This Week" : "This Month"}
-        </span>
-      </div>
-      <p className="text-2xl font-bold mb-1">{formatCurrency(totalRevenue)}</p>
-    </div>
-    <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-      <div className="flex items-center gap-2 mb-2">
-        <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-          <Store size={16} className="text-blue-600" />
-        </div>
-      </div>
-      <p className="text-xl font-bold text-gray-900">{filteredKitchens.length === data.kitchens.length ? data.totalKitchens : filteredKitchens.length}</p>
-      <p className="text-xs text-gray-500">Total Branches</p>
-      <div className="flex items-center gap-2 mt-1.5">
-        <span className="flex items-center gap-0.5 text-xs text-red-700">
-          <CheckCircle2 size={10} /> {filteredKitchens.filter((k) => k.status === "Active").length} Active
-        </span>
-        <span className="flex items-center gap-0.5 text-xs text-red-700">
-          <XCircle size={10} /> {filteredKitchens.filter((k) => k.status === "Inactive").length} Inactive
-        </span>
-      </div>
-    </div>
-  </div>
-  {/* Right: Total Orders */}
-  <div className="flex-1">
-    <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm h-full flex flex-col justify-between">
-      <div>
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
-            <ShoppingBag size={16} className="text-red-700" />
+      {!isSpecificBranchSelected && (
+        <div className="flex flex-col md:flex-row gap-3">
+          {/* Left: Revenue + Branches */}
+          <div className="flex-1 flex flex-col gap-3">
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 text-gray-900 shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <TrendingUp size={18} className="text-blue-700" />
+                  <span className="text-sm font-medium opacity-90">Total Revenue</span>
+                </div>
+              </div>
+              <p className="text-2xl font-bold mb-1">{formatCurrency(totalRevenue)}</p>
+            </div>
+            <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <Store size={16} className="text-blue-600" />
+                </div>
+              </div>
+              <p className="text-xl font-bold text-gray-900">{filteredKitchens.length === data.kitchens.length ? data.totalKitchens : filteredKitchens.length}</p>
+              <p className="text-xs text-gray-500">Total Branches</p>
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="flex items-center gap-0.5 text-xs text-red-700">
+                  <CheckCircle2 size={10} /> {filteredKitchens.filter((k) => k.status === "Active").length} Active
+                </span>
+                <span className="flex items-center gap-0.5 text-xs text-red-700">
+                  <XCircle size={10} /> {filteredKitchens.filter((k) => k.status === "Inactive").length} Inactive
+                </span>
+              </div>
+            </div>
+          </div>
+          {/* Right: Total Orders */}
+          <div className="flex-1">
+            <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm max-h-36">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
+                    <ShoppingBag size={16} className="text-red-700" />
+                  </div>
+                </div>
+                <p className="text-xl font-bold text-gray-900">{totalOrders.toLocaleString()}</p>
+                <p className="text-xs text-gray-500">Total Orders</p>
+              </div>
+            </div>
           </div>
         </div>
-        <p className="text-xl font-bold text-gray-900">{totalOrders.toLocaleString()}</p>
-        <p className="text-xs text-gray-500">Total Orders</p>
-      </div>
-      {/* Add pending and delivered orders */}
-      <div className="mt-2 pt-2 border-t border-gray-100">
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-xs text-gray-500">Ready for Pickup:</span>
-          <span className="text-xs font-semibold text-green-600">{(data.totalReadyForPickupOrders ?? 0).toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-xs text-gray-500">Delivered:</span>
-          <span className="text-xs font-semibold text-green-600">{data.totalDeliveredOrders.toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-500">Pending:</span>
-          <span className="text-xs font-semibold text-orange-600">{data.totalPendingOrders.toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-500">Cancelled:</span>
-          <span className="text-xs font-semibold text-red-600">{data.totalCancelledOrders.toLocaleString()}</span>
-        </div>
-      </div>
-      <p className="text-xs text-red-700 mt-1.5">+{ordersToday} today</p>
-    </div>
-  </div>
-</div>
+      )}
 
         <div>
           <div className="flex items-center justify-between mb-3">
@@ -657,12 +638,6 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <h4 className="font-medium text-gray-900 text-sm truncate">{kitchen.name}</h4>
-                      <span
-                        className={cn(
-                          "shrink-0 w-1.5 h-1.5 rounded-full",
-                          kitchen.status === "Active" ? "bg-red-600" : "bg-red-600"
-                        )}
-                      />
                     </div>
                     <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
                       <MapPin size={10} /> {kitchen.location}
@@ -683,6 +658,33 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
                   <div>
                     <p className="text-xs text-gray-400">Revenue</p>
                     <p className="text-sm font-semibold text-gray-900">{formatCurrency(kitchen.revenue)}</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="rounded-lg bg-green-50 p-2 text-xs text-green-700">
+                    <div className="flex justify-between">
+                      <span>Ready for Pickup</span>
+                      <strong>{kitchen.readyForPickupOrders}</strong>
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-blue-50 p-2 text-xs text-blue-700">
+                    <div className="flex justify-between">
+                      <span>Delivered</span>
+                      <strong>{kitchen.deliveredOrders}</strong>
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-yellow-50 p-2 text-xs text-orange-700">
+                    <div className="flex justify-between">
+                      <span>Pending</span>
+                      <strong>{kitchen.pendingOrders}</strong>
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-red-50 p-2 text-xs text-red-700">
+                    <div className="flex justify-between">
+                      <span>Cancelled</span>
+                      <strong>{kitchen.cancelledOrders}</strong>
+                    </div>
                   </div>
                 </div>
 
