@@ -48,6 +48,7 @@ interface TopItem {
 interface RiderPerformance {
   id: string;
   name: string;
+  phone?: string;
   deliveries: number;
   avgDeliveryTime: number;
   rating: number;
@@ -226,7 +227,7 @@ const generateMockOrders = () => {
 };
 
 export function KitchenOrderDashboard() {
-  const { currentUser, orders: contextOrders, dishes, riders: contextRiders, isLoading: contextLoading } = useApp();
+  const { currentUser, orders: contextOrders, dishes, riders: contextRiders } = useApp();
   const orgId = currentUser?.orgId;
   const branchId = currentUser?.branchId;
   
@@ -236,7 +237,7 @@ export function KitchenOrderDashboard() {
   
   const orders = contextOrders?.length ? contextOrders : mockOrders;
   const riders = contextRiders?.length ? contextRiders : mockRidersData;
-  const isLoading = contextLoading && !orders.length;
+  const isLoading = !orders.length;
   
   // State management
   const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month' | 'custom'>('today');
@@ -320,15 +321,16 @@ export function KitchenOrderDashboard() {
         riderPerformance: riders.map(rider => ({
           id: rider.id,
           name: rider.name,
+          phone: (rider as any).phone,
           deliveries: 0,
           avgDeliveryTime: 0,
           rating: 0,
           lateDeliveries: 0,
           lateDeliveryPercent: 0,
           revenue: 0,
-          status: rider.status || 'available',
+          status: (rider as any).status || 'available',
           efficiency: 0,
-          zone: rider.zone,
+          zone: (rider as any).zone,
           totalOrders: 0,
           delivered: 0,
           cancelled: 0,
@@ -460,15 +462,16 @@ export function KitchenOrderDashboard() {
       return {
         id: rider.id,
         name: rider.name,
+        phone: (rider as any).phone,
         deliveries: deliveredOrdersCount,
         avgDeliveryTime,
-        rating: rider.rating || 4.5,
+        rating: (rider as any).rating || 4.5,
         lateDeliveries,
         lateDeliveryPercent,
         revenue: riderOrders.reduce((sum, o) => sum + (o.total || 0), 0),
-        status: rider.status || 'available',
+        status: (rider as any).status || 'available',
         efficiency,
-        zone: rider.zone,
+        zone: (rider as any).zone,
         totalOrders: riderOrders.length,
         delivered: deliveredOrdersCount,
         cancelled: cancelledOrdersCount,
@@ -707,7 +710,7 @@ export function KitchenOrderDashboard() {
                   </button>
                 </div>
                 
-                <div className="p-4 border-b border-gray-100">
+                <div className="p-4 border-b border-gray-Kitchen Dashboard100">
                   <p className="text-xs text-gray-500 mb-3">Quick Select</p>
                   <div className="flex gap-2">
                     {[
@@ -1018,162 +1021,67 @@ export function KitchenOrderDashboard() {
             <div className="px-5 mt-2 pb-6">
               {/* Single Rider Performance Section */}
               <div className="space-y-4">
-                {/* Custom Dropdown for Rider Selection */}
-                <div className="relative">
-                  <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                        <Truck size={20} className="text-indigo-600" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-sm font-medium text-gray-700">Select Rider</p>
-                        <p className="text-xs text-gray-500">
-                          {selectedRiderData ? selectedRiderData.name : "Choose a rider to view details"}
-                        </p>
-                      </div>
-                    </div>
-                    <ChevronDown size={20} className={`text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  {isDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 z-20 max-h-64 overflow-y-auto">
-                      <div className="p-2">
-                        {sortedRiders.map((rider) => (
-                          <button
-                            key={rider.id}
-                            onClick={() => {
-                              setSelectedRider(rider.id);
-                              setIsDropdownOpen(false);
-                            }}
-                            className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                              selectedRider === rider.id
-                                ? 'bg-indigo-50 text-indigo-700'
-                                : 'hover:bg-gray-50 text-gray-700'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                  rider.status === 'available' ? 'bg-green-100' : 
-                                  rider.status === 'on-break' ? 'bg-yellow-100' : 'bg-gray-100'
-                                }`}>
-                                  <span className="text-sm font-semibold">{rider.name.charAt(0)}</span>
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium">{rider.name}</p>
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${getStatusColor(rider.status)}`}>
-                                      {rider.status === 'available' ? 'Available' : 
-                                       rider.status === 'on-break' ? 'On Break' : 'Unavailable'}
-                                    </span>
-                                    <span className="text-xs text-gray-500">{rider.deliveries} deliveries</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <span className={`text-xs font-semibold ${getEfficiencyColor(rider.efficiency)}`}>
-                                {rider.efficiency.toFixed(0)}%
-                              </span>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {/* Rider List - no selector */}
+               
 
                 {/* Single Rider Performance Card */}
                 {selectedRiderData ? (
                   <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    {/* Header */}
-                    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-5 text-white">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                            <span className="text-2xl font-bold">{selectedRiderData.name.charAt(0)}</span>
+                    <div className="p-5">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-xl font-bold text-gray-700">
+                          {selectedRiderData.name.charAt(0)}
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900">{selectedRiderData.name}</h3>
+                          <p className="text-sm text-gray-500">{selectedRiderData.phone ?? '+0000000000'}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-600">Pending</span>
+                            <span className="text-sm font-bold text-orange-600">{selectedRiderData.pending}</span>
                           </div>
-                          <div>
-                            <h3 className="text-xl font-bold">{selectedRiderData.name}</h3>
-                            <div className="flex items-center gap-2 mt-1">
-                              {getStatusIcon(selectedRiderData.status)}
-                              <span className="text-sm opacity-90 capitalize">{selectedRiderData.status}</span>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-600">Delivered</span>
+                            <span className="text-sm font-bold text-emerald-600">{selectedRiderData.delivered}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-600">Rejected</span>
+                            <span className="text-sm font-bold text-blue-600">{Math.max(0, selectedRiderData.totalOrders - (selectedRiderData.delivered + selectedRiderData.cancelled + selectedRiderData.pending))}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-600">Cancelled</span>
+                            <span className="text-sm font-bold text-red-600">{selectedRiderData.cancelled}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-center">
+                          <div className="relative w-28 h-28">
+                            <svg viewBox="0 0 100 100" className="w-full h-full">
+                              <circle cx="50" cy="50" r="42" stroke="#E5E7EB" strokeWidth="12" fill="none" />
+                              <circle
+                                cx="50"
+                                cy="50"
+                                r="42"
+                                stroke="#22C55E"
+                                strokeWidth="12"
+                                fill="none"
+                                strokeLinecap="round"
+                                strokeDasharray={`${(2 * Math.PI * 42).toFixed(2)}`}
+                                strokeDashoffset={`${((1 - Math.min(1, selectedRiderData.delivered / Math.max(1, selectedRiderData.totalOrders))) * 2 * Math.PI * 42).toFixed(2)}`}
+                                transform="rotate(-90 50 50)"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 grid place-items-center">
+                              <div className="text-center">
+                                <p className="text-2xl font-bold text-gray-900">{selectedRiderData.totalOrders}</p>
+                                <p className="text-xs text-gray-500">Total</p>
+                              </div>
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-3xl font-bold">{selectedRiderData.efficiency.toFixed(0)}%</div>
-                          <div className="text-xs opacity-90">Efficiency Rate</div>
-                        </div>
                       </div>
-                    </div>
-
-                    {/* Stats Grid */}
-                    <div className="p-5">
-                      {/* Main Stats - Delivered, Cancelled, Pending, Active */}
-                      <div className="grid grid-cols-4 gap-3 mb-6">
-                        <div className="text-center p-3 bg-green-50 rounded-xl">
-                          <div className="flex items-center justify-center mb-1">
-                            <Truck size={20} className="text-green-600" />
-                          </div>
-                          <div className="text-xl font-bold text-green-600">{selectedRiderData.delivered}</div>
-                          <div className="text-xs text-gray-600">Delivered</div>
-                        </div>
-                        <div className="text-center p-3 bg-red-50 rounded-xl">
-                          <div className="flex items-center justify-center mb-1">
-                            <AlertCircle size={20} className="text-red-600" />
-                          </div>
-                          <div className="text-xl font-bold text-red-600">{selectedRiderData.cancelled}</div>
-                          <div className="text-xs text-gray-600">Cancelled</div>
-                        </div>
-                        <div className="text-center p-3 bg-yellow-50 rounded-xl">
-                          <div className="flex items-center justify-center mb-1">
-                            <Clock size={20} className="text-yellow-600" />
-                          </div>
-                          <div className="text-xl font-bold text-yellow-600">{selectedRiderData.pending}</div>
-                          <div className="text-xs text-gray-600">Pending</div>
-                        </div>
-                        <div className="text-center p-3 bg-blue-50 rounded-xl">
-                          <div className="flex items-center justify-center mb-1">
-                            <Package size={20} className="text-blue-600" />
-                          </div>
-                          <div className="text-xl font-bold text-blue-600">{selectedRiderData.active}</div>
-                          <div className="text-xs text-gray-600">Active</div>
-                        </div>
-                      </div>
-
-                      {/* Efficiency Bar */}
-                      <div className="mb-6">
-
-                        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                          <div 
-                            className={`h-3 rounded-full transition-all duration-500 ${getEfficiencyBgColor(selectedRiderData.efficiency)}`}
-                            style={{ width: `${selectedRiderData.efficiency}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Additional Metrics */}
-                      <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="bg-gray-50 rounded-xl p-3">
-                          <div className="text-xs text-gray-500 mb-1">Total Orders</div>
-                          <div className="text-lg font-bold text-gray-800">{selectedRiderData.totalOrders}</div>
-                        </div>
-
-                      </div>
-
-                      {/* Zone Info */}
-                      {selectedRiderData.zone && (
-                        <div className="bg-indigo-50 rounded-xl p-3">
-                          <div className="flex items-center gap-2">
-                            <MapPin size={16} className="text-indigo-600" />
-                            <span className="text-sm text-gray-700">Delivery Zone:</span>
-                            <span className="text-sm font-medium text-indigo-600">{selectedRiderData.zone}</span>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 ) : (
