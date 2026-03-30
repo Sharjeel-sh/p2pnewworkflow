@@ -25,6 +25,7 @@ import {
   Bar,
   LineChart,
   Line,
+  ComposedChart,
   XAxis,
   YAxis,
   Tooltip,
@@ -837,8 +838,8 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
           </div>
         ) : (
           <> 
-            {/* New: Order + Revenue Trends Graph */}
-            <div className="mt-6 space-y-4">
+            {/* New: Order Trend and Revenue Trend Separate Graphs */}
+            <div className="mt-6 grid grid-cols-1 gap-4">
               <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-gray-900">Order Trend</h3>
@@ -852,7 +853,7 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
                       : 'Custom Range'}
                   </span>
                 </div>
-                <div className="h-40">
+                <div className="h-60">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data.weeklyOrderRevenueTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -878,13 +879,13 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
                       : 'Custom Range'}
                   </span>
                 </div>
-                <div className="h-40">
+                <div className="h-60">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data.weeklyOrderRevenueTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="label" tick={{ fontSize: 10 }} />
-                      <YAxis tickFormatter={(value) => `Rs.${Math.round(value).toLocaleString()}`} />
-                      <Tooltip formatter={(value) => [`Rs.${Math.round(value as number).toLocaleString()}`, 'Revenue']} />
+                      <YAxis tickFormatter={(value) => `Rs.${Math.round(value as number).toLocaleString()}`} />
+                      <Tooltip formatter={(value) => [`Rs.${Math.round((value as number) || 0).toLocaleString()}`, 'Revenue']} />
                       <Line type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} />
                     </LineChart>
                   </ResponsiveContainer>
