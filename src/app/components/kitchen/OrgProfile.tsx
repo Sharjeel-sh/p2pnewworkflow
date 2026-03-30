@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Building2, Home, Phone, MapPin, User, Pencil, LogOut, Save, X, FileText, Image, Camera, CreditCard, Hash, CheckCircle2, UserCog, Bike, ChevronRight, ChevronLeft, GitBranch, UtensilsCrossed, Clock, Truck, BarChart2, Bell, ShieldCheck } from 'lucide-react';
+import { Building2, Home, Phone, MapPin, User, Pencil, LogOut, Save, X, FileText, Image, Camera, CreditCard, Hash, CheckCircle2, UserCog, Bike, ChevronRight, ChevronLeft, GitBranch, UtensilsCrossed, Clock, Truck, BarChart2, Bell, ShieldCheck, Globe, Trash2 } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { KitchenBottomNav } from './KitchenBottomNav';
 import { useApp } from '../../context/AppContext';
@@ -102,11 +102,11 @@ export function OrgProfile() {
         <div className="space-y-3">
           {([
                 { icon: FileText, label: 'Organization Registration Details', action: () => navigate('/kitchen/profile/info') },
-                { icon: Building2, label: 'Edit Organization information', action: () => navigate('/kitchen/profile/org-edit') },
+              { icon: Building2, label: 'Edit Organization information', action: () => navigate('/kitchen/profile/org-edit') },
               { icon: Building2, label: 'Edit owner profile information', action: () => navigate('/kitchen/profile/edit') },
+              { icon: BarChart2, label: 'App Setting', action: () => navigate('/kitchen/profile/app-setting') },
               { icon: UserCog,   label: 'Manager',                       action: () => navigate('/kitchen/manager') },
               { icon: Bike,      label: 'Rider',                         action: () => navigate('/kitchen/rider') },
-              { icon: ShieldCheck, label: 'Push Notifications',           action: toggleNotifications, isToggle: true },
               { icon: Bell,      label: 'Help & Support',               action: () => navigate('/help') },
               { icon: LogOut,    label: 'Logout',                       action: handleLogout, isDestructive: true },
             ] as Array<{icon:any; label:string; action:()=>void; isDestructive?:boolean; isToggle?:boolean}>).map((item, idx) => (
@@ -150,6 +150,82 @@ export function OrgProfile() {
 
 
       <KitchenBottomNav />
+    </MobileLayout>
+  );
+}
+
+export function AppSetting() {
+  const navigate = useNavigate();
+  const { currentUser, organizations, updateOrganization } = useApp();
+  const org = organizations.find(o => o.id === currentUser?.orgId);
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(org?.notificationsEnabled ?? true);
+
+  useEffect(() => {
+    if (org?.notificationsEnabled !== undefined) {
+      setNotificationsEnabled(org.notificationsEnabled);
+    }
+  }, [org]);
+
+  const toggleNotifications = () => {
+    const newValue = !notificationsEnabled;
+    setNotificationsEnabled(newValue);
+    if (org) {
+      updateOrganization(org.id, { notificationsEnabled: newValue });
+    }
+  };
+
+  return (
+    <MobileLayout>
+      <div className="bg-red-700 px-5 pt-10 pb-8">
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={() => navigate(-1)} className="text-white p-1.5 rounded-full bg-white/15 hover:bg-white/25 transition-colors">
+            <ChevronLeft size={22} />
+          </button>
+          <h2 className="text-white flex-1 text-center" style={{ fontSize: '1.3rem', fontWeight: 700 }}>App Setting</h2>
+          <div className="w-8" />
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-5 py-5">
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+          <button className="w-full text-left flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50">
+            <span className="flex items-center gap-3 text-sm font-medium text-slate-900"><Globe size={16} /> Change Language</span>
+            <span className="text-xs text-gray-500">English</span>
+          </button>
+          <button
+            type="button"
+            onClick={toggleNotifications}
+            className="w-full text-left flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50"
+          >
+            <span className="flex items-center gap-3 text-sm font-medium text-slate-900"><ShieldCheck size={16} /> Push Notifications</span>
+            <span className={`inline-flex items-center h-7 px-2 rounded-full text-xs font-semibold ${
+              notificationsEnabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }`}>
+              <span className="relative inline-block w-10 h-5 mr-2 align-middle">
+                <span
+                  className={`absolute left-0 top-0 h-5 w-10 rounded-full transition-colors duration-200 ${
+                    notificationsEnabled ? 'bg-green-500' : 'bg-red-500'
+                  }`}
+                />
+                <span
+                  className={`absolute left-0 top-0 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 transform ${
+                    notificationsEnabled ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </span>
+              {notificationsEnabled ? 'Enabled' : 'Disabled'}
+            </span>
+          </button>
+          <button className="w-full text-left flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50">
+            <span className="flex items-center gap-3 text-sm font-medium text-red-600"><Trash2 size={16} /> Delete Account Data Only</span>
+            <ChevronRight size={16} className="text-gray-400" />
+          </button>
+          <button className="w-full text-left flex items-center justify-between p-4 hover:bg-gray-50">
+            <span className="flex items-center gap-3 text-sm font-medium text-red-600"><Trash2 size={16} /> Delete Account</span>
+            <ChevronRight size={16} className="text-gray-400" />
+          </button>
+        </div>
+      </div>
     </MobileLayout>
   );
 }

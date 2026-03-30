@@ -26,7 +26,7 @@ import { DishesList } from './components/kitchen/DishesList';
 import { BranchManager } from './components/kitchen/BranchManager';
 import { KitchenOrders } from './components/kitchen/KitchenOrders';
 import { KitchenChatListScreen } from './components/kitchen/KitchenChatListScreen';
-import { OrgProfile, OrgEdit } from './components/kitchen/OrgProfile';
+import { OrgProfile, OrgEdit, AppSetting } from './components/kitchen/OrgProfile';
 import { OrgOrgEdit } from './components/kitchen/OrgOrgEdit';
 import { OrgInfo } from './components/kitchen/OrgInfo';
 import { OrgDashboard } from './components/kitchen/OrgDashboard';
@@ -80,6 +80,7 @@ export const router = createBrowserRouter([
       { path: 'kitchen/profile/info', element: <OrgInfo /> },
       { path: 'kitchen/profile/org-edit', element: <OrgOrgEdit /> },
       { path: 'kitchen/profile/edit', element: <OrgEdit /> },
+      { path: 'kitchen/profile/app-setting', element: <AppSetting /> },
       { path: 'kitchen/profile/coupons', element: <KitchenCoupons /> },
       { path: 'kitchen/profile/discounts', element: <KitchenDiscounts /> },
       { path: 'kitchen/profile/kitchen-info', element: <KitchenSettings /> },
