@@ -4,14 +4,7 @@ import { Search, MapPin, Star, Clock, ShoppingCart, Store, Utensils, Check } fro
 import { MobileLayout } from '../shared/MobileLayout';
 import { useApp } from '../../context/AppContext';
 import { BuyerBottomNav } from './BuyerBottomNav';
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from '../ui/sheet';
+
 
 const KITCHEN_IMG = 'https://images.unsplash.com/photo-1768314669089-480e608a0143?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwa2l0Y2hlbiUyMGNvb2tpbmclMjBmb29kfGVufDF8fHx8MTc3MjAyMjM5MHww&ixlib=rb-4.1.0&q=80&w=1080';
 const HOMEMADE_IMG = 'https://images.unsplash.com/photo-1672477179695-7276b0602fa9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiaXJ5YW5pJTIwcGFraXN0YW5pJTIwdHJhZGl0aW9uYWwlMjBmb29kfGVufDF8fHx8MTc3MjAyMjM5Mnww&ixlib=rb-4.1.0&q=80&w=1080';
@@ -42,7 +35,7 @@ export function BuyerHome() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'restaurant' | 'homemade'>('all');
   const [sortBy, setSortBy] = useState<'distance' | 'rating'>('distance');
-  const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
 
   const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
   const activeOrders = orders.filter(o => o.buyerName && o.status !== 'delivered');
@@ -140,23 +133,19 @@ export function BuyerHome() {
               🍽 All
             </button>
 
-            <Sheet open={isSortSheetOpen} onOpenChange={setIsSortSheetOpen}>
-              <SheetTrigger asChild>
-                <button
-                  type="button"
-                  className="px-3.5 py-1.5 rounded-full text-xs border border-gray-200 bg-white text-stone-700 hover:bg-gray-50 transition"
-                >
-                  Sort by: {sortBy === 'distance' ? 'Distance' : 'Rating'}
-                </button>
-              </SheetTrigger>
+            <button
+              type="button"
+              onClick={() => setIsSortOpen(prev => !prev)}
+              className="px-3.5 py-1.5 rounded-full text-xs border border-gray-200 bg-white text-stone-700 hover:bg-gray-50 transition"
+            >
+              Sort by: {sortBy === 'distance' ? 'Distance' : 'Rating'}
+            </button>
 
-              <SheetContent side="bottom" className="rounded-t-2xl p-4">
-                <SheetHeader>
-                  <SheetTitle>Sort by</SheetTitle>
-                  <SheetDescription>Select how restaurants are ordered</SheetDescription>
-                </SheetHeader>
-
-                <div className="space-y-2 mt-2">
+            {isSortOpen && (
+              <div className="w-full mt-2 rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
+                <p className="text-xs font-semibold text-stone-800">Sort by</p>
+                <p className="text-xs text-stone-500">Select how restaurants are ordered</p>
+                <div className="mt-2 space-y-2">
                   {[
                     { value: 'distance', label: 'Distance' },
                     { value: 'rating', label: 'Rating' },
@@ -165,17 +154,21 @@ export function BuyerHome() {
                       key={opt.value}
                       onClick={() => {
                         setSortBy(opt.value as 'distance' | 'rating');
-                        setIsSortSheetOpen(false);
+                        setIsSortOpen(false);
                       }}
-                      className="w-full flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-left hover:bg-gray-50"
+                      className={`w-full flex items-center justify-between rounded-lg border px-3 py-2 text-left text-xs ${
+                        sortBy === opt.value
+                          ? 'border-red-500 bg-red-50 text-red-700 font-semibold'
+                          : 'border-gray-200 text-stone-700 hover:bg-gray-50'
+                      }`}
                     >
                       <span>{opt.label}</span>
                       {sortBy === opt.value && <Check size={16} className="text-red-700" />}
                     </button>
                   ))}
                 </div>
-              </SheetContent>
-            </Sheet>
+              </div>
+            )}
 
             <button
               onClick={() => setFilter('restaurant')}
