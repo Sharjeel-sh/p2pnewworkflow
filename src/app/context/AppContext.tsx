@@ -20,6 +20,7 @@ export interface Organization {
   cnicBackPhoto?: string;
   profilePicture?: string;
   legalAgreementDoc?: string;
+  notificationsEnabled?: boolean;
 }
 
 export interface Branch {
@@ -178,6 +179,7 @@ const INITIAL_ORGS: Organization[] = [
     ntn: '1234567-8',
     cnic: '42101-1234567-8',
     profilePicture: '',
+    notificationsEnabled: true,
   },
   {
     id: 'org-002',
@@ -191,6 +193,7 @@ const INITIAL_ORGS: Organization[] = [
     verificationStatus: 'verified',
     cnic: '42101-1234567-8',
     profilePicture: '',
+    notificationsEnabled: true,
   },
 ];
 
