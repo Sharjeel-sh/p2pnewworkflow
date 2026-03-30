@@ -29,6 +29,7 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
+  Legend,
 } from "recharts";
 
 
@@ -301,20 +302,51 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
       return minutesSinceCreated > 45;
     }).length;
 
-    const last7Days = Array.from({ length: 7 }).map((_, idx) => {
-      const day = new Date(todayStart);
-      day.setDate(day.getDate() - (6 - idx));
-      const label = day.toLocaleDateString(undefined, { weekday: "short" });
-      const count = orgOrders.filter((o) => {
-        const dt = new Date(o.createdAt);
-        return (
-          !Number.isNaN(dt.getTime()) &&
-          dt.toDateString() === day.toDateString() &&
-          o.status === "delivered"
-        );
-      }).length;
-      return { label, count };
-    });
+    const weeklyOrderRevenueTrend = (() => {
+      if (dateRange === "today") {
+        return Array.from({ length: 24 }).map((_, hour) => {
+          const label = `${hour.toString().padStart(2, "0")}:00`;
+          const hourOrders = rangeOrders.filter((o) => {
+            const dt = new Date(o.createdAt);
+            return (
+              !Number.isNaN(dt.getTime()) &&
+              dt >= todayStart &&
+              dt.getHours() === hour
+            );
+          });
+          const revenue = hourOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+          return { label, orders: hourOrders.length, revenue };
+        });
+      }
+
+      const startDay = getStartOfDay(rangeStart);
+      const endDay = getStartOfDay(rangeEnd);
+      const daySpan = Math.max(
+        1,
+        Math.ceil((endDay.getTime() - startDay.getTime()) / 86400000) + 1
+      );
+
+      return Array.from({ length: daySpan }).map((_, idx) => {
+        const day = new Date(startDay);
+        day.setDate(startDay.getDate() + idx);
+
+        const label =
+          dateRange === "month" || dateRange === "custom"
+            ? `${day.getDate()} ${day.toLocaleDateString(undefined, { month: "short" })}`
+            : day.toLocaleDateString(undefined, { weekday: "short" });
+
+        const dayOrders = rangeOrders.filter((o) => {
+          const dt = new Date(o.createdAt);
+          return (
+            !Number.isNaN(dt.getTime()) &&
+            getStartOfDay(dt).getTime() === day.getTime()
+          );
+        });
+
+        const revenue = dayOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+        return { label, orders: dayOrders.length, revenue };
+      });
+    })();
 
     const mockBestSellingDishes = [
       { name: "Zinger Burger", qty: 124, revenue: 6200 },
@@ -479,7 +511,8 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
       riderLeaderboard,
       todayOrdersCount: todayOrders.length,
       yesterdayOrdersCount: yesterdayOrders.length,
-      weeklyDeliveryTrend: last7Days,
+      weeklyDeliveryTrend: weeklyOrderRevenueTrend.map((d) => ({ label: d.label, count: d.orders })),
+      weeklyOrderRevenueTrend,
       bestSellingDishes: enrichedBestSellingDishes,
       zingerTrend: {
         currentQty: currentZingerQty,
@@ -803,10 +836,66 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
             </div>
           </div>
         ) : (
-          // Show Top Rated Dishes when "All Branches" is selected
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-gray-900">Top Rated Dishes</h3>
+          <> 
+            {/* New: Order + Revenue Trends Graph */}
+            <div className="mt-6 space-y-4">
+              <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-gray-900">Order Trend</h3>
+                  <span className="text-xs text-gray-400">
+                    {dateRange === 'today'
+                      ? 'Today'
+                      : dateRange === 'week'
+                      ? 'This Week'
+                      : dateRange === 'month'
+                      ? 'This Month'
+                      : 'Custom Range'}
+                  </span>
+                </div>
+                <div className="h-40">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data.weeklyOrderRevenueTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip formatter={(value) => [value, 'Orders']} />
+                      <Line type="monotone" dataKey="orders" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-gray-900">Revenue Trend</h3>
+                  <span className="text-xs text-gray-400">
+                    {dateRange === 'today'
+                      ? 'Today'
+                      : dateRange === 'week'
+                      ? 'This Week'
+                      : dateRange === 'month'
+                      ? 'This Month'
+                      : 'Custom Range'}
+                  </span>
+                </div>
+                <div className="h-40">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data.weeklyOrderRevenueTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                      <YAxis tickFormatter={(value) => `Rs.${Math.round(value).toLocaleString()}`} />
+                      <Tooltip formatter={(value) => [`Rs.${Math.round(value as number).toLocaleString()}`, 'Revenue']} />
+                      <Line type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+            {/* Show Top Rated Dishes when "All Branches" is selected */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-gray-900">Top Rated Dishes</h3>
               <span className="text-xs text-gray-400">
                 {dateRange === 'today'
                   ? 'Today'
@@ -888,6 +977,7 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
               </div>
             </div>
           </div>
+          </>
         )}
       </div>
     </div>

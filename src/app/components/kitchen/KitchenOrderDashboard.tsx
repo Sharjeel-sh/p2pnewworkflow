@@ -42,6 +42,7 @@ interface TopItem {
   quantity: number;
   revenue: number;
   trend: 'up' | 'down' | 'stable';
+  rating: number;
   price?: number;
 }
 
@@ -183,6 +184,14 @@ const mockRiders = [
   }
 ];
 
+const mockTopItems = [
+  { name: 'Zinger Burger', quantity: 145, revenue: 1305, price: 8.99, rating: 4.7, trend: 'up' as const },
+  { name: 'Chicken Shawarma', quantity: 118, revenue: 942, price: 7.99, rating: 4.5, trend: 'up' as const },
+  { name: 'Loaded Fries', quantity: 105, revenue: 629.4, price: 5.99, rating: 4.2, trend: 'stable' as const },
+  { name: 'Grilled Sandwich', quantity: 89, revenue: 621.1, price: 6.99, rating: 4.3, trend: 'down' as const },
+  { name: 'Cheese Pizza Slice', quantity: 76, revenue: 379.2, price: 4.99, rating: 4.1, trend: 'stable' as const }
+];
+
 // Generate mock orders
 const generateMockOrders = () => {
   const orders = [];
@@ -265,10 +274,14 @@ export function KitchenOrderDashboard() {
       case 'week':
         const weekStart = new Date(today);
         weekStart.setDate(today.getDate() - today.getDay());
-        return { start: weekStart, end: new Date(today.getTime() + 86400000 - 1) };
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
+        return { start: weekStart, end: weekEnd };
       case 'month':
         const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-        return { start: monthStart, end: new Date(today.getTime() + 86400000 - 1) };
+        const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
+        return { start: monthStart, end: monthEnd };
       case 'custom':
         return { 
           start: new Date(customStartDate.getFullYear(), customStartDate.getMonth(), customStartDate.getDate()),
@@ -317,7 +330,7 @@ export function KitchenOrderDashboard() {
           cancelled: 0
         },
         trendData: [],
-        topItems: [],
+        topItems: mockTopItems,
         riderPerformance: riders.map(rider => ({
           id: rider.id,
           name: rider.name,
@@ -377,20 +390,23 @@ export function KitchenOrderDashboard() {
       }
     });
 
-    // Calculate trend data
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (6 - i));
-      return date;
-    });
+    // Calculate trend data based on selected date range
+    const daysInRange = Math.max(1, Math.ceil((dateRange.end.getTime() - dateRange.start.getTime()) / 86400000) + 1);
+    const trendData = Array.from({ length: daysInRange }, (_, i) => {
+      const date = new Date(dateRange.start);
+      date.setDate(date.getDate() + i);
 
-    const trendData = last7Days.map(date => {
-      const dayOrders = filteredOrders.filter(order => 
+      const dayOrders = filteredOrders.filter(order =>
         new Date(order.createdAt).toDateString() === date.toDateString()
       );
       const dayRevenue = dayOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+
+      const label = selectedPeriod === 'month' || selectedPeriod === 'custom'
+        ? date.getDate().toString().padStart(2, '0')
+        : date.toLocaleDateString('en-US', { weekday: 'short' });
+
       return {
-        date: date.toLocaleDateString('en-US', { weekday: 'short' }),
+        date: label,
         orders: dayOrders.length,
         revenue: dayRevenue
       };
@@ -419,6 +435,7 @@ export function KitchenOrderDashboard() {
         quantity: data.quantity, 
         revenue: data.revenue,
         price: data.price,
+        rating: parseFloat((Math.random() * 1.5 + 3.5).toFixed(1)),
         trend: Math.random() > 0.7 ? 'up' as const : Math.random() > 0.5 ? 'down' as const : 'stable' as const
       }))
       .sort((a, b) => b.quantity - a.quantity)
@@ -900,6 +917,7 @@ export function KitchenOrderDashboard() {
                               <div className="flex items-center justify-between">
                                 <span className="font-medium text-gray-800">{item.name}</span>
                                 <div className="flex items-center gap-2">
+                                  <span className="text-xs text-yellow-500 font-semibold">⭐ {item.rating}</span>
                                   {item.trend === 'up' && <TrendingUp size={14} className="text-green-500" />}
                                   {item.trend === 'down' && <TrendingDown size={14} className="text-red-500" />}
                                 </div>
