@@ -43,7 +43,7 @@ import {
 import { cn } from "../ui/utils";
 import { useApp } from "../../context/AppContext";
 
-type DateRange = "today" | "week" | "month";
+type DateRange = "today" | "week" | "month" | "custom";
 
 interface KitchenInfo {
   id: string;
@@ -81,6 +81,10 @@ function getStartOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
+function getEndOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+}
+
 function getRangeStart(now: Date, range: DateRange): Date {
   const todayStart = getStartOfDay(now);
 
@@ -107,6 +111,8 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
   const navigate = useNavigate();
   const { currentUser, branches, orders, riders, dishes, organizations } = useApp();
   const [dateRange, setDateRange] = useState<DateRange>("week");
+  const [customStartDate, setCustomStartDate] = useState<string>("");
+  const [customEndDate, setCustomEndDate] = useState<string>("");
   const [kitchenFilter, setKitchenFilter] = useState<string>("all");
   const [expandedRider, setExpandedRider] = useState<string | null>(null);
 
@@ -140,7 +146,26 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
 
     const now = new Date();
     const todayStart = getStartOfDay(now);
-    const rangeStart = getRangeStart(now, dateRange);
+
+    let rangeStart = getRangeStart(now, dateRange);
+    let rangeEnd = getEndOfDay(now);
+
+    if (dateRange === "custom") {
+      const parsedStart = customStartDate ? new Date(customStartDate) : null;
+      const parsedEnd = customEndDate ? new Date(customEndDate) : null;
+
+      if (parsedStart && !Number.isNaN(parsedStart.getTime())) {
+        rangeStart = getStartOfDay(parsedStart);
+      }
+      if (parsedEnd && !Number.isNaN(parsedEnd.getTime())) {
+        rangeEnd = getEndOfDay(parsedEnd);
+      }
+      if (parsedStart && parsedEnd && parsedStart > parsedEnd) {
+        // Swap if user accidentally entered start after end
+        rangeStart = getStartOfDay(parsedEnd);
+        rangeEnd = getEndOfDay(parsedStart);
+      }
+    }
 
     const orgBranches = branches.filter((b) => b.orgId === orgId);
     const orgBranchIds = new Set(orgBranches.map((b) => b.id));
@@ -150,7 +175,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
 
     const rangeOrders = orgOrders.filter((o) => {
       const dt = new Date(o.createdAt);
-      return !Number.isNaN(dt.getTime()) && dt >= rangeStart;
+      return !Number.isNaN(dt.getTime()) && dt >= rangeStart && dt <= rangeEnd;
     });
 
     const todayOrders = orgOrders.filter((o) => {
@@ -158,7 +183,10 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
       return !Number.isNaN(dt.getTime()) && dt >= todayStart;
     });
 
-    const rangeDurationDays = Math.max(1, Math.ceil((todayStart.getTime() - rangeStart.getTime()) / 86400000));
+    const rangeDurationDays = Math.max(
+      1,
+      Math.ceil((getStartOfDay(rangeEnd).getTime() - getStartOfDay(rangeStart).getTime() + 1) / 86400000)
+    );
     const prevRangeStart = new Date(rangeStart);
     prevRangeStart.setDate(prevRangeStart.getDate() - rangeDurationDays);
 
@@ -484,7 +512,7 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
       selectedBranchId, // Add this to know if a specific branch is selected
       totalReadyForPickupOrders, // <-- Add this line
     };
-  }, [orgId, branches, orders, riders, dateRange, kitchenFilter]);
+  }, [orgId, branches, orders, riders, dateRange, customStartDate, customEndDate, kitchenFilter]);
 
   const filteredKitchens = useMemo(() => {
     if (kitchenFilter === "all") return data.kitchens;
@@ -563,7 +591,16 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
             </SelectContent>
           </Select>
 
-          <Select value={dateRange} onValueChange={(v) => setDateRange(v as DateRange)}>
+          <Select
+            value={dateRange}
+            onValueChange={(v) => {
+              setDateRange(v as DateRange);
+              if (v !== "custom") {
+                setCustomStartDate("");
+                setCustomEndDate("");
+              }
+            }}
+          >
             <SelectTrigger className="w-32 h-9 bg-gray-50 border-gray-200 text-sm">
               <SelectValue />
             </SelectTrigger>
@@ -571,9 +608,33 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
               <SelectItem value="today">Today</SelectItem>
               <SelectItem value="week">This Week</SelectItem>
               <SelectItem value="month">This Month</SelectItem>
+              <SelectItem value="custom">Custom</SelectItem>
             </SelectContent>
           </Select>
         </div>
+
+        {dateRange === "custom" && (
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <label className="text-xs text-gray-500">
+              From
+              <input
+                type="date"
+                value={customStartDate}
+                onChange={(e) => setCustomStartDate(e.target.value)}
+                className="mt-1 w-full rounded-md border border-gray-200 bg-white px-2 py-1 text-sm"
+              />
+            </label>
+            <label className="text-xs text-gray-500">
+              To
+              <input
+                type="date"
+                value={customEndDate}
+                onChange={(e) => setCustomEndDate(e.target.value)}
+                className="mt-1 w-full rounded-md border border-gray-200 bg-white px-2 py-1 text-sm"
+              />
+            </label>
+          </div>
+        )}
       </div>
 
       <div className="px-4 py-4 space-y-5">
@@ -699,7 +760,15 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
           <div className="mt-6">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xl font-bold text-slate-900">Branch Order Insights</h3>
-              <span className="text-sm text-gray-500">{dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'This Week' : 'This Month'}</span>
+              <span className="text-sm text-gray-500">
+                {dateRange === 'today'
+                  ? 'Today'
+                  : dateRange === 'week'
+                  ? 'This Week'
+                  : dateRange === 'month'
+                  ? 'This Month'
+                  : 'Custom Range'}
+              </span>
             </div>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -738,7 +807,15 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
           <div className="mt-6">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-gray-900">Top Rated Dishes</h3>
-              <span className="text-xs text-gray-400">{dateRange === 'today' ? 'Today' : dateRange === 'week' ? 'This Week' : 'This Month'}</span>
+              <span className="text-xs text-gray-400">
+                {dateRange === 'today'
+                  ? 'Today'
+                  : dateRange === 'week'
+                  ? 'This Week'
+                  : dateRange === 'month'
+                  ? 'This Month'
+                  : 'Custom Range'}
+              </span>
             </div>
             <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
               <div className="mb-3 space-y-1">
