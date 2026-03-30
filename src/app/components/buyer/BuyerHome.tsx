@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Search, MapPin, Star, Clock, ShoppingCart, Store, Utensils, Check } from 'lucide-react';
+import { Search, MapPin, Star, Clock, ShoppingCart, Store, Utensils, Check, Heart, Percent, ChevronDown, Gift, Repeat } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { useApp } from '../../context/AppContext';
 import { BuyerBottomNav } from './BuyerBottomNav';
@@ -29,6 +29,39 @@ const ORG_DISTANCE: Record<string, number> = {
   'org-002': 4.2,
 };
 
+const BANNERS = [
+  {
+    title: 'Up to 50% OFF',
+    subtitle: 'Hot deals from top kitchens near you',
+    cta: 'Order Now',
+    tag: 'Limited Time',
+    image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1280&q=80',
+  },
+  {
+    title: 'Free Delivery',
+    subtitle: 'Just for today: zero delivery fee on selected restaurants',
+    cta: 'Grab Offer',
+    tag: 'Today Only',
+    image: 'https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?auto=format&fit=crop&w=1280&q=80',
+  },
+  {
+    title: 'Buy 1 Get 1',
+    subtitle: 'Add a second plate for free on popular dishes',
+    cta: 'Explore Now',
+    tag: 'Bundle',
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1280&q=80',
+  },
+];
+
+const CATEGORIES = [
+  { id: 'pizza', label: 'Pizza', icon: '🍕' },
+  { id: 'burgers', label: 'Burgers', icon: '🍔' },
+  { id: 'desserts', label: 'Desserts', icon: '🍧' },
+  { id: 'grocery', label: 'Grocery', icon: '🛒' },
+  { id: 'asian', label: 'Asian', icon: '🥡' },
+  { id: 'drinks', label: 'Drinks', icon: '🥤' },
+];
+
 export function BuyerHome() {
   const { organizations, dishes, cart, orders, currentUser, setCurrentUser } = useApp();
   const navigate = useNavigate();
@@ -36,9 +69,19 @@ export function BuyerHome() {
   const [filter, setFilter] = useState<'all' | 'restaurant' | 'homemade'>('all');
   const [sortBy, setSortBy] = useState<'distance' | 'rating'>('distance');
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState('Block 5, Clifton, Karachi');
+  const [activeBanner, setActiveBanner] = useState(0);
 
   const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
   const activeOrders = orders.filter(o => o.buyerName && o.status !== 'delivered');
+
+  useEffect(() => {
+    if (!BANNERS.length) return;
+    const interval = setInterval(() => {
+      setActiveBanner(prev => (prev + 1) % BANNERS.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const filtered = organizations.filter(org => {
     const matchSearch = org.orgName.toLowerCase().includes(search.toLowerCase()) ||
@@ -60,43 +103,226 @@ export function BuyerHome() {
     return distA - distB;
   });
 
+  const recommendedOrgs = sortedOrganizations.slice(0, 3);
+  const popularOrgs = sortedOrganizations.slice(0, 5);
+  const quickReorderItems = orders
+    .slice()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 3);
+
   const getOrgDishCount = (orgId: string) => dishes.filter(d => d.orgId === orgId && d.isAvailable).length;
 
   return (
     <MobileLayout>
-      {/* Header */}
-      <div className="bg-red-50 px-5 pt-8 pb-5 border-b border-red-100">
+      {/* Top Header */}
+      <div className="bg-red-50 px-5 pt-8 pb-4 border-b border-red-100 sticky top-0 z-30">
         <div className="flex items-center justify-between mb-3">
-          <h1 className="text-red-700 font-black" style={{ fontSize: '1.75rem' }}>P2P</h1>
           <button
             type="button"
-            className="text-red-500 hover:text-red-700 p-1 rounded-full"
-            aria-label="Favorite"
+            onClick={() => {
+              const next = selectedLocation === 'Block 5, Clifton, Karachi'
+                ? 'Phase 6, DHA, Karachi'
+                : 'Block 5, Clifton, Karachi';
+              setSelectedLocation(next);
+            }}
+            className="inline-flex items-center gap-2 text-stone-700 text-sm font-semibold"
           >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
+            <MapPin size={16} className="text-red-600" />
+            <span className="truncate max-w-[160px]">{selectedLocation}</span>
+            <ChevronDown size={14} />
+          </button>
+          <div className="flex items-center gap-3">
+            <button type="button" className="p-2 bg-white border border-gray-200 rounded-xl shadow-sm">
+              <Heart size={16} className="text-red-600" />
             </button>
+            <button type="button" className="relative p-2 bg-white border border-gray-200 rounded-xl shadow-sm" onClick={() => navigate('/buyer/cart')}>
+              <ShoppingCart size={16} className="text-red-600" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full px-1.5">{cartCount}</span>
+              )}
+            </button>
+          </div>
         </div>
-
-        <p className="text-red-900 font-bold" style={{ fontSize: '1.5rem' }}>Order your favourite food!</p>
-        <p className="text-red-500 mt-1" style={{ fontSize: '0.92rem' }}>Find dishes and kitchens near you.</p>
+        <div className="text-red-900 font-black text-2xl">Hi{currentUser?.buyerName ? `, ${currentUser.buyerName}` : ''} 👋</div>
+        <p className="text-red-700 mt-1 text-sm font-medium">Fast delivery from local kitchens</p>
 
         {/* Search */}
-        <div className="mt-4 bg-white rounded-2xl flex items-center px-4 py-3 gap-3 shadow-sm">
+        <div className="mt-4 bg-white rounded-2xl flex items-center px-4 py-3 gap-3 shadow-sm sticky top-[76px] z-20">
           <Search size={18} className="text-gray-400 flex-shrink-0" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search for dishes or kitchens..."
+            placeholder="Search for restaurants, dishes…"
             className="flex-1 outline-none text-stone-700 bg-transparent"
             style={{ fontSize: '0.9rem' }}
           />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pt-3">
+        {/* Hero Section */}
+        <div className="px-5">
+          <div className="relative h-40 rounded-2xl overflow-hidden shadow-lg">
+            <img
+              src={BANNERS[activeBanner]?.image}
+              alt={BANNERS[activeBanner]?.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/0 to-black/10" />
+            <div className="absolute inset-0 p-4 flex flex-col justify-between">
+              <span className="inline-flex items-center gap-1 bg-white/90 text-red-600 text-xs font-bold px-2 py-1 rounded-full">
+                <Percent size={14} /> {BANNERS[activeBanner]?.tag}
+              </span>
+              <div>
+                <h2 className="text-white text-xl font-black leading-tight">{BANNERS[activeBanner]?.title}</h2>
+                <p className="text-white/90 text-sm mt-1">{BANNERS[activeBanner]?.subtitle}</p>
+                <button
+                  type="button"
+                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-red-600 font-semibold shadow hover:scale-[1.01] transition"
+                >
+                  {BANNERS[activeBanner]?.cta}
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center justify-center gap-1 mt-2">
+            {BANNERS.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setActiveBanner(i)}
+                className={`w-2 h-2 rounded-full ${i === activeBanner ? 'bg-red-600' : 'bg-white/80'}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Categories */}
+        <div className="mt-4 px-5">
+          <h3 className="text-stone-800 font-bold text-base">Browse by Category</h3>
+          <p className="text-stone-500 text-xs mt-1">One-tap picks to satisfy your cravings</p>
+          <div className="mt-3 flex gap-3 overflow-x-auto pb-1 hide-scrollbar">
+            {CATEGORIES.map(item => (
+              <button
+                key={item.id}
+                type="button"
+                className="flex flex-col items-center justify-center min-w-[78px] bg-white rounded-2xl p-3 shadow-sm border border-gray-100"
+              >
+                <span className="text-2xl">{item.icon}</span>
+                <span className="text-xs font-semibold text-stone-700 mt-1">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Personalized Recommendations */}
+        <div className="mt-4 px-5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-stone-800 font-bold">Recommended for You</h3>
+            <button
+              type="button"
+              className="text-red-600 text-xs font-semibold"
+              onClick={() => setSortBy('rating')}
+            >
+              See all
+            </button>
+          </div>
+          <div className="mt-3 space-y-3">
+            {recommendedOrgs.map(org => (
+              <button
+                key={`rec-${org.id}`}
+                onClick={() => navigate(`/buyer/restaurant/${org.id}`)}
+                className="w-full bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 text-left"
+              >
+                <div className="flex items-center gap-3 p-3">
+                  <img src={ORG_IMAGES[org.id] || KITCHEN_IMG} alt={org.orgName} className="w-20 h-20 rounded-xl object-cover" />
+                  <div className="flex-1">
+                    <h4 className="text-stone-800 font-semibold text-sm">{org.orgName}</h4>
+                    <div className="flex items-center gap-2 mt-1 text-xs text-stone-500">
+                      <Star size={12} className="text-yellow-400" />
+                      <span>{ORG_RATINGS[org.id] || 4.5}</span>
+                      <span>•</span>
+                      <span>{ORG_DISTANCE[org.id] ? `${ORG_DISTANCE[org.id]} km` : '—'} </span>
+                      <span>• {ORG_DELIVERY[org.id] || '30–45 min'}</span>
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Free Delivery</span>
+                      <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Popular</span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Offers & Deals Section */}
+        <div className="mt-4 px-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-stone-800 font-bold">Offers & Deals</h3>
+            <button type="button" className="text-red-600 text-xs font-semibold">View all</button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-2xl p-3 bg-gradient-to-r from-pink-500 to-orange-400 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold">50% OFF</span>
+                <Gift size={16} />
+              </div>
+              <p className="mt-2 text-sm font-semibold">Hot meals, half price</p>
+            </div>
+            <div className="rounded-2xl p-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold">Buy 1 Get 1</span>
+                <Repeat size={16} />
+              </div>
+              <p className="mt-2 text-sm font-semibold">Selected combos only</p>
+            </div>
+            <div className="rounded-2xl p-3 bg-gradient-to-r from-green-500 to-teal-500 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold">Free Delivery</span>
+                <ShoppingCart size={16} />
+              </div>
+              <p className="mt-2 text-sm font-semibold">All day on 2+ items</p>
+            </div>
+            <div className="rounded-2xl p-3 bg-gradient-to-r from-rose-500 to-fuchsia-500 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold">Daily Combo</span>
+                <Heart size={16} />
+              </div>
+              <p className="mt-2 text-sm font-semibold">Curated picks for you</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Reorder Section */}
+        <div className="mt-4 px-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-stone-800 font-bold">Quick Reorder</h3>
+            <button type="button" className="text-red-600 text-xs font-semibold">See history</button>
+          </div>
+          <div className="space-y-3">
+            {quickReorderItems.length === 0 ? (
+              <p className="text-stone-400 text-sm">No previous orders yet. Start your first one now!</p>
+            ) : quickReorderItems.map(order => (
+              <button
+                key={order.id}
+                type="button"
+                onClick={() => navigate(`/buyer/order/${order.id}`)}
+                className="w-full bg-white border border-gray-100 rounded-2xl p-3 shadow-sm text-left hover:shadow-md transition"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-stone-800 text-sm font-semibold">Order #{order.id.slice(-4).toUpperCase()}</p>
+                    <p className="text-stone-500 text-xs">{order.items.length} items · PKR {order.total}</p>
+                  </div>
+                  <span className="text-green-600 text-xs font-bold">Reorder</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Active Orders Banner */}
         {activeOrders.length > 0 && (
           <div className="mx-5 mt-4">
@@ -196,19 +422,19 @@ export function BuyerHome() {
           </div>
         </div>
 
-        {/* Restaurant Cards */}
+        {/* Popular Near You */}
         <div className="px-5 py-4 space-y-4">
           <p className="text-stone-700" style={{ fontWeight: 600 }}>
-            {sortedOrganizations.length} {sortedOrganizations.length === 1 ? 'Restaurant' : 'Restaurants'} Near You
+            {popularOrgs.length} Trending Restaurants Near You
           </p>
 
-          {sortedOrganizations.length === 0 ? (
+          {popularOrgs.length === 0 ? (
             <div className="text-center py-12">
               <Store size={48} className="text-gray-200 mx-auto mb-3" />
               <p className="text-stone-400">No restaurants found</p>
             </div>
           ) : (
-            sortedOrganizations.map(org => (
+            popularOrgs.map(org => (
               <button
                 key={org.id}
                 onClick={() => navigate(`/buyer/restaurant/${org.id}`)}
