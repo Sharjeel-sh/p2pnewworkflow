@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Search, MapPin, Star, Clock, ShoppingCart, ArrowLeft, Store, Utensils } from 'lucide-react';
+import { Search, MapPin, Star, Clock, ShoppingCart, Store, Utensils, Check } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { useApp } from '../../context/AppContext';
 import { BuyerBottomNav } from './BuyerBottomNav';
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '../ui/sheet';
 
 const KITCHEN_IMG = 'https://images.unsplash.com/photo-1768314669089-480e608a0143?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwa2l0Y2hlbiUyMGNvb2tpbmclMjBmb29kfGVufDF8fHx8MTc3MjAyMjM5MHww&ixlib=rb-4.1.0&q=80&w=1080';
 const HOMEMADE_IMG = 'https://images.unsplash.com/photo-1672477179695-7276b0602fa9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiaXJ5YW5pJTIwcGFraXN0YW5pJTIwdHJhZGl0aW9uYWwlMjBmb29kfGVufDF8fHx8MTc3MjAyMjM5Mnww&ixlib=rb-4.1.0&q=80&w=1080';
@@ -23,11 +31,18 @@ const ORG_DELIVERY: Record<string, string> = {
   'org-002': '40–55 min',
 };
 
+const ORG_DISTANCE: Record<string, number> = {
+  'org-001': 2.1,
+  'org-002': 4.2,
+};
+
 export function BuyerHome() {
   const { organizations, dishes, cart, orders, currentUser, setCurrentUser } = useApp();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'restaurant' | 'homemade'>('all');
+  const [sortBy, setSortBy] = useState<'distance' | 'rating'>('distance');
+  const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
 
   const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
   const activeOrders = orders.filter(o => o.buyerName && o.status !== 'delivered');
@@ -39,51 +54,49 @@ export function BuyerHome() {
     return matchSearch && matchFilter;
   });
 
+  const sortedOrganizations = [...filtered].sort((a, b) => {
+    if (sortBy === 'rating') {
+      const scoreA = ORG_RATINGS[a.id] || 0;
+      const scoreB = ORG_RATINGS[b.id] || 0;
+      return scoreB - scoreA;
+    }
+
+    // distance default
+    const distA = ORG_DISTANCE[a.id] ?? Number.MAX_VALUE;
+    const distB = ORG_DISTANCE[b.id] ?? Number.MAX_VALUE;
+    return distA - distB;
+  });
+
   const getOrgDishCount = (orgId: string) => dishes.filter(d => d.orgId === orgId && d.isAvailable).length;
 
   return (
     <MobileLayout>
       {/* Header */}
-      <div className="bg-red-700 px-5 pt-10 pb-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-red-50 px-5 pt-8 pb-5 border-b border-red-100">
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-red-700 font-black" style={{ fontSize: '1.75rem' }}>P2P</h1>
           <button
-            onClick={() => { setCurrentUser(null); navigate('/'); }}
-            className="text-white/80 hover:text-white p-1"
+            type="button"
+            className="text-red-500 hover:text-red-700 p-1 rounded-full"
+            aria-label="Favorite"
           >
-            <ArrowLeft size={20} />
-          </button>
-          <div className="text-center">
-            <p className="text-red-100" style={{ fontSize: '0.75rem' }}>Delivering to</p>
-            <p className="text-white flex items-center gap-1" style={{ fontWeight: 600, fontSize: '0.9rem' }}>
-              <MapPin size={13} /> Karachi, Pakistan
-            </p>
-          </div>
-          <button
-            onClick={() => navigate('/buyer/cart')}
-            className="relative bg-white/20 rounded-xl p-2 text-white hover:bg-white/30 transition-colors"
-          >
-            <ShoppingCart size={20} />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-700 text-white text-xs w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ width: 18, height: 18, fontSize: '0.65rem', fontWeight: 700 }}>
-                {cartCount}
-              </span>
-            )}
-          </button>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </button>
         </div>
 
-        <h2 className="text-white mb-1" style={{ fontSize: '1.3rem', fontWeight: 700 }}>
-          Good day! 👋
-        </h2>
-        <p className="text-red-100" style={{ fontSize: '0.85rem' }}>What are you craving today?</p>
+        <p className="text-red-900 font-bold" style={{ fontSize: '1.5rem' }}>Order your favourite food!</p>
+        <p className="text-red-500 mt-1" style={{ fontSize: '0.92rem' }}>Find dishes and kitchens near you.</p>
 
         {/* Search */}
-        <div className="mt-4 bg-white rounded-2xl flex items-center px-4 py-3 gap-3">
+        <div className="mt-4 bg-white rounded-2xl flex items-center px-4 py-3 gap-3 shadow-sm">
           <Search size={18} className="text-gray-400 flex-shrink-0" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search restaurants..."
+            placeholder="Search for dishes or kitchens..."
             className="flex-1 outline-none text-stone-700 bg-transparent"
             style={{ fontSize: '0.9rem' }}
           />
@@ -116,39 +129,93 @@ export function BuyerHome() {
 
         {/* Filters */}
         <div className="px-5 mt-4">
-          <div className="flex gap-2">
-            {[
-              { val: 'all', label: '🍽 All' },
-              { val: 'restaurant', label: '🏪 Restaurant' },
-              { val: 'homemade', label: '🏠 Home-Made' },
-            ].map(f => (
-              <button
-                key={f.val}
-                onClick={() => setFilter(f.val as typeof filter)}
-                className={`px-3.5 py-1.5 rounded-full text-xs transition-all ${
-                  filter === f.val ? 'bg-red-700 text-white' : 'bg-gray-100 text-stone-600'
-                }`}
-                style={{ fontWeight: filter === f.val ? 600 : 400 }}
-              >
-                {f.label}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-3.5 py-1.5 rounded-full text-xs transition-all ${
+                filter === 'all' ? 'bg-red-700 text-white' : 'bg-gray-100 text-stone-600'
+              }`}
+              style={{ fontWeight: filter === 'all' ? 600 : 400 }}
+            >
+              🍽 All
+            </button>
+
+            <Sheet open={isSortSheetOpen} onOpenChange={setIsSortSheetOpen}>
+              <SheetTrigger asChild>
+                <button
+                  type="button"
+                  className="px-3.5 py-1.5 rounded-full text-xs border border-gray-200 bg-white text-stone-700 hover:bg-gray-50 transition"
+                >
+                  Sort by: {sortBy === 'distance' ? 'Distance' : 'Rating'}
+                </button>
+              </SheetTrigger>
+
+              <SheetContent side="bottom" className="rounded-t-2xl p-4">
+                <SheetHeader>
+                  <SheetTitle>Sort by</SheetTitle>
+                  <SheetDescription>Select how restaurants are ordered</SheetDescription>
+                </SheetHeader>
+
+                <div className="space-y-2 mt-2">
+                  {[
+                    { value: 'distance', label: 'Distance' },
+                    { value: 'rating', label: 'Rating' },
+                  ].map(opt => (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        setSortBy(opt.value as 'distance' | 'rating');
+                        setIsSortSheetOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-left hover:bg-gray-50"
+                    >
+                      <span>{opt.label}</span>
+                      {sortBy === opt.value && <Check size={16} className="text-red-700" />}
+                    </button>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <button
+              onClick={() => setFilter('restaurant')}
+              className={`px-3.5 py-1.5 rounded-full text-xs transition-all ${
+                filter === 'restaurant' ? 'bg-red-700 text-white' : 'bg-gray-100 text-stone-600'
+              }`}
+              style={{ fontWeight: filter === 'restaurant' ? 600 : 400 }}
+            >
+              🏪 Restaurant
+            </button>
+
+            <button
+              onClick={() => setFilter('homemade')}
+              className={`px-3.5 py-1.5 rounded-full text-xs transition-all ${
+                filter === 'homemade' ? 'bg-red-700 text-white' : 'bg-gray-100 text-stone-600'
+              }`}
+              style={{ fontWeight: filter === 'homemade' ? 600 : 400 }}
+            >
+              🏠 Home-Made
+            </button>
+          </div>
+
+          <div className="mt-2" style={{ minHeight: 1 }}>
+            {/* spacer to separate filters from list */}
           </div>
         </div>
 
         {/* Restaurant Cards */}
         <div className="px-5 py-4 space-y-4">
           <p className="text-stone-700" style={{ fontWeight: 600 }}>
-            {filtered.length} {filtered.length === 1 ? 'Restaurant' : 'Restaurants'} Near You
+            {sortedOrganizations.length} {sortedOrganizations.length === 1 ? 'Restaurant' : 'Restaurants'} Near You
           </p>
 
-          {filtered.length === 0 ? (
+          {sortedOrganizations.length === 0 ? (
             <div className="text-center py-12">
               <Store size={48} className="text-gray-200 mx-auto mb-3" />
               <p className="text-stone-400">No restaurants found</p>
             </div>
           ) : (
-            filtered.map(org => (
+            sortedOrganizations.map(org => (
               <button
                 key={org.id}
                 onClick={() => navigate(`/buyer/restaurant/${org.id}`)}
