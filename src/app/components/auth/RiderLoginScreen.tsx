@@ -56,10 +56,17 @@ export function RiderLoginScreen() {
         </div>
 
         {/* Demo credentials hint */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4">
           <p className="text-blue-600" style={{ fontSize: '0.78rem', fontWeight: 600 }}>Demo Credentials:</p>
           <p className="text-blue-500" style={{ fontSize: '0.75rem' }}>Phone: 0312-9876543 / 0333-2345678 / 0344-5678901</p>
           <p className="text-blue-500" style={{ fontSize: '0.75rem' }}>Password: pass123</p>
+          <button
+            type="button"
+            onClick={() => { setPhone('0312-9876543'); setPassword('pass123'); }}
+            className="mt-2 w-full text-center py-2 rounded-lg bg-blue-500 text-white text-xs font-semibold hover:bg-blue-600 transition"
+          >
+            Use first demo login
+          </button>
         </div>
 
         {/* Error */}

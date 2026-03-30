@@ -837,7 +837,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [state.branches]);
 
   const loginRider = useCallback((phone: string, password: string): Rider | null => {
-    const found = state.riders.find(
+    const ridersToCheck = state.riders.length ? state.riders : INITIAL_RIDERS;
+    const found = ridersToCheck.find(
       r => r.phone === phone && r.password === password && r.isAvailable,
     );
     return found ?? null;
