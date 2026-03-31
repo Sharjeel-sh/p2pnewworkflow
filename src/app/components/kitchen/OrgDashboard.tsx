@@ -805,8 +805,8 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
               </span>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm lg:col-span-2">
+            <div className="grid grid-cols-1 gap-4">
+              <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-semibold text-gray-700">Peak Hour</p>
                   <span className="text-xs text-emerald-700 font-bold">
@@ -832,6 +832,131 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
                       <Line type="monotone" dataKey="orders" stroke="#2563eb" strokeWidth={2} dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-gray-900">Order Trend</h3>
+                  <span className="text-xs text-gray-400">
+                    {dateRange === 'today'
+                      ? 'Today'
+                      : dateRange === 'week'
+                      ? 'This Week'
+                      : dateRange === 'month'
+                      ? 'This Month'
+                      : 'Custom Range'}
+                  </span>
+                </div>
+                <div className="h-60">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data.weeklyOrderRevenueTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip formatter={(value) => [value, 'Orders']} />
+                      <Line type="monotone" dataKey="orders" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-gray-900">Revenue Trend</h3>
+                  <span className="text-xs text-gray-400">
+                    {dateRange === 'today'
+                      ? 'Today'
+                      : dateRange === 'week'
+                      ? 'This Week'
+                      : dateRange === 'month'
+                      ? 'This Month'
+                      : 'Custom Range'}
+                  </span>
+                </div>
+                <div className="h-60">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data.weeklyOrderRevenueTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                      <YAxis tickFormatter={(value) => `Rs.${Math.round(value as number).toLocaleString()}`} />
+                      <Tooltip formatter={(value) => [`Rs.${Math.round((value as number) || 0).toLocaleString()}`, 'Revenue']} />
+                      <Line type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-gray-900">Best Selling Dishes</h3>
+                <span className="text-xs text-gray-400">
+                  {dateRange === 'today'
+                    ? 'Today'
+                    : dateRange === 'week'
+                    ? 'This Week'
+                    : dateRange === 'month'
+                    ? 'This Month'
+                    : 'Custom Range'}
+                </span>
+              </div>
+              <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+                <div className="h-40 mb-3">
+                  {data.orderCountChart && data.orderCountChart.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={data.orderCountChart} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                        <YAxis allowDecimals={false} />
+                        <Tooltip formatter={(value: number) => `${value} orders`} />
+                        <Bar dataKey="qty" fill="#f97316" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 text-xs text-gray-500">
+                      No best-selling data to display for this branch
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  {data.bestSellingDishes && data.bestSellingDishes.length > 0 ? (
+                    data.bestSellingDishes.map((dish: any, idx: number) => {
+                      const ratio = topDishMaxQty ? Math.min(100, Math.round((dish.qty / topDishMaxQty) * 100)) : 0;
+                      const kitchenName = getKitchenNameForDish(dish.name);
+                      return (
+                        <div key={dish.name} className="rounded-xl border border-gray-100 p-3 hover:shadow-md transition">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-slate-900 truncate">{idx + 1}. {dish.name}</p>
+                              {kitchenName && (
+                                <p className="text-xs font-semibold text-red-700">Kitchen: {kitchenName}</p>
+                              )}
+                              <p className="text-xs text-gray-500">{dish.qty} sold • {formatCurrency(dish.revenue)}</p>
+                              {dish.lowStock && dish.stock !== null && (
+                                <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                                  Low stock: {dish.stock} left
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1 text-yellow-500 text-xs font-semibold">
+                                <Star size={14} />
+                                {dish.rating?.toFixed(1) ?? "4.8"}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mt-2 h-2 rounded-full bg-slate-100 overflow-hidden">
+                            <div className="h-full rounded-full bg-orange-400" style={{ width: `${ratio}%` }} />
+                          </div>
+                          <p className="mt-1 text-xs text-gray-500">Top dish intensity {ratio}%</p>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-xs text-gray-400">No best-selling dish data yet for this branch.</p>
+                  )}
                 </div>
               </div>
             </div>
