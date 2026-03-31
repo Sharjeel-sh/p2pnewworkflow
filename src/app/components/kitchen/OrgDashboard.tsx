@@ -122,27 +122,174 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
 
   const data = useMemo(() => {
     if (!orgId) {
+      // Mock data for two branches
+      const mockKitchens: KitchenInfo[] = [
+        {
+          id: 'branchA',
+          name: 'Branch A',
+          orders: 40,
+          totalOrders: 40,
+          deliveredOrders: 30,
+          readyForPickupOrders: 5,
+          pendingOrders: 3,
+          cancelledOrders: 2,
+          revenue: 20000,
+          commission: 2000,
+          status: 'Active',
+          location: 'Main Street',
+          ordersToday: 8,
+          revenueToday: 4000,
+          avgOrderValue: 500,
+          cancellationRate: 5,
+          deliveryRate: 75,
+        },
+        {
+          id: 'branchB',
+          name: 'Branch B',
+          orders: 25,
+          totalOrders: 25,
+          deliveredOrders: 18,
+          readyForPickupOrders: 2,
+          pendingOrders: 4,
+          cancelledOrders: 1,
+          revenue: 12000,
+          commission: 1200,
+          status: 'Active',
+          location: 'Market Road',
+          ordersToday: 5,
+          revenueToday: 2500,
+          avgOrderValue: 480,
+          cancellationRate: 4,
+          deliveryRate: 72,
+        },
+        {
+          id: 'dha',
+          name: 'DHA Branch',
+          orders: 32,
+          totalOrders: 32,
+          deliveredOrders: 25,
+          readyForPickupOrders: 3,
+          pendingOrders: 2,
+          cancelledOrders: 2,
+          revenue: 17000,
+          commission: 1700,
+          status: 'Active',
+          location: 'DHA Phase 6',
+          ordersToday: 7,
+          revenueToday: 3500,
+          avgOrderValue: 531,
+          cancellationRate: 6.25,
+          deliveryRate: 78.1,
+        },
+      ];
+      // Mock orders for each branch per day (for the bar chart)
+      type MockOrder = { id: string; branchId: string; createdAt: string; status: string; total: number };
+      const branchIds = ['branchA', 'branchB', 'dha'];
+      const branchOrderCounts = {
+        branchA: [4, 6, 5, 7, 6, 7, 5], // Mon-Sun
+        branchB: [3, 5, 2, 6, 5, 3, 1],
+        dha:     [10, 12, 15, 17, 19, 13, 12], // Increased orders for DHA Branch
+      };
+      // Calculate the start of the current week (Monday)
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
+      // In JS, 0 is Sunday, so for Monday as start:
+      const diffToMonday = (dayOfWeek + 6) % 7;
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - diffToMonday);
+      weekStart.setHours(0, 0, 0, 0);
+      
+      const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      // Generate mock orders array for the current week
+      const orders: MockOrder[] = [];
+      let orderId = 1;
+      weekDays.forEach((day, dayIdx) => {
+        branchIds.forEach((branchId) => {
+          const count = branchOrderCounts[branchId][dayIdx];
+          for (let i = 0; i < count; i++) {
+            // Calculate the date for this day in the current week
+            const date = new Date(weekStart);
+            date.setDate(weekStart.getDate() + dayIdx);
+            // Spread orders throughout the day
+            date.setHours(10 + (i % 8), 0, 0, 0);
+            orders.push({
+              id: `order${orderId++}`,
+              branchId,
+              createdAt: date.toISOString(),
+              status: 'delivered',
+              total: 500 + 50 * dayIdx,
+            });
+          }
+        });
+      });
       return {
-        totalKitchens: 0,
-        activeKitchens: 0,
+        totalKitchens: 3,
+        activeKitchens: 3,
         inactiveKitchens: 0,
-        totalOrders: 0,
-        totalOrdersToday: 0,
+        totalOrders: 97,
+        totalOrdersToday: 20,
         totalRiders: 0,
         activeRiders: 0,
         inactiveRiders: 0,
         delayedOrders: 0,
-        totalDeliveredOrders: 0,
-        totalPendingOrders: 0,
-        totalCancelledOrders: 0,
-        totalReadyForPickupOrders: 0,
+        totalDeliveredOrders: 73,
+        totalPendingOrders: 9,
+        totalCancelledOrders: 5,
         averageDeliveryMins: 0,
         riderLeaderboard: [],
-        weeklyDeliveryTrend: [],
-        bestSellingDishes: [],
-        totalRevenue: 0,
-        totalRevenueToday: 0,
-        kitchens: [] as KitchenInfo[],
+        todayOrdersCount: 20,
+        yesterdayOrdersCount: 0,
+        weeklyDeliveryTrend: [
+          { label: 'Mon', count: 15 },
+          { label: 'Tue', count: 18 },
+          { label: 'Wed', count: 12 },
+          { label: 'Thu', count: 20 },
+          { label: 'Fri', count: 14 },
+          { label: 'Sat', count: 10 },
+          { label: 'Sun', count: 8 },
+        ],
+        weeklyOrderRevenueTrend: [
+          { label: 'Mon', orders: 10, revenue: 5000 },
+          { label: 'Tue', orders: 14, revenue: 7000 },
+          { label: 'Wed', orders: 12, revenue: 6000 },
+          { label: 'Thu', orders: 18, revenue: 9000 },
+          { label: 'Fri', orders: 20, revenue: 10000 },
+          { label: 'Sat', orders: 13, revenue: 6500 },
+          { label: 'Sun', orders: 10, revenue: 5000 },
+        ],
+        bestSellingDishes: [
+          { name: 'Zinger Burger', qty: 30, revenue: 3000, rating: 4.8, revenueShare: 30, stock: 20, lowStock: false },
+          { name: 'Chicken Shawarma', qty: 20, revenue: 2000, rating: 4.6, revenueShare: 20, stock: 8, lowStock: true },
+        ],
+        zingerTrend: { currentQty: 30, previousQty: 25, direction: 'up', changePct: 20 },
+        lowStockDishes: [
+          { name: 'Chicken Shawarma', qty: 20, revenue: 2000, rating: 4.6, revenueShare: 20, stock: 8, lowStock: true },
+        ],
+        dishRevenueChart: [
+          { name: 'Zinger Burger', qty: 30, revenue: 3000 },
+          { name: 'Chicken Shawarma', qty: 20, revenue: 2000 },
+        ],
+        orderCountChart: [
+          { name: 'Zinger Burger', qty: 30 },
+          { name: 'Chicken Shawarma', qty: 20 },
+        ],
+        orderCategoryStats: [],
+        repeatCustomerStats: { repeat: 0, new: 0, repeatPct: 0, newPct: 0 },
+        peakOrderTimeline: [
+          { hour: '10:00', orders: 2 },
+          { hour: '11:00', orders: 4 },
+          { hour: '12:00', orders: 6 },
+          { hour: '13:00', orders: 8 },
+          { hour: '14:00', orders: 5 },
+          { hour: '15:00', orders: 3 },
+        ],
+        peakOrderTime: { hour: '13:00', count: 8 },
+        totalRevenue: 49000,
+        totalRevenueToday: 10000,
+        kitchens: mockKitchens,
+        orders, // <-- add mock orders array for chart logic
+        selectedBranchId: undefined,
+        totalReadyForPickupOrders: 9,
       };
     }
 
@@ -726,66 +873,94 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
             <span className="text-xs text-gray-400">{filteredKitchens.length} branches</span>
           </div>
 
-          <div className="space-y-2.5">
-            {filteredKitchens.map((kitchen) => (
-              <div key={kitchen.id} className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-gray-900 text-sm truncate">{kitchen.name}</h4>
-                    </div>
-                    <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                      <MapPin size={10} /> {kitchen.location}
-                    </p>
-                  </div>
-                  <ChevronRight size={16} className="text-gray-300 shrink-0" />
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-50">
-                  <div>
-                    <p className="text-xs text-gray-400">Orders</p>
-                    <p className="text-sm font-semibold text-gray-900">{kitchen.totalOrders}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Avg order value</p>
-                    <p className="text-sm font-semibold text-gray-900">{formatCurrency(kitchen.avgOrderValue ?? 0)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Revenue</p>
-                    <p className="text-sm font-semibold text-gray-900">{formatCurrency(kitchen.revenue)}</p>
-                  </div>
-                </div>
-
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div className="rounded-lg bg-green-50 p-2 text-xs text-green-700">
-                    <div className="flex justify-between">
-                      <span>Ready for Pickup</span>
-                      <strong>{kitchen.readyForPickupOrders}</strong>
-                    </div>
-                  </div>
-                  <div className="rounded-lg bg-blue-50 p-2 text-xs text-blue-700">
-                    <div className="flex justify-between">
-                      <span>Delivered</span>
-                      <strong>{kitchen.deliveredOrders}</strong>
-                    </div>
-                  </div>
-                  <div className="rounded-lg bg-yellow-50 p-2 text-xs text-orange-700">
-                    <div className="flex justify-between">
-                      <span>Pending</span>
-                      <strong>{kitchen.pendingOrders}</strong>
-                    </div>
-                  </div>
-                  <div className="rounded-lg bg-red-50 p-2 text-xs text-red-700">
-                    <div className="flex justify-between">
-                      <span>Cancelled</span>
-                      <strong>{kitchen.cancelledOrders}</strong>
-                    </div>
-                  </div>
-                </div>
-
+          {/* Stacked Bar Chart: Orders per Branch per Day */}
+          <div className="mb-6">
+            <h4 className="text-xs font-semibold text-gray-700 mb-2">Orders by Branch (Stacked by Day)</h4>
+            <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm overflow-x-auto">
+              <div className="h-60 min-w-[1000px]">
+                <ResponsiveContainer width={1000} height="100%">
+                  <BarChart
+                    data={(() => {
+                      // Always show all days (Mon-Sun) for 'This Week'
+                      const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                      let days = weekDays;
+                      if (dateRange !== 'week') {
+                        // For other ranges, fallback to previous logic
+                        days = (data.weeklyOrderRevenueTrend || []).map((d) => d.label);
+                      }
+                      const branchNames = data.kitchens.map((k) => k.name);
+                      return days.map((label, idx) => {
+                        const dayObj = { label };
+                        branchNames.forEach((branch) => {
+                          const branchObj = data.kitchens.find((k) => k.name === branch);
+                          let count = 0;
+                          if (branchObj) {
+                            const branchOrders = orders.filter((o) => o.branchId === branchObj.id);
+                            let dayDate;
+                            if (dateRange === "today") {
+                              dayDate = new Date();
+                              dayDate.setHours(idx, 0, 0, 0);
+                            } else if (dateRange === 'week') {
+                              // Calculate the date for this weekday in the current week
+                              const today = new Date();
+                              const dayOfWeek = today.getDay();
+                              const diffToMonday = (dayOfWeek + 6) % 7;
+                              const weekStart = new Date(today);
+                              weekStart.setDate(today.getDate() - diffToMonday);
+                              weekStart.setHours(0, 0, 0, 0);
+                              dayDate = new Date(weekStart);
+                              dayDate.setDate(weekStart.getDate() + idx);
+                            } else {
+                              // Parse the label to a date
+                              dayDate = new Date();
+                              if (dateRange === "month" || dateRange === "custom") {
+                                const start = getRangeStart(new Date(), dateRange);
+                                dayDate = new Date(start);
+                                dayDate.setDate(start.getDate() + idx);
+                              }
+                            }
+                            count = branchOrders.filter((o) => {
+                              const dt = new Date(o.createdAt);
+                              if (dateRange === "today") {
+                                return dt.getHours() === idx && !Number.isNaN(dt.getTime());
+                              } else {
+                                return getStartOfDay(dt).getTime() === getStartOfDay(dayDate).getTime();
+                              }
+                            }).length;
+                          }
+                          dayObj[branch] = count;
+                        });
+                        return dayObj;
+                      });
+                    })()}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Legend />
+                    {data.kitchens.map((k, idx) => {
+                      let fill = '#3498db'; // default blue
+                      if (k.name === 'Branch B') fill = '#27ae60'; // green
+                      if (k.name === 'DHA Branch') fill = '#8e44ad'; // purple
+                      return (
+                        <Bar
+                          key={k.name}
+                          dataKey={k.name}
+                          stackId="orders"
+                          fill={fill}
+                          name={k.name}
+                        />
+                      );
+                    })}
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-            ))}
+            </div>
           </div>
+
+
         </div>
 
         {/* Conditional Rendering: Orders Analysis for Specific Branch OR Top Rated Dishes for All Branches */}
@@ -887,222 +1062,96 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
                 </div>
               </div>
             </div>
-
-            <div className="mt-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-900">Best Selling Dishes</h3>
-                <span className="text-xs text-gray-400">
-                  {dateRange === 'today'
-                    ? 'Today'
-                    : dateRange === 'week'
-                    ? 'This Week'
-                    : dateRange === 'month'
-                    ? 'This Month'
-                    : 'Custom Range'}
-                </span>
-              </div>
-              <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-                <div className="h-40 mb-3">
-                  {data.orderCountChart && data.orderCountChart.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={data.orderCountChart} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                        <YAxis allowDecimals={false} />
-                        <Tooltip formatter={(value: number) => `${value} orders`} />
-                        <Bar dataKey="qty" fill="#f97316" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 text-xs text-gray-500">
-                      No best-selling data to display for this branch
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-3">
-                  {data.bestSellingDishes && data.bestSellingDishes.length > 0 ? (
-                    data.bestSellingDishes.map((dish: any, idx: number) => {
-                      const ratio = topDishMaxQty ? Math.min(100, Math.round((dish.qty / topDishMaxQty) * 100)) : 0;
-                      const kitchenName = getKitchenNameForDish(dish.name);
-                      return (
-                        <div key={dish.name} className="rounded-xl border border-gray-100 p-3 hover:shadow-md transition">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-slate-900 truncate">{idx + 1}. {dish.name}</p>
-                              {kitchenName && (
-                                <p className="text-xs font-semibold text-red-700">Kitchen: {kitchenName}</p>
-                              )}
-                              <p className="text-xs text-gray-500">{dish.qty} sold • {formatCurrency(dish.revenue)}</p>
-                              {dish.lowStock && dish.stock !== null && (
-                                <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
-                                  Low stock: {dish.stock} left
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-1 text-yellow-500 text-xs font-semibold">
-                                <Star size={14} />
-                                {dish.rating?.toFixed(1) ?? "4.8"}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="mt-2 h-2 rounded-full bg-slate-100 overflow-hidden">
-                            <div className="h-full rounded-full bg-orange-400" style={{ width: `${ratio}%` }} />
-                          </div>
-                          <p className="mt-1 text-xs text-gray-500">Top dish intensity {ratio}%</p>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p className="text-xs text-gray-400">No best-selling dish data yet for this branch.</p>
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
         ) : (
           <> 
             {/* New: Order Trend and Revenue Trend Separate Graphs */}
             <div className="mt-6 grid grid-cols-1 gap-4">
-              <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-gray-900">Order Trend</h3>
-                  <span className="text-xs text-gray-400">
-                    {dateRange === 'today'
-                      ? 'Today'
-                      : dateRange === 'week'
-                      ? 'This Week'
-                      : dateRange === 'month'
-                      ? 'This Month'
-                      : 'Custom Range'}
-                  </span>
-                </div>
-                <div className="h-60">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.weeklyOrderRevenueTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="label" tick={{ fontSize: 10 }} />
-                      <YAxis allowDecimals={false} />
-                      <Tooltip formatter={(value) => [value, 'Orders']} />
-                      <Line type="monotone" dataKey="orders" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
+              
 
-              <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-gray-900">Revenue Trend</h3>
-                  <span className="text-xs text-gray-400">
-                    {dateRange === 'today'
-                      ? 'Today'
-                      : dateRange === 'week'
-                      ? 'This Week'
-                      : dateRange === 'month'
-                      ? 'This Month'
-                      : 'Custom Range'}
-                  </span>
-                </div>
-                <div className="h-60">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.weeklyOrderRevenueTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="label" tick={{ fontSize: 10 }} />
-                      <YAxis tickFormatter={(value) => `Rs.${Math.round(value as number).toLocaleString()}`} />
-                      <Tooltip formatter={(value) => [`Rs.${Math.round((value as number) || 0).toLocaleString()}`, 'Revenue']} />
-                      <Line type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
-
-            {/* Show Top Rated Dishes when "All Branches" is selected */}
-            <div className="mt-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-900">Top Rated Dishes</h3>
-              <span className="text-xs text-gray-400">
-                {dateRange === 'today'
-                  ? 'Today'
-                  : dateRange === 'week'
-                  ? 'This Week'
-                  : dateRange === 'month'
-                  ? 'This Month'
-                  : 'Custom Range'}
-              </span>
-            </div>
-            <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-              <div className="mb-3 space-y-1">
-                <p className="text-xs text-gray-500">
-                  Zinger Burger trend: {data.zingerTrend?.direction === "up" ? "▲ Trending up" : data.zingerTrend?.direction === "down" ? "▼ Trending down" : "— Flat"}
-                </p>
-              </div>
-
-              {data.lowStockDishes && data.lowStockDishes.length > 0 && (
-                <div className="mb-3 rounded-lg bg-red-50 p-2 text-xs text-red-800">
-                  <strong>Low stock alert:</strong> {data.lowStockDishes.map((dish: any) => `${dish.name} (${dish.stock} left)`).join(', ')}
-                </div>
-              )}
-
-              <div className="h-40 mb-3">
-                {data.orderCountChart && data.orderCountChart.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data.orderCountChart} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                      <YAxis allowDecimals={false} />
-                      <Tooltip formatter={(value: number) => `${value} orders`} />
-                      <Bar dataKey="qty" fill="#f97316" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 text-xs text-gray-500">
-                    No top-rated dish activity to display
+              <div className="h-60 mt-6">
+                <h4 className="text-xs font-semibold text-gray-700 mb-2">Revenue by Branch (Stacked by Day)</h4>
+                <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm overflow-x-auto">
+                  <div className="h-60 min-w-[1000px]">
+                    <ResponsiveContainer width={1000} height="100%">
+                      <BarChart
+                        data={(() => {
+                          // Always show all days (Mon-Sun) for 'This Week'
+                          const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                          let days = weekDays;
+                          if (dateRange !== 'week') {
+                            days = (data.weeklyOrderRevenueTrend || []).map((d) => d.label);
+                          }
+                          const branchNames = data.kitchens.map((k) => k.name);
+                          return days.map((label, idx) => {
+                            const dayObj = { label };
+                            branchNames.forEach((branch) => {
+                              const branchObj = data.kitchens.find((k) => k.name === branch);
+                              let revenue = 0;
+                              if (branchObj) {
+                                const branchOrders = orders.filter((o) => o.branchId === branchObj.id);
+                                let dayDate;
+                                if (dateRange === "today") {
+                                  dayDate = new Date();
+                                  dayDate.setHours(idx, 0, 0, 0);
+                                } else if (dateRange === 'week') {
+                                  const today = new Date();
+                                  const dayOfWeek = today.getDay();
+                                  const diffToMonday = (dayOfWeek + 6) % 7;
+                                  const weekStart = new Date(today);
+                                  weekStart.setDate(today.getDate() - diffToMonday);
+                                  weekStart.setHours(0, 0, 0, 0);
+                                  dayDate = new Date(weekStart);
+                                  dayDate.setDate(weekStart.getDate() + idx);
+                                } else {
+                                  dayDate = new Date();
+                                  if (dateRange === "month" || dateRange === "custom") {
+                                    const start = getRangeStart(new Date(), dateRange);
+                                    dayDate = new Date(start);
+                                    dayDate.setDate(start.getDate() + idx);
+                                  }
+                                }
+                                revenue = branchOrders.filter((o) => {
+                                  const dt = new Date(o.createdAt);
+                                  if (dateRange === "today") {
+                                    return dt.getHours() === idx && !Number.isNaN(dt.getTime());
+                                  } else {
+                                    return getStartOfDay(dt).getTime() === getStartOfDay(dayDate).getTime();
+                                  }
+                                }).reduce((sum, o) => sum + (o.total || 0), 0);
+                              }
+                              dayObj[branch] = revenue;
+                            });
+                            return dayObj;
+                          });
+                        })()}
+                        margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                        <YAxis tickFormatter={(value) => `Rs.${Math.round(value).toLocaleString()}`} allowDecimals={false} />
+                        <Tooltip formatter={(value) => `Rs.${Math.round(value as number).toLocaleString()}`} />
+                        <Legend />
+                        {data.kitchens.map((k, idx) => {
+                          let fill = '#3498db';
+                          if (k.name === 'Branch B') fill = '#27ae60';
+                          if (k.name === 'DHA Branch') fill = '#8e44ad';
+                          return (
+                            <Bar
+                              key={k.name}
+                              dataKey={k.name}
+                              stackId="revenue"
+                              fill={fill}
+                              name={k.name}
+                            />
+                          );
+                        })}
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                {data.bestSellingDishes && data.bestSellingDishes.length > 0 ? (
-                  data.bestSellingDishes.map((dish: any, idx: number) => {
-                    const ratio = topDishMaxQty ? Math.min(100, Math.round((dish.qty / topDishMaxQty) * 100)) : 0;
-                    const kitchenName = getKitchenNameForDish(dish.name);
-                    return (
-                      <div key={dish.name} className="rounded-xl border border-gray-100 p-3 hover:shadow-md transition">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-slate-900 truncate">{idx + 1}. {dish.name}</p>
-                            {kitchenName && (
-                              <p className="text-xs font-semibold text-red-700">Kitchen: {kitchenName}</p>
-                            )}
-                            <p className="text-xs text-gray-500">{dish.qty} sold • {formatCurrency(dish.revenue)}</p>
-                            {dish.lowStock && dish.stock !== null && (
-                              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
-                                Low stock: {dish.stock} left
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1 text-yellow-500 text-xs font-semibold">
-                              <Star size={14} />
-                              {dish.rating?.toFixed(1) ?? "4.8"}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="mt-2 h-2 rounded-full bg-slate-100 overflow-hidden">
-                          <div className="h-full rounded-full bg-orange-400" style={{ width: `${ratio}%` }} />
-                        </div>
-                        <p className="mt-1 text-xs text-gray-500">Top dish intensity {ratio}%</p>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-xs text-gray-400">No dish ordering data yet.</p>
-                )}
+                </div>
               </div>
             </div>
-          </div>
           </>
         )}
       </div>
