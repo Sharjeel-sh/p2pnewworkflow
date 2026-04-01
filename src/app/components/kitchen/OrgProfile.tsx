@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Building2, Home, Phone, MapPin, User, Pencil, LogOut, Save, X, FileText, Image, Camera, CreditCard, Hash, CheckCircle2, UserCog, Bike, ChevronRight, ChevronLeft, GitBranch, UtensilsCrossed, Clock, Truck, BarChart2, Bell, ShieldCheck, Globe, Trash2 } from 'lucide-react';
+import { Building2, Home, Phone, MapPin, User, Pencil, LogOut, Save, X, FileText, Image, Camera, CreditCard, Hash, CheckCircle2, UserCog, Bike, ChevronRight, ChevronLeft, GitBranch, UtensilsCrossed, Clock, Truck, BarChart2, Bell, ShieldCheck, Globe, Trash2, AlertTriangle } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { KitchenBottomNav } from './KitchenBottomNav';
 import { useApp } from '../../context/AppContext';
@@ -66,7 +66,11 @@ export function OrgProfile() {
             <ChevronLeft size={22} />
           </button>
           <h2 className="text-white flex-1 text-center" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Organization Profile</h2>
-          <div className="w-8" />
+          <button
+            onClick={() => updateOrganization(org.id, { verified: !org.verified })}
+            className="flex items-center"
+          >
+            {org?.verified ? <ShieldCheck size={55} className="text-green-400" /> : <AlertTriangle size={55} className="text-yellow-400" />}            <span className="ml-1 text-xs text-white">{org?.verified ? "Verified" : "Pending"}</span>          </button>
         </div>
       </div>
 
@@ -78,6 +82,7 @@ export function OrgProfile() {
             onClick={() => fileInputRef.current?.click()}
             className="absolute inset-0 z-10"
           />
+          
           {form.profilePicture ? (
             <img src={form.profilePicture} alt="Org" className="w-full h-full object-cover" />
           ) : (
@@ -95,6 +100,7 @@ export function OrgProfile() {
           />
         </div>
       </div>
+      
 
       <div className="flex-1 overflow-y-auto px-5 py-5">
 

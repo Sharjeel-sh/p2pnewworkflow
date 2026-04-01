@@ -5,6 +5,7 @@ export type OrgType = 'homemade' | 'restaurant';
 export type OrderStatus = 'pending' | 'accepted' | 'preparing' | 'ready' | 'picked_up' | 'delivered';
 
 export interface Organization {
+  verified: any;
   id: string;
   ownerName: string;
   ownerEmail?: string;
