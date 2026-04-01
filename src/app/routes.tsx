@@ -7,6 +7,7 @@ import { RiderLoginScreen } from './components/auth/RiderLoginScreen';
 import { BranchManagerLoginScreen } from './components/auth/BranchManagerLoginScreen';
 import { KitchenOnboardingScreen } from './components/auth/KitchenOnboardingScreen';
 import { KitchenOwnerLoginScreen } from './components/auth/KitchenOwnerLoginScreen';
+import { BuyerFavorites } from './components/buyer/BuyerFavorites';
 import { BuyerHome } from './components/buyer/BuyerHome';
 import { BuyerSearch } from './components/buyer/BuyerSearch';
 import { BuyerProfile } from './components/buyer/BuyerProfile';
@@ -56,6 +57,7 @@ export const router = createBrowserRouter([
       { path: 'rider/login', element: <RiderLoginScreen /> },
       { path: 'kitchen/manager/login', element: <BranchManagerLoginScreen /> },
       { path: 'buyer', element: <BuyerHome /> },
+      { path: 'buyer/favorites', element: <BuyerFavorites /> },
       { path: 'buyer/search', element: <BuyerSearch /> },
       { path: 'buyer/profile', element: <BuyerProfile /> },
       { path: 'buyer/restaurant/:orgId', element: <RestaurantDetail /> },

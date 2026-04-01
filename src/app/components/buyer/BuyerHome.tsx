@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Search, MapPin, Star, Clock, ShoppingCart, Store, Utensils, Check } from 'lucide-react';
+import { Search, MapPin, Star, Clock, ShoppingCart, Store, Utensils, Check, Heart } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { useApp } from '../../context/AppContext';
 import { BuyerBottomNav } from './BuyerBottomNav';
@@ -30,7 +30,7 @@ const ORG_DISTANCE: Record<string, number> = {
 };
 
 export function BuyerHome() {
-  const { organizations, dishes, cart, orders, currentUser, setCurrentUser } = useApp();
+  const { organizations, dishes, cart, orders, currentUser, setCurrentUser, favoriteKitchens, toggleFavoriteKitchen } = useApp();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'restaurant' | 'homemade'>('all');
@@ -69,9 +69,9 @@ export function BuyerHome() {
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-red-700 font-black" style={{ fontSize: '1.75rem' }}>P2P</h1>
           <button
-            type="button"
+            onClick={() => navigate('/buyer/favorites')}
             className="text-red-500 hover:text-red-700 p-1 rounded-full"
-            aria-label="Favorite"
+            aria-label="Favorites"
           >
               <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -221,6 +221,20 @@ export function BuyerHome() {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                  <div className="absolute top-2 right-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavoriteKitchen(org.id);
+                      }}
+                      className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center"
+                    >
+                      <Heart
+                        size={16}
+                        className={favoriteKitchens.includes(org.id) ? 'text-red-500 fill-red-500' : 'text-gray-400'}
+                      />
+                    </button>
+                  </div>
                   <div className="absolute bottom-2 left-3">
                     <span className={`text-white text-xs px-2 py-0.5 rounded-full ${org.type === 'restaurant' ? 'bg-red-700' : 'bg-purple-500'}`} style={{ fontWeight: 600 }}>
                       {org.type === 'restaurant' ? '🏪 Restaurant' : '🏠 Home-Made'}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft, ShoppingCart, Plus, Minus, Star, MapPin, Clock, UtensilsCrossed } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Plus, Minus, Star, MapPin, Clock, UtensilsCrossed, Heart } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { useApp } from '../../context/AppContext';
 import { BuyerBottomNav } from './BuyerBottomNav';
@@ -10,7 +10,7 @@ const HOMEMADE_IMG = 'https://images.unsplash.com/photo-1672477179695-7276b0602f
 
 export function RestaurantDetail() {
   const { orgId } = useParams<{ orgId: string }>();
-  const { organizations, dishes, cart, addToCart, updateCartItem, removeFromCart } = useApp();
+  const { organizations, dishes, cart, addToCart, updateCartItem, removeFromCart, favoriteDishes, toggleFavoriteDish } = useApp();
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -136,6 +136,18 @@ export function RestaurantDetail() {
                           {dish.description}
                         </p>
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavoriteDish(dish.id);
+                        }}
+                        className="flex-shrink-0 p-1"
+                      >
+                        <Heart
+                          size={16}
+                          className={favoriteDishes.includes(dish.id) ? 'text-red-500 fill-red-500' : 'text-gray-400'}
+                        />
+                      </button>
                     </div>
                     <div className="flex items-center justify-between mt-2">
                       <p className="text-red-800" style={{ fontWeight: 700 }}>Rs. {dish.price}</p>

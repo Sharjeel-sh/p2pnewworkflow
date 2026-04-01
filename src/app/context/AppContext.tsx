@@ -126,6 +126,8 @@ interface AppState {
   orders: Order[];
   cart: CartItem[];
   chatMessages: ChatMessage[];
+  favoriteKitchens: string[];
+  favoriteDishes: string[];
 }
 
 interface AppContextType extends AppState {
@@ -161,6 +163,10 @@ interface AppContextType extends AppState {
   loginRider: (phone: string, password: string) => Rider | null;
   sendChatMessage: (orderId: string, message: string, senderName: string, senderRole: UserRole) => void;
   isChatOpen: (order: Order) => boolean;
+  toggleFavoriteKitchen: (orgId: string) => void;
+  toggleFavoriteDish: (dishId: string) => void;
+  isKitchenFavorite: (orgId: string) => boolean;
+  isDishFavorite: (dishId: string) => boolean;
 }
 
 const STORAGE_KEY = 'quickbite_app_state';
@@ -333,6 +339,8 @@ function loadState(): AppState {
         orders: parsed.orders ?? INITIAL_ORDERS,
         cart: parsed.cart ?? [],
         chatMessages: parsed.chatMessages ?? [],
+        favoriteKitchens: parsed.favoriteKitchens ?? [],
+        favoriteDishes: parsed.favoriteDishes ?? [],
       };
     }
   } catch (e) {
@@ -346,6 +354,8 @@ function loadState(): AppState {
     orders: INITIAL_ORDERS,
     cart: [],
     chatMessages: [],
+    favoriteKitchens: [],
+    favoriteDishes: [],
   };
 }
 
@@ -772,6 +782,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       orders: [], // Clear all orders instead of resetting to INITIAL_ORDERS
       cart: [],
       chatMessages: [],
+      favoriteKitchens: [],
+      favoriteDishes: [],
     });
     setCurrentUserState(null);
     try {
@@ -864,6 +876,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return (now - delivered) < 60 * 60 * 1000; // 1 hour
   }, []);
 
+  const toggleFavoriteKitchen = useCallback((orgId: string) => {
+    setState(prev => ({
+      ...prev,
+      favoriteKitchens: prev.favoriteKitchens.includes(orgId)
+        ? prev.favoriteKitchens.filter(id => id !== orgId)
+        : [...prev.favoriteKitchens, orgId],
+    }));
+  }, []);
+
+  const toggleFavoriteDish = useCallback((dishId: string) => {
+    setState(prev => ({
+      ...prev,
+      favoriteDishes: prev.favoriteDishes.includes(dishId)
+        ? prev.favoriteDishes.filter(id => id !== dishId)
+        : [...prev.favoriteDishes, dishId],
+    }));
+  }, []);
+
+  const isKitchenFavorite = useCallback((orgId: string) => {
+    return state.favoriteKitchens.includes(orgId);
+  }, [state.favoriteKitchens]);
+
+  const isDishFavorite = useCallback((dishId: string) => {
+    return state.favoriteDishes.includes(dishId);
+  }, [state.favoriteDishes]);
+
   return (
     <AppContext.Provider value={{
       ...state,
@@ -899,6 +937,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       loginRider,
       sendChatMessage,
       isChatOpen,
+      toggleFavoriteKitchen,
+      toggleFavoriteDish,
+      isKitchenFavorite,
+      isDishFavorite,
     }}>
       {children}
     </AppContext.Provider>
