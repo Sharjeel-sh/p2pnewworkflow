@@ -185,7 +185,7 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
       // Mock orders for each branch per day (for the bar chart)
       type MockOrder = { id: string; branchId: string; createdAt: string; status: string; total: number };
       const branchIds = ['branchA', 'branchB', 'dha'];
-      const branchOrderCounts = {
+      const branchOrderCounts: Record<string, number[]> = {
         branchA: [4, 6, 5, 7, 6, 7, 5], // Mon-Sun
         branchB: [3, 5, 2, 6, 5, 3, 1],
         dha:     [10, 12, 15, 17, 19, 13, 12], // Increased orders for DHA Branch
@@ -450,11 +450,13 @@ export function OrgDashboard({ showHeader = true }: { showHeader?: boolean }) {
       return minutesSinceCreated > 45;
     }).length;
 
+    const ordersForTrend = selectedBranchId ? branchOrders : rangeOrders;
+
     const weeklyOrderRevenueTrend = (() => {
       if (dateRange === "today") {
         return Array.from({ length: 24 }).map((_, hour) => {
           const label = `${hour.toString().padStart(2, "0")}:00`;
-          const hourOrders = rangeOrders.filter((o) => {
+          const hourOrders = ordersForTrend.filter((o) => {
             const dt = new Date(o.createdAt);
             return (
               !Number.isNaN(dt.getTime()) &&
@@ -867,6 +869,7 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
         </div>
       )}
 
+      {!isSpecificBranchSelected && (
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-gray-900">Branch Performance</h3>
@@ -874,6 +877,85 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
           </div>
 
           {/* Stacked Bar Chart: Orders per Branch per Day */}
+         <div className="mb-6">
+            <h4 className="text-xs font-semibold text-gray-700 mb-2">Order Status by Branch</h4>
+            <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm overflow-x-auto">
+              <div className="h-80 min-w-[600px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={data.kitchens.map((k) => ({
+                      branch: k.name,
+                      'Preparing': k.pendingOrders,
+                      'Ready for Pickup': k.readyForPickupOrders,
+                      'Delivered': k.deliveredOrders,
+                      'Cancelled': k.cancelledOrders,
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+                    barCategoryGap="30%"
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                    <XAxis
+                      dataKey="branch"
+                      tick={{ fontSize: 12, fill: '#6b7280' }}
+                      axisLine={{ stroke: '#e5e7eb' }}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 12, fill: '#6b7280' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        padding: '12px'
+                      }}
+                    />
+                    <Legend
+                      wrapperStyle={{ paddingTop: '20px' }}
+                      iconType="rect"
+                      iconSize={12}
+                    />
+                    <Bar
+                      dataKey="Preparing"
+                      stackId="status"
+                      fill="#f59e0b"
+                      name="Preparing"
+                      radius={[0, 0, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="Ready for Pickup"
+                      stackId="status"
+                      fill="#8b5cf6"
+                      name="Ready for Pickup"
+                      radius={[0, 0, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="Delivered"
+                      stackId="status"
+                      fill="#10b981"
+                      name="Delivered"
+                      radius={[0, 0, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="Cancelled"
+                      stackId="status"
+                      fill="#ef4444"
+                      name="Cancelled"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+         
+
+          {/* Order Status by Branch - Stacked Bar Chart */}
           <div className="mb-6">
             <h4 className="text-xs font-semibold text-gray-700 mb-2">Orders by Branch (Stacked by Day)</h4>
             <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm overflow-x-auto">
@@ -890,7 +972,7 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
                       }
                       const branchNames = data.kitchens.map((k) => k.name);
                       return days.map((label, idx) => {
-                        const dayObj = { label };
+                        const dayObj: Record<string, any> = { label };
                         branchNames.forEach((branch) => {
                           const branchObj = data.kitchens.find((k) => k.name === branch);
                           let count = 0;
@@ -960,8 +1042,8 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
             </div>
           </div>
 
-
         </div>
+      )}
 
         {/* Conditional Rendering: Orders Analysis for Specific Branch OR Top Rated Dishes for All Branches */}
         {isSpecificBranchSelected ? (
@@ -1084,7 +1166,7 @@ const currentBestDishes = Object.values(currentDishStats).sort((a, b) => b.qty -
                           }
                           const branchNames = data.kitchens.map((k) => k.name);
                           return days.map((label, idx) => {
-                            const dayObj = { label };
+                            const dayObj: Record<string, any> = { label };
                             branchNames.forEach((branch) => {
                               const branchObj = data.kitchens.find((k) => k.name === branch);
                               let revenue = 0;
