@@ -12,6 +12,7 @@ import { BuyerHome } from './components/buyer/BuyerHome';
 import { BuyerSearch } from './components/buyer/BuyerSearch';
 import { BuyerProfile } from './components/buyer/BuyerProfile';
 import { RestaurantDetail } from './components/buyer/RestaurantDetail';
+import { DishDetail } from './components/buyer/DishDetail';
 import { CartScreen } from './components/buyer/CartScreen';
 import { AddressSelection } from './components/buyer/AddressSelection';
 import { DeliveryScreen } from './components/buyer/DeliveryScreen';
@@ -61,6 +62,7 @@ export const router = createBrowserRouter([
       { path: 'buyer/search', element: <BuyerSearch /> },
       { path: 'buyer/profile', element: <BuyerProfile /> },
       { path: 'buyer/restaurant/:orgId', element: <RestaurantDetail /> },
+      { path: 'buyer/restaurant/:orgId/dish/:dishId', element: <DishDetail /> },
       { path: 'buyer/cart', element: <CartScreen /> },
       { path: 'buyer/delivery', element: <DeliveryScreen /> },
       { path: 'buyer/address-selection', element: <AddressSelection /> },

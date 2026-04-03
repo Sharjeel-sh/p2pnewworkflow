@@ -66,6 +66,10 @@ export interface Dish {
   category: string;
   isAvailable: boolean;
   image?: string; // optional image URL for dish
+  cuisineType?: string;
+  ingredients?: string[];
+  dietaryInfo?: string[];
+  availableQty?: number;
 }
 
 export interface CartItem {
@@ -217,8 +221,8 @@ const INITIAL_RIDERS: Rider[] = [
 ];
 
 const INITIAL_DISHES: Dish[] = [
-  { id: 'dish-001', orgId: 'org-001', name: 'Chicken Karahi', price: 750, description: 'Spicy and tender chicken in traditional Karahi style with tomatoes and spices', category: 'Main Course', isAvailable: true },
-  { id: 'dish-002', orgId: 'org-001', name: 'Beef Biryani', price: 350, description: 'Aromatic basmati rice cooked with premium beef and whole spices', category: 'Rice', isAvailable: true },
+  { id: 'dish-001', orgId: 'org-001', name: 'Chicken Karahi', price: 750, description: 'Spicy and tender chicken in traditional Karahi style with tomatoes and spices', category: 'Main Course', isAvailable: true, image: 'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=800&q=80', cuisineType: 'Pakistani', ingredients: ['Chicken', 'Tomato', 'Ginger', 'Garlic', 'Green chilies'], dietaryInfo: ['Non-vegetarian'], availableQty: 76 },
+  { id: 'dish-002', orgId: 'org-001', name: 'Beef Biryani', price: 350, description: 'Aromatic basmati rice cooked with premium beef and whole spices', category: 'Rice', isAvailable: true, image: 'https://images.unsplash.com/photo-1543779917-8095f7b6f157?auto=format&fit=crop&w=800&q=80', cuisineType: 'Indian', ingredients: ['Basmati rice', 'Beef', 'Spices'], dietaryInfo: ['Non-vegetarian'], availableQty: 45 },
   { id: 'dish-003', orgId: 'org-001', name: 'Seekh Kabab (6 pcs)', price: 450, description: 'Juicy minced beef kababs grilled on skewers with raita', category: 'Starters', isAvailable: true },
   { id: 'dish-004', orgId: 'org-001', name: 'Garlic Naan', price: 60, description: 'Freshly baked soft naan with garlic butter', category: 'Bread', isAvailable: true },
   { id: 'dish-005', orgId: 'org-001', name: 'Mango Lassi', price: 120, description: 'Chilled mango yogurt drink, refreshing and sweet', category: 'Drinks', isAvailable: true },

@@ -124,7 +124,11 @@ export function RestaurantDetail() {
             {filtered.map(dish => {
               const qty = getCartQty(dish.id);
               return (
-                <div key={dish.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex gap-3">
+                <div
+                  key={dish.id}
+                  onClick={() => navigate(`/buyer/restaurant/${orgId}/dish/${dish.id}`)}
+                  className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex gap-3 cursor-pointer hover:shadow-md transition-shadow"
+                >
                   <div className="w-16 h-16 bg-red-50 rounded-xl flex items-center justify-center flex-shrink-0">
                     <UtensilsCrossed size={24} className="text-red-300" />
                   </div>
@@ -153,7 +157,7 @@ export function RestaurantDetail() {
                       <p className="text-red-800" style={{ fontWeight: 700 }}>Rs. {dish.price}</p>
                       {qty === 0 ? (
                         <button
-                          onClick={() => handleAdd(dish)}
+                          onClick={(e) => { e.stopPropagation(); handleAdd(dish); }}
                           className="bg-red-700 text-white rounded-xl px-3.5 py-1.5 hover:bg-red-800 transition-colors flex items-center gap-1"
                           style={{ fontSize: '0.8rem', fontWeight: 600 }}
                         >
@@ -161,12 +165,12 @@ export function RestaurantDetail() {
                         </button>
                       ) : (
                         <div className="flex items-center gap-2 bg-red-50 rounded-xl p-1">
-                          <button onClick={() => handleDec(dish.id)}
+                          <button onClick={(e) => { e.stopPropagation(); handleDec(dish.id); }}
                             className="w-7 h-7 bg-red-700 text-white rounded-lg flex items-center justify-center hover:bg-red-800 transition-colors">
                             <Minus size={13} />
                           </button>
                           <span className="text-red-900 w-5 text-center" style={{ fontWeight: 700, fontSize: '0.9rem' }}>{qty}</span>
-                          <button onClick={() => handleInc(dish.id)}
+                          <button onClick={(e) => { e.stopPropagation(); handleInc(dish.id); }}
                             className="w-7 h-7 bg-red-700 text-white rounded-lg flex items-center justify-center hover:bg-red-800 transition-colors">
                             <Plus size={13} />
                           </button>
