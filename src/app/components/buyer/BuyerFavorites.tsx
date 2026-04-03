@@ -96,7 +96,8 @@ export function BuyerFavorites() {
                 {favoriteOrgs.map(org => (
                   <div
                     key={org.id}
-                    className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm"
+                    onClick={() => navigate(`/buyer/restaurant/${org.id}`)}
+                    className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                   >
                     <div className="h-32 overflow-hidden relative">
                       <img
@@ -107,7 +108,7 @@ export function BuyerFavorites() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                       <div className="absolute top-2 right-2">
                         <button
-                          onClick={() => toggleFavoriteKitchen(org.id)}
+                          onClick={(e) => { e.stopPropagation(); toggleFavoriteKitchen(org.id); }}
                           className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center"
                         >
                           <Heart size={16} className="text-red-500 fill-red-500" />
@@ -164,7 +165,8 @@ export function BuyerFavorites() {
                   return (
                     <div
                       key={dish.id}
-                      className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm"
+                      onClick={() => navigate(`/buyer/restaurant/${dish.orgId}/dish/${dish.id}`)}
+                      className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                     >
                       <div className="flex items-start gap-3">
                         <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
@@ -182,7 +184,7 @@ export function BuyerFavorites() {
                               {dish.name}
                             </h3>
                             <button
-                              onClick={() => toggleFavoriteDish(dish.id)}
+                              onClick={(e) => { e.stopPropagation(); toggleFavoriteDish(dish.id); }}
                               className="ml-2 flex-shrink-0"
                             >
                               <Heart size={16} className="text-red-500 fill-red-500" />
