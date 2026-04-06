@@ -249,7 +249,7 @@ export function KitchenOrderDashboard() {
   const isLoading = !orders.length;
   
   // State management
-  const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month' | 'custom'>('today');
+  const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month' | 'custom'>('month');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedView, setSelectedView] = useState<'overview' | 'analytics' | 'riders'>('overview');
   const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
@@ -511,19 +511,39 @@ export function KitchenOrderDashboard() {
     };
   }, [filteredOrders, riders]);
 
-  // Calculate peak hours
+  // Calculate peak hours / active days based on selected period
   const peakHours = useMemo<PeakHourData[]>(() => {
-    const hourCounts = new Array(24).fill(0);
-    filteredOrders.forEach(order => {
-      const hour = new Date(order.createdAt).getHours();
-      hourCounts[hour]++;
+    if (selectedPeriod === 'today') {
+      const hourCounts = new Array(24).fill(0);
+      filteredOrders.forEach(order => {
+        const hour = new Date(order.createdAt).getHours();
+        hourCounts[hour]++;
+      });
+      return hourCounts.map((count, hour) => ({
+        hour: `${hour.toString().padStart(2, '0')}:00`,
+        orders: count
+      }));
+    }
+
+    const daysInRange = Math.max(1, Math.ceil((dateRange.end.getTime() - dateRange.start.getTime()) / 86400000) + 1);
+    return Array.from({ length: daysInRange }, (_, idx) => {
+      const date = new Date(dateRange.start);
+      date.setDate(date.getDate() + idx);
+      const dayOrders = filteredOrders.filter(order =>
+        new Date(order.createdAt).toDateString() === date.toDateString()
+      );
+      const label = selectedPeriod === 'week'
+        ? date.toLocaleDateString(undefined, { weekday: 'short' })
+        : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      return {
+        hour: label,
+        orders: dayOrders.length
+      };
     });
-    
-    return hourCounts.map((count, hour) => ({
-      hour: `${hour.toString().padStart(2, '0')}:00`,
-      orders: count
-    }));
-  }, [filteredOrders]);
+  }, [filteredOrders, dateRange, selectedPeriod]);
+
+  const activeHoursTitle = selectedPeriod === 'today' ? 'Most Active Hours' : 'Most Active Days';
+  const activePeakLabel = selectedPeriod === 'today' ? 'Peak hour:' : 'Peak day:';
 
   // Sort riders based on selected criteria
   const sortedRiders = useMemo(() => {
@@ -810,14 +830,56 @@ export function KitchenOrderDashboard() {
               {/* KPI Cards */}
               <div className="px-5 grid grid-cols-2 gap-3">
                 <div className="bg-white rounded-2xl p-4 shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-medium text-gray-500">Total Orders</span>
                     <ShoppingBag size={16} className="text-blue-500" />
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">{dashboardStats.totalOrders}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Avg {formatCurrency(dashboardStats.averageOrderValue)}/order
-                  </p>
+                  <p className="text-xl font-bold text-gray-900 mb-2">{dashboardStats.totalOrders}</p>
+                  
+                  {/* Two Vertical Columns */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Left Side - Delivered & Ready for Pickup */}
+                    <div className="space-y-2">
+                      {/* Delivered */}
+                      <div className="bg-gradient-to-b from-emerald-600 to-emerald-700 rounded-lg p-3 text-white shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-semibold opacity-90">Delivered</span>
+                          <Truck size={10} className="opacity-80" />
+                        </div>
+                        <p className="text-xl font-bold">{dashboardStats.ordersByStatus['delivered']}</p>
+                      </div>
+                      
+                      {/* Ready for Pickup */}
+                      <div className="bg-gradient-to-b from-blue-600 to-blue-700 rounded-lg p-3 text-white shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-semibold opacity-90">Ready for Pickup</span>
+                          <Package size={10} className="opacity-80" />
+                        </div>
+                        <p className="text-xl font-bold">{dashboardStats.ordersByStatus['ready-for-pickup']}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Right Side - Cancelled & Rejected */}
+                    <div className="space-y-2">
+                      {/* Cancelled */}
+                      <div className="bg-gradient-to-b from-red-600 to-red-700 rounded-lg p-3 text-white shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-semibold opacity-90">Cancelled</span>
+                          <AlertCircle size={10} className="opacity-80" />
+                        </div>
+                        <p className="text-xl font-bold">{dashboardStats.ordersByStatus['cancelled']}</p>
+                      </div>
+                      
+                      {/* Rejected */}
+                      <div className="bg-gradient-to-b from-orange-600 to-orange-700 rounded-lg p-3 text-white shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-semibold opacity-90">Rejected</span>
+                          <X size={10} className="opacity-80" />
+                        </div>
+                        <p className="text-xl font-bold">{dashboardStats.ordersByStatus['pending payment']}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="bg-white rounded-2xl p-4 shadow-sm">
@@ -832,37 +894,12 @@ export function KitchenOrderDashboard() {
                 </div>
               </div>
 
-              {/* Order Status Summary */}
-              <div className="px-5 mt-4">
-                <div className="bg-white rounded-2xl p-4 shadow-sm">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <Package size={16} className="text-gray-500" />
-                    Order Status
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {Object.entries(dashboardStats.ordersByStatus).map(([status, count]) => (
-                      <div key={status} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          {getOrderStatusIcon(status)}
-                          <span className="text-xs text-gray-600 capitalize">
-                            {status === 'ready-for-pickup' ? 'Ready for Pickup' : status === 'pending payment' ? 'Pending Payment' : status}
-                          </span>
-                        </div>
-                        <span className={`text-sm font-semibold px-2 py-0.5 rounded-full ${getOrderStatusColor(status)}`}>
-                          {count}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
               {/* Peak Hours Analysis */}
               <div className="px-5 mt-4">
                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
                     <Clock size={16} className="mr-2 text-orange-500" />
-                    Peak Hours Analysis
+                    {activeHoursTitle}
                   </h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
@@ -877,7 +914,7 @@ export function KitchenOrderDashboard() {
                   </div>
                   <div className="mt-3 text-center">
                     <p className="text-xs text-gray-500">
-                      Peak hour: <span className="font-semibold text-orange-600">
+                      {activePeakLabel} <span className="font-semibold text-orange-600">
                         {peakHours.reduce((max, curr) => curr.orders > max.orders ? curr : max, peakHours[0])?.hour || 'N/A'}
                       </span>
                     </p>
