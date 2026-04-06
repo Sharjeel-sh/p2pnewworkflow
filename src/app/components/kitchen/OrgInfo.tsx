@@ -57,7 +57,7 @@ export function OrgInfo() {
             <p className="font-medium truncate max-w-[60%]">{org.address || 'N/A'}</p>
           </div>
           <div className="flex justify-between">
-            <p className="text-sm text-stone-500">NTN Number</p>
+            <p className="text-sm text-stone-500">Cnic Number</p>
             <p className="font-medium">{org.ntn || 'N/A'}</p>
           </div>
         </div>
