@@ -66,16 +66,12 @@ export function OrgProfile() {
             <ChevronLeft size={22} />
           </button>
           <h2 className="text-white flex-1 text-center" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Organization Profile</h2>
-          <button
-            onClick={() => updateOrganization(org.id, { verified: !org.verified })}
-            className="flex items-center"
-          >
-            {org?.verified ? <ShieldCheck size={55} className="text-green-400" /> : <AlertTriangle size={55} className="text-yellow-400" />}            <span className="ml-1 text-xs text-white">{org?.verified ? "Verified" : "Pending"}</span>          </button>
+          <div className="w-8" />
         </div>
       </div>
 
  {/* Organization image */}
-      <div className="flex justify-center mt-4">
+      <div className="flex justify-center mt-4 items-center gap-3">
         <div className="relative w-24 h-24 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
           <button
             type="button"
@@ -99,7 +95,15 @@ export function OrgProfile() {
             onChange={handleImagePick}
           />
         </div>
+        
+
       </div>
+      <div className="flex justify-end items-start px-5 mt-2">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md">
+          {org?.verified ? <ShieldCheck size={18} className="text-green-500" /> : <AlertTriangle size={18} className="text-yellow-500" />}
+        </div>
+      </div>
+      
       
 
       <div className="flex-1 overflow-y-auto px-5 py-5">
