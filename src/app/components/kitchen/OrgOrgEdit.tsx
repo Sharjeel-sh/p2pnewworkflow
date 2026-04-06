@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { ChevronLeft, Save } from 'lucide-react';
+import { ChevronLeft, Save, Camera } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { KitchenBottomNav } from './KitchenBottomNav';
 import { useApp } from '../../context/AppContext';
@@ -9,8 +9,13 @@ export function OrgOrgEdit() {
   const { currentUser, organizations, updateOrganization } = useApp();
   const navigate = useNavigate();
   const org = organizations.find(o => o.id === currentUser?.orgId);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     orgName: org?.orgName || '',
+    address: org?.address || '',
+    phone: org?.phone || '',
+    description: org?.description || '',
+    logoUrl: org?.profilePicture || org?.logoUrl || '',
     password: '',
     confirmPassword: '',
   });
@@ -26,12 +31,30 @@ export function OrgOrgEdit() {
     );
   }
 
+  const handleImagePick: React.ChangeEventHandler<HTMLInputElement> = e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result;
+      if (typeof result === 'string') {
+        setForm(prev => ({ ...prev, logoUrl: result }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSave = () => {
     // validate password match if provided
     if (form.password && form.password !== form.confirmPassword) {
       return;
     }
-    const updates: any = { orgName: form.orgName.trim() };
+    const updates: any = {
+      orgName: form.orgName.trim(),
+      address: form.address.trim(),
+      phone: form.phone.trim(),
+      profilePicture: form.logoUrl.trim(),
+    };
     if (form.password) updates.ownerPassword = form.password.trim();
     updateOrganization(org.id, updates);
     navigate('/kitchen/profile');
@@ -49,6 +72,34 @@ export function OrgOrgEdit() {
       </div>
       <div className="flex-1 overflow-y-auto px-5 py-5">
         <div className="space-y-4">
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative w-28 h-28 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute inset-0 z-10"
+              />
+              {form.logoUrl ? (
+                <img src={form.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <Camera size={36} />
+                </div>
+              )}
+              <div className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-md">
+                <Camera size={16} className="text-red-700" />
+              </div>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImagePick}
+            />
+            <p className="text-sm text-stone-500">Organization logo</p>
+          </div>
+
           <div>
             <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Organization Name</label>
             <input
@@ -59,22 +110,32 @@ export function OrgOrgEdit() {
             />
           </div>
           <div>
-            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>New Password</label>
+            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Address</label>
             <input
-              type="password"
-              value={form.password}
-              onChange={e => setForm(prev => ({ ...prev, password: e.target.value }))}
+              type="text"
+              value={form.address}
+              onChange={e => setForm(prev => ({ ...prev, address: e.target.value }))}
               className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-gray-50"
             />
           </div>
           <div>
-            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Confirm Password</label>
+            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Phone</label>
             <input
-              type="password"
-              value={form.confirmPassword}
-              onChange={e => setForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+              type="text"
+              value={form.phone}
+              onChange={e => setForm(prev => ({ ...prev, phone: e.target.value }))}
               className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-gray-50"
             />
+          </div>
+          <div>
+          </div>
+          <div>
+          </div>
+          <div>
+
+          </div>
+          <div>
+
           </div>
           <button
             onClick={handleSave}

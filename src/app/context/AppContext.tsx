@@ -20,6 +20,8 @@ export interface Organization {
   cnicFrontPhoto?: string;
   cnicBackPhoto?: string;
   profilePicture?: string;
+  logoUrl?: string;
+  description?: string;
   legalAgreementDoc?: string;
   notificationsEnabled?: boolean;
 }
