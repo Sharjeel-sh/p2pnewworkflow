@@ -108,7 +108,7 @@ export function OrgProfile() {
         <div className="space-y-3">
           {([
                 { icon: FileText, label: 'Organization Registration Details', action: () => navigate('/kitchen/profile/info') },
-              { icon: Building2, label: 'Edit Organization information', action: () => navigate('/kitchen/profile/org-edit') },
+              { icon: Building2, label: 'Change Organization Logo', action: () => navigate('/kitchen/profile/org-edit') },
               { icon: Building2, label: 'Edit owner profile information', action: () => navigate('/kitchen/profile/edit') },
               { icon: BarChart2, label: 'App Setting', action: () => navigate('/kitchen/profile/app-setting') },
               { icon: UserCog,   label: 'Manager',                       action: () => navigate('/kitchen/manager') },

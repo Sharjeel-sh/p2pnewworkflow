@@ -11,13 +11,7 @@ export function OrgOrgEdit() {
   const org = organizations.find(o => o.id === currentUser?.orgId);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
-    orgName: org?.orgName || '',
-    address: org?.address || '',
-    phone: org?.phone || '',
-    description: org?.description || '',
     logoUrl: org?.profilePicture || org?.logoUrl || '',
-    password: '',
-    confirmPassword: '',
   });
 
   if (!org) {
@@ -45,17 +39,9 @@ export function OrgOrgEdit() {
   };
 
   const handleSave = () => {
-    // validate password match if provided
-    if (form.password && form.password !== form.confirmPassword) {
-      return;
-    }
     const updates: any = {
-      orgName: form.orgName.trim(),
-      address: form.address.trim(),
-      phone: form.phone.trim(),
       profilePicture: form.logoUrl.trim(),
     };
-    if (form.password) updates.ownerPassword = form.password.trim();
     updateOrganization(org.id, updates);
     navigate('/kitchen/profile');
   };
@@ -67,7 +53,7 @@ export function OrgOrgEdit() {
           <button onClick={() => navigate(-1)} className="text-white p-1.5 rounded-full bg-white/15 hover:bg-white/25 transition-colors">
             <ChevronLeft size={22} />
           </button>
-          <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Edit Organization</h2>
+          <h2 className="text-white" style={{ fontSize: '1.3rem', fontWeight: 700 }}>Change Organization Logo</h2>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto px-5 py-5">
@@ -100,43 +86,6 @@ export function OrgOrgEdit() {
             <p className="text-sm text-stone-500">Organization logo</p>
           </div>
 
-          <div>
-            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Organization Name</label>
-            <input
-              type="text"
-              value={form.orgName}
-              onChange={e => setForm(prev => ({ ...prev, orgName: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-gray-50"
-            />
-          </div>
-          <div>
-            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Address</label>
-            <input
-              type="text"
-              value={form.address}
-              onChange={e => setForm(prev => ({ ...prev, address: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-gray-50"
-            />
-          </div>
-          <div>
-            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Phone</label>
-            <input
-              type="text"
-              value={form.phone}
-              onChange={e => setForm(prev => ({ ...prev, phone: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-gray-50"
-            />
-          </div>
-          <div>
-          </div>
-          <div>
-          </div>
-          <div>
-
-          </div>
-          <div>
-
-          </div>
           <button
             onClick={handleSave}
             className="w-full bg-red-700 text-white py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-800 transition-colors"
