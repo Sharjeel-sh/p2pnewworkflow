@@ -173,21 +173,24 @@ export function WelcomeScreen() {
         </div>
 
         {/* Action Buttons */}
-        <div className="px-6 mb-5">
-          {/* <button
-            onClick={createApplicationMockData}
-            className="w-full mb-3 py-3 rounded-2xl transition-colors"
-            style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', fontWeight: 700, fontSize: '0.9rem' }}
+        <div className="px-6 mb-5 space-y-3">
+          <button
+            onClick={() => {
+              resetApplicationData();
+              createApplicationMockData();
+            }}
+            className="w-full py-3 rounded-2xl transition-all"
+            style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.35)', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}
           >
-            Load Full Mock Data
+            Mock Data
           </button>
           <button
             onClick={resetApplicationData}
-            className="w-full mb-4 py-3 rounded-2xl transition-colors"
-            style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', fontWeight: 700, fontSize: '0.9rem' }}
+            className="w-full py-3 rounded-2xl transition-all"
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.22)', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}
           >
-            Clear All Data
-          </button> */}
+            Clear Mock Data
+          </button>
           <button
             onClick={handleGetStarted}
             className="w-full py-4 rounded-full bg-white active:scale-95 transition-all shadow-lg"
