@@ -12,7 +12,7 @@ const FOOD_IMGS = [
   'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=200&h=260&fit=crop', // paratha left mid
   'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=260&fit=crop', // nihari right mid
   'https://images.unsplash.com/photo-1567337710282-00832b415979?w=200&h=260&fit=crop', // bhindi left bot
-  'https://images.unsplash.com/photo-1574484284002-952d92a03a05?w=200&h=420&fit=crop', // curry (center tall bot)
+  'https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=200&h=420&fit=crop', // curry (center tall bot)
   'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=200&h=260&fit=crop', // biryani right bot
 ];
 
@@ -45,44 +45,44 @@ export function WelcomeScreen() {
       <div className="min-h-full bg-gradient-to-br from-white via-slate-50 to-slate-100 flex flex-col overflow-y-auto">
 
         {/* Food Image Grid with Overlay */}
-        <div className="relative px-5 pt-8 pb-12">
+        <div className="relative px-4 sm:px-5 pt-6 sm:pt-8 pb-8 sm:pb-12">
           <div className="relative">
-            <div className="grid grid-cols-3 gap-2.5" style={{ height: '16rem' }}>
+            <div className="grid grid-cols-3 gap-2 sm:gap-2.5 h-56 sm:h-64 overflow-hidden">
               {/* Left column — 3 equal rows */}
-              <div className="flex flex-col gap-2.5">
-                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+              <div className="flex flex-col gap-2 sm:gap-2.5 min-h-0">
+                <div className="rounded-2xl sm:rounded-3xl overflow-hidden flex-1 min-h-0 shadow-md hover:shadow-lg transition-shadow">
                   <img src={FOOD_IMGS[0]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </div>
-                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+                <div className="rounded-2xl sm:rounded-3xl overflow-hidden flex-1 min-h-0 shadow-md hover:shadow-lg transition-shadow">
                   <img src={FOOD_IMGS[3]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </div>
-                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+                <div className="rounded-2xl sm:rounded-3xl overflow-hidden flex-1 min-h-0 shadow-md hover:shadow-lg transition-shadow">
                   <img src={FOOD_IMGS[5]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </div>
               </div>
 
               {/* Center column — tall / heart / tall */}
-              <div className="flex flex-col gap-2.5">
-                <div className="rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-shadow" style={{ flex: 2.2 }}>
+              <div className="flex flex-col gap-2 sm:gap-2.5 min-h-0">
+                <div className="rounded-2xl sm:rounded-3xl overflow-hidden min-h-0 shadow-md hover:shadow-lg transition-shadow" style={{ flex: 2.2 }}>
                   <img src={FOOD_IMGS[1]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </div>
-                <div className="flex items-center justify-center bg-gradient-to-br from-red-600 to-red-700 rounded-3xl shadow-md">
-                  <Heart size={28} color="white" strokeWidth={1.5} className="drop-shadow-lg" />
+                <div className="flex items-center justify-center bg-gradient-to-br from-red-600 to-red-700 rounded-2xl sm:rounded-3xl shadow-md">
+                  <Heart size={24} color="white" strokeWidth={1.5} className="drop-shadow-lg sm:w-7 sm:h-7" />
                 </div>
-                <div className="rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-shadow" style={{ flex: 2.2 }}>
+                <div className="rounded-2xl sm:rounded-3xl overflow-hidden min-h-0 shadow-md hover:shadow-lg transition-shadow" style={{ flex: 2.2 }}>
                   <img src={FOOD_IMGS[6]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </div>
               </div>
 
               {/* Right column — 3 equal rows */}
-              <div className="flex flex-col gap-2.5">
-                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+              <div className="flex flex-col gap-2 sm:gap-2.5 min-h-0">
+                <div className="rounded-2xl sm:rounded-3xl overflow-hidden flex-1 min-h-0 shadow-md hover:shadow-lg transition-shadow">
                   <img src={FOOD_IMGS[2]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </div>
-                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+                <div className="rounded-2xl sm:rounded-3xl overflow-hidden flex-1 min-h-0 shadow-md hover:shadow-lg transition-shadow">
                   <img src={FOOD_IMGS[4]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </div>
-                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+                <div className="rounded-2xl sm:rounded-3xl overflow-hidden flex-1 min-h-0 shadow-md hover:shadow-lg transition-shadow">
                   <img src={FOOD_IMGS[7]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </div>
               </div>
@@ -91,18 +91,22 @@ export function WelcomeScreen() {
         </div>
 
         {/* Branding Section */}
-        <div className="px-6 pb-8">
+        <div className="px-4 sm:px-6 pt-2 pb-6 sm:pb-8">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-600 to-red-700 rounded-2xl mb-4 shadow-lg">
-              <span className="text-white text-2xl font-bold">P2P</span>
+            <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-red-600 to-red-700 rounded-2xl mb-3 sm:mb-4 shadow-lg">
+              <span className="text-white text-xl sm:text-2xl font-bold">P2P</span>
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">P2P Delivery</h1>
-            <p className="text-slate-600 font-medium">Connecting kitchens, riders, and hungry customers</p>
+            <h1 className="text-[clamp(1.7rem,5.2vw,2.2rem)] leading-tight font-bold text-slate-900 mb-2">
+              P2P Delivery
+            </h1>
+            <p className="mx-auto max-w-[30ch] text-[clamp(0.88rem,2.8vw,1rem)] leading-snug text-slate-600 font-medium">
+              Connecting kitchens, riders, and hungry customers
+            </p>
           </div>
         </div>
 
         {/* Role Selection Cards */}
-        <div className="px-6 pb-8">
+        <div className="px-4 sm:px-6 pb-6 sm:pb-8">
           <div className="mb-2">
             <p className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Choose Your Role</p>
           </div>
@@ -111,10 +115,10 @@ export function WelcomeScreen() {
               <button
                 key={opt.value}
                 onClick={() => setSelectedRole(opt.value)}
-                className={`group relative p-4 rounded-2xl text-left transition-all duration-300 transform ${
+                className={`group relative p-3.5 sm:p-4 rounded-2xl text-left transition-all duration-300 transform ${
                   selectedRole === opt.value 
                     ? 'ring-2 ring-red-600 shadow-lg scale-100' 
-                    : 'hover:shadow-md hover:scale-102'
+                    : 'hover:shadow-md hover:scale-[1.02]'
                 }`}
                 style={{
                   background: selectedRole === opt.value
@@ -123,7 +127,7 @@ export function WelcomeScreen() {
                 }}
               >
                 <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-2.5 sm:gap-3">
                     <div className={`p-3 rounded-xl transition-colors ${
                       selectedRole === opt.value
                         ? 'bg-gradient-to-br from-red-600 to-red-700'
@@ -134,12 +138,12 @@ export function WelcomeScreen() {
                       </span>
                     </div>
                     <div>
-                      <p className={`font-bold text-lg transition-colors ${
+                      <p className={`font-bold text-base sm:text-lg transition-colors ${
                         selectedRole === opt.value ? 'text-red-700' : 'text-slate-900'
                       }`}>
                         {opt.label}
                       </p>
-                      <p className="text-sm text-slate-600 mt-0.5">{opt.desc}</p>
+                      <p className="text-xs sm:text-sm text-slate-600 mt-0.5">{opt.desc}</p>
                     </div>
                   </div>
                   {selectedRole === opt.value && (
@@ -154,8 +158,8 @@ export function WelcomeScreen() {
         </div>
 
         {/* Info Box */}
-        <div className="px-6 mb-8">
-          <div className={`rounded-2xl p-4 backdrop-blur-sm border-2 transition-all ${
+        <div className="px-4 sm:px-6 mb-6 sm:mb-8">
+          <div className={`rounded-2xl p-3.5 sm:p-4 backdrop-blur-sm border-2 transition-all ${
             selectedRole === 'buyer' 
               ? 'border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50' 
               : selectedRole === 'kitchen'
@@ -163,17 +167,17 @@ export function WelcomeScreen() {
               : 'border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50'
           }`}>
             {selectedRole === 'buyer' && (
-              <p className="text-sm font-medium text-amber-900">
+              <p className="text-xs sm:text-sm font-medium text-amber-900">
                 ✨ Browse restaurants, customize orders, and track deliveries <strong>instantly</strong> without signup.
               </p>
             )}
             {selectedRole === 'kitchen' && (
-              <p className="text-sm font-medium text-red-900">
+              <p className="text-xs sm:text-sm font-medium text-red-900">
                 🏪 Register your organization, manage multiple branches, menus, and real-time orders.
               </p>
             )}
             {selectedRole === 'rider' && (
-              <p className="text-sm font-medium text-blue-900">
+              <p className="text-xs sm:text-sm font-medium text-blue-900">
                 🚴 Accept deliveries, track earnings, and build your reputation on the platform.
               </p>
             )}
@@ -181,13 +185,13 @@ export function WelcomeScreen() {
         </div>
 
         {/* Action Button */}
-        <div className="px-6 pb-8 flex-1 flex flex-col justify-end">
+        <div className="px-4 sm:px-6 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:pb-8 flex-1 flex flex-col justify-end">
           <button
             onClick={handleGetStarted}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-600 to-red-700 text-white font-bold text-lg transition-all duration-300 transform hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shadow-lg"
+            className="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-red-600 to-red-700 text-white font-bold text-base sm:text-lg transition-all duration-300 transform hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shadow-lg"
           >
             Get Started
-            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform sm:w-5 sm:h-5" />
           </button>
           
           {/* Secondary Info */}
