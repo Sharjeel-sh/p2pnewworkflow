@@ -66,9 +66,9 @@ export function ChatScreen() {
   // Determine current user's info for chat
   const getCurrentUserInfo = (): { name: string; role: UserRole } => {
     if (!currentUser) return { name: 'Guest', role: 'buyer' };
-    if (currentUser.role === 'kitchen') {
+    if (currentUser.role === 'kitchen' || currentUser.role === 'manager') {
       const org = organizations.find(o => o.id === currentUser.orgId);
-      return { name: org?.orgName || 'Kitchen', role: 'kitchen' };
+      return { name: org?.orgName || 'Kitchen', role: currentUser.role };
     }
     if (currentUser.role === 'rider') {
       const rider = riders.find(r => r.id === currentUser.riderId);
@@ -90,7 +90,7 @@ export function ChatScreen() {
   };
 
   const getBackPath = () => {
-    if (currentUser?.role === 'kitchen') return '/kitchen/order/dashboard';
+    if (currentUser?.role === 'kitchen' || currentUser?.role === 'manager') return '/kitchen/order/dashboard';
     if (currentUser?.role === 'rider') return '/rider/orders';
     return `/buyer/order/${orderId}`;
   };

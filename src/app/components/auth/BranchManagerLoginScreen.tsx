@@ -29,7 +29,7 @@ export function BranchManagerLoginScreen() {
       return;
     }
     setCurrentUser({
-      role: 'kitchen',
+      role: 'manager',
       orgId: branch.orgId,
       branchId: branch.id,
       managerName: branch.managerName || 'Branch Manager',

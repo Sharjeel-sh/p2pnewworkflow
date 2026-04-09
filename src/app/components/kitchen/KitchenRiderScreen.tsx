@@ -24,6 +24,23 @@ const EMPTY_FORM: RiderForm = {
   confirmPassword: '',
 };
 
+const generateOneTimePassword = () => {
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const numbers = '0123456789';
+  const symbols = '!@#$%^&*';
+  const allChars = uppercase + lowercase + numbers + symbols;
+  let password = '';
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+  password += symbols[Math.floor(Math.random() * symbols.length)];
+  for (let i = password.length; i < 12; i++) {
+    password += allChars[Math.floor(Math.random() * allChars.length)];
+  }
+  return password.split('').sort(() => Math.random() - 0.5).join('');
+};
+
 export function KitchenRiderScreen() {
   const { currentUser, riders, branches, orders, addRider, updateRider, deleteRider } = useApp();
   const managedBranchId = currentUser?.branchId;
@@ -110,15 +127,6 @@ export function KitchenRiderScreen() {
     if (!form.profilePicture.trim()) nextErrors.profilePicture = 'Rider image is required';
     if (!form.name.trim()) nextErrors.name = 'Rider name is required';
     if (shouldValidatePassword && !form.password.trim()) nextErrors.password = 'Password is required';
-    if (shouldValidatePassword && !form.confirmPassword.trim()) nextErrors.confirmPassword = 'Confirm password is required';
-    if (
-      shouldValidatePassword &&
-      form.password.trim() &&
-      form.confirmPassword.trim() &&
-      form.password.trim() !== form.confirmPassword.trim()
-    ) {
-      nextErrors.confirmPassword = 'Passwords do not match';
-    }
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
@@ -436,30 +444,29 @@ export function KitchenRiderScreen() {
               )}
 
               {(!editingRiderId || isPasswordUpdateEnabled) && (
-                <>
-                  <div>
-                    <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Password *</label>
-                    <input
-                      type="password"
-                      value={form.password}
-                      onChange={e => { setForm(prev => ({ ...prev, password: e.target.value })); if (errors.password) setErrors(prev => ({ ...prev, password: '' })); }}
-                      placeholder="Login password"
-                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.password ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
-                    />
-                    {errors.password && <p className="text-red-700 text-xs mt-0.5">{errors.password}</p>}
+                <div>
+                  <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Password *</label>
+                  <p className="text-stone-500 mb-2" style={{ fontSize: '0.72rem' }}>This is a one-time password</p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-gray-100 border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm text-stone-700 break-all min-h-10 flex items-center">
+                      {form.password ? form.password : <span className="text-stone-400">Click Generate to create password</span>}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newPassword = generateOneTimePassword();
+                        setForm(prev => ({ ...prev, password: newPassword, confirmPassword: newPassword }));
+                        if (errors.password) setErrors(prev => ({ ...prev, password: '' }));
+                        if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: '' }));
+                      }}
+                      className="flex-shrink-0 bg-red-700 text-white px-4 py-2.5 rounded-xl hover:bg-red-800 transition-colors text-sm font-medium"
+                      aria-label="Generate password"
+                    >
+                      Generate
+                    </button>
                   </div>
-                  <div>
-                    <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Confirm Password *</label>
-                    <input
-                      type="password"
-                      value={form.confirmPassword}
-                      onChange={e => { setForm(prev => ({ ...prev, confirmPassword: e.target.value })); if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: '' })); }}
-                      placeholder="Confirm password"
-                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.confirmPassword ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
-                    />
-                    {errors.confirmPassword && <p className="text-red-700 text-xs mt-0.5">{errors.confirmPassword}</p>}
-                  </div>
-                </>
+                  {errors.password && <p className="text-red-700 text-xs mt-0.5">{errors.password}</p>}
+                </div>
               )}
             </div>
 

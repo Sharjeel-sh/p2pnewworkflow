@@ -326,17 +326,18 @@ export function OrgRegistration() {
       verificationStatus: 'pending',
       ...(form.type === 'homemade'
         ? {
-            cnic: form.cnic.trim(),
-            cnicFrontPhoto: form.cnicFront?.fileName,
-            cnicBackPhoto: form.cnicBack?.fileName,
-            legalAgreementDoc: form.legalDoc?.fileName,
-          }
+          cnic: form.cnic.trim(),
+          cnicFrontPhoto: form.cnicFront?.fileName,
+          cnicBackPhoto: form.cnicBack?.fileName,
+          legalAgreementDoc: form.legalDoc?.fileName,
+        }
         : {
-            cnic: form.cnic.trim(),
-            ntn: form.ntn.trim(),
-            legalAgreementDoc: form.legalDoc?.fileName,
-          }
+          cnic: form.cnic.trim(),
+          ntn: form.ntn.trim(),
+          legalAgreementDoc: form.legalDoc?.fileName,
+        }
       ),
+      verified: undefined
     });
     // immediately sign in so the kitchen screens have context
     if (org) {
@@ -352,7 +353,7 @@ export function OrgRegistration() {
       <MobileLayout>
         <div className="flex-1 flex flex-col items-center justify-center px-6 gap-4">
           <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center">
-            <CheckCircle2 size={48} className="text-red-600" />
+            <CheckCircle2 size={48} className="text-green-600" />
           </div>
           <div className="text-center">
             <h2 className="text-stone-800 mb-2" style={{ fontWeight: 700, fontSize: '1.3rem' }}>
@@ -376,7 +377,7 @@ export function OrgRegistration() {
           <div className="w-full mt-3">
             <button
               onClick={() => navigate('/kitchen')}
-              className="w-full bg-teal-700 text-white py-3 rounded-xl hover:bg-teal-800 transition-colors"
+              className="w-full bg-red-700 text-white py-3 rounded-xl hover:bg-red-800 transition-colors"
               style={{ fontWeight: 700, fontSize: '0.9rem' }}
             >
               Continue to Kitchen

@@ -18,7 +18,8 @@ const FOOD_IMGS = [
 
 const ROLE_OPTIONS: { value: UserRole; label: string; icon: React.ReactNode; desc: string }[] = [
   { value: 'buyer', label: 'Buyer', icon: <ShoppingBag size={20} />, desc: 'Browse & order food' },
-  { value: 'kitchen', label: 'Kitchen', icon: <Utensils size={20} />, desc: 'Manage your restaurant' },
+  { value: 'kitchen', label: 'Restaurant', icon: <Utensils size={20} />, desc: 'Manage your kitchen' },
+  { value: 'manager', label: 'Manager', icon: <Utensils size={20} />, desc: 'Manage your branch' },
   { value: 'rider', label: 'Rider', icon: <Bike size={20} />, desc: 'Deliver orders' },
 ];
 
@@ -36,6 +37,8 @@ export function WelcomeScreen() {
       navigate('/buyer');
     } else if (selectedRole === 'kitchen') {
       navigate('/kitchen/onboarding');
+    } else if (selectedRole === 'manager') {
+      navigate('/kitchen/manager/login');
     } else if (selectedRole === 'rider') {
       navigate('/rider/login');
     }
@@ -160,6 +163,13 @@ export function WelcomeScreen() {
             <div className="rounded-2xl p-3.5" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
               <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.82rem' }}>
                 As a <strong>Kitchen</strong>, register your organization to manage branches, menus, and orders.
+              </p>
+            </div>
+          )}
+          {selectedRole === 'manager' && (
+            <div className="rounded-2xl p-3.5" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.82rem' }}>
+                As a <strong>Manager</strong>, log in using credentials provided by your kitchen owner to manage your branch.
               </p>
             </div>
           )}

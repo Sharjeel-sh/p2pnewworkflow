@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
-export type UserRole = 'buyer' | 'kitchen' | 'rider' | 'system';
+export type UserRole = 'buyer' | 'kitchen' | 'manager' | 'rider' | 'system';
 export type OrgType = 'homemade' | 'restaurant';
 export type OrderStatus = 'pending' | 'accepted' | 'preparing' | 'ready' | 'picked_up' | 'delivered';
 

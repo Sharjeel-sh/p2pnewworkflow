@@ -48,7 +48,7 @@ const EMPTY_BRANCH: BranchForm = {
   managerPassword: '',
   selectedManagerBranchId: '',
 };
-type ModalStep = 'branchDetails' | 'branchOperations' | 'branchLocation' | null;
+type ModalStep = 'branchDetails' | 'branchOperations' | null;
 
 const DEFAULT_MAP_CENTER = { lat: 24.8607, lng: 67.0011 };
 const MAP_ZOOM = 15;
@@ -244,16 +244,6 @@ export function KitchenBranchesScreen() {
     }
     setBranchErrors({});
     setModalStep('branchOperations');
-  };
-
-  const handleContinueToLocationStep = () => {
-    const errs = validateBranchOperations();
-    if (Object.keys(errs).length > 0) {
-      setBranchErrors(errs);
-      return;
-    }
-    setBranchErrors({});
-    setModalStep('branchLocation');
   };
 
   // ── Branch submit ──────────────────────────────────────────────────────────
@@ -476,14 +466,13 @@ export function KitchenBranchesScreen() {
                   </button>
                   <div className="flex-1">
                     <h3 className="text-stone-800" style={{ fontWeight: 700, fontSize: '1.15rem' }}>New Branch</h3>
-                    <p className="text-stone-400" style={{ fontSize: '0.78rem' }}>Step 1 of 3 — Branch details</p>
+                    <p className="text-stone-400" style={{ fontSize: '0.78rem' }}>Step 1 of 2 — Branch details & location</p>
                   </div>
                 </div>
 
                 {/* Step dots */}
                 <div className="flex gap-2 px-6 mb-5">
                   <div className="h-1.5 flex-1 rounded-full bg-red-700" />
-                  <div className="h-1.5 flex-1 rounded-full bg-gray-200" />
                   <div className="h-1.5 flex-1 rounded-full bg-gray-200" />
                 </div>
 
@@ -517,32 +506,93 @@ export function KitchenBranchesScreen() {
                       )}
                       {f.k === 'stateProvince' && (
                         <p className="text-stone-400 mt-1" style={{ fontSize: '0.72rem' }}>
-                          You can set or adjust these based on the map in the next step.
+                          You can set or adjust these based on the map below.
                         </p>
                       )}
                     </div>
                   ))}
 
-                  <div>
-                    <label className="block text-stone-600 mb-1.5" style={{ fontSize: '0.83rem', fontWeight: 500 }}>
-                      Branch Manager
-                    </label>
-                    <select
-                      value={branchForm.selectedManagerBranchId}
-                      onChange={e => updateBranchForm('selectedManagerBranchId', e.target.value)}
-                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none bg-gray-50 focus:border-red-600 transition-colors"
-                      style={{ fontSize: '0.93rem' }}
+                  <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-stone-800" style={{ fontSize: '0.88rem', fontWeight: 600 }}>
+                          Branch Location on Map
+                        </p>
+                        <p className="text-stone-400" style={{ fontSize: '0.74rem' }}>
+                          Tap on map to pick kitchen location
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleUseCurrentLocation}
+                        disabled={isLocatingOnMap}
+                        className="inline-flex items-center gap-1 text-red-800 bg-red-50 border border-red-100 px-2.5 py-1.5 rounded-lg disabled:opacity-60"
+                        style={{ fontSize: '0.72rem', fontWeight: 600 }}
+                      >
+                        {isLocatingOnMap ? <Loader size={12} className="animate-spin" /> : <Navigation size={12} />}
+                        Current
+                      </button>
+                    </div>
+
+                    <div
+                      ref={mapPickerRef}
+                      onClick={handleMapClick}
+                      className="relative w-full overflow-hidden rounded-xl border border-gray-200 bg-white cursor-crosshair"
                     >
-                      <option value="">No manager selected</option>
-                      {managerBranches.map(branch => (
-                        <option key={branch.id} value={branch.id}>
-                          {branch.managerName || 'Unnamed Manager'} ({branch.name})
-                        </option>
-                      ))}
-                    </select>
-                    <p className="text-stone-400 mt-1" style={{ fontSize: '0.72rem' }}>
-                      Select an existing manager profile for this branch.
-                    </p>
+                      <img
+                        src={getMapImageUrl(mapCenter.lat, mapCenter.lng)}
+                        alt="Map picker"
+                        className="w-full h-44 object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <MapPin size={20} className="text-red-700 drop-shadow" />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <p className="text-stone-400" style={{ fontSize: '0.72rem' }}>
+                        Lat: {mapCenter.lat.toFixed(5)}, Lng: {mapCenter.lng.toFixed(5)}
+                      </p>
+                      {isResolvingMapAddress && (
+                        <p className="text-red-700 flex items-center gap-1" style={{ fontSize: '0.72rem' }}>
+                          <Loader size={11} className="animate-spin" />
+                          Fetching address...
+                        </p>
+                      )}
+                    </div>
+                    {mapSuggestedAddress && addressEditedManually && (
+                      <div className="rounded-lg border border-blue-100 bg-blue-50 p-2.5">
+                        <p className="text-blue-700" style={{ fontSize: '0.72rem' }}>
+                          Map suggested address available.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBranchForm(prev => ({
+                              ...prev,
+                              houseNo: mapSuggestedAddress.houseNo || prev.houseNo,
+                              streetBlock: mapSuggestedAddress.streetBlock || prev.streetBlock,
+                              city: mapSuggestedAddress.city || prev.city,
+                              stateProvince: mapSuggestedAddress.stateProvince || prev.stateProvince,
+                              country: mapSuggestedAddress.country || prev.country,
+                            }));
+                            setBranchErrors(prev => ({
+                              ...prev,
+                              houseNo: '',
+                              streetBlock: '',
+                              city: '',
+                              stateProvince: '',
+                              country: '',
+                            }));
+                            setAddressEditedManually(false);
+                          }}
+                          className="text-blue-700 mt-1 underline"
+                          style={{ fontSize: '0.72rem', fontWeight: 600 }}
+                        >
+                          Use map address
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <button
@@ -566,14 +616,13 @@ export function KitchenBranchesScreen() {
                   </button>
                   <div className="flex-1">
                     <h3 className="text-stone-800" style={{ fontWeight: 700, fontSize: '1.15rem' }}>Kitchen Operations</h3>
-                    <p className="text-stone-400" style={{ fontSize: '0.78rem' }}>Step 2 of 3 — Delivery and timings</p>
+                    <p className="text-stone-400" style={{ fontSize: '0.78rem' }}>Step 2 of 2 — Delivery and timings</p>
                   </div>
                 </div>
 
                 <div className="flex gap-2 px-6 mb-5">
                   <div className="h-1.5 flex-1 rounded-full bg-red-600" />
                   <div className="h-1.5 flex-1 rounded-full bg-red-700" />
-                  <div className="h-1.5 flex-1 rounded-full bg-gray-200" />
                 </div>
 
                 <div className="px-6 space-y-4 pb-6">
@@ -679,121 +728,6 @@ export function KitchenBranchesScreen() {
                       </div>
                     </div>
                   )}
-
-                  <button
-                    onClick={handleContinueToLocationStep}
-                    className="w-full bg-red-700 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-800 active:scale-95 transition-all shadow-lg shadow-red-200 mt-2"
-                    style={{ fontWeight: 700, fontSize: '0.97rem' }}
-                  >
-                    Next: Kitchen Location
-                    <ArrowRight size={18} />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── STEP 3: Kitchen Location ──────────────────────────────── */}
-            {modalStep === 'branchLocation' && (
-              <div className="min-h-full">
-                <div className="flex items-center justify-between px-6 pb-3 pt-6">
-                  <button onClick={() => setModalStep('branchOperations')} className="text-stone-500 mr-2">
-                    <ChevronLeft size={20} />
-                  </button>
-                  <div className="flex-1">
-                    <h3 className="text-stone-800" style={{ fontWeight: 700, fontSize: '1.15rem' }}>Kitchen Location</h3>
-                    <p className="text-stone-400" style={{ fontSize: '0.78rem' }}>Step 3 of 3 — Set location on map</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 px-6 mb-5">
-                  <div className="h-1.5 flex-1 rounded-full bg-red-600" />
-                  <div className="h-1.5 flex-1 rounded-full bg-red-600" />
-                  <div className="h-1.5 flex-1 rounded-full bg-red-700" />
-                </div>
-
-                <div className="px-6 space-y-4 pb-6">
-                  <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="text-stone-800" style={{ fontSize: '0.88rem', fontWeight: 600 }}>
-                          Branch Location on Map
-                        </p>
-                        <p className="text-stone-400" style={{ fontSize: '0.74rem' }}>
-                          Tap on map to pick kitchen location
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleUseCurrentLocation}
-                        disabled={isLocatingOnMap}
-                        className="inline-flex items-center gap-1 text-red-800 bg-red-50 border border-red-100 px-2.5 py-1.5 rounded-lg disabled:opacity-60"
-                        style={{ fontSize: '0.72rem', fontWeight: 600 }}
-                      >
-                        {isLocatingOnMap ? <Loader size={12} className="animate-spin" /> : <Navigation size={12} />}
-                        Current
-                      </button>
-                    </div>
-
-                    <div
-                      ref={mapPickerRef}
-                      onClick={handleMapClick}
-                      className="relative w-full overflow-hidden rounded-xl border border-gray-200 bg-white cursor-crosshair"
-                    >
-                      <img
-                        src={getMapImageUrl(mapCenter.lat, mapCenter.lng)}
-                        alt="Map picker"
-                        className="w-full h-44 object-cover"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <MapPin size={20} className="text-red-700 drop-shadow" />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <p className="text-stone-400" style={{ fontSize: '0.72rem' }}>
-                        Lat: {mapCenter.lat.toFixed(5)}, Lng: {mapCenter.lng.toFixed(5)}
-                      </p>
-                      {isResolvingMapAddress && (
-                        <p className="text-red-700 flex items-center gap-1" style={{ fontSize: '0.72rem' }}>
-                          <Loader size={11} className="animate-spin" />
-                          Fetching address...
-                        </p>
-                      )}
-                    </div>
-                    {mapSuggestedAddress && addressEditedManually && (
-                      <div className="rounded-lg border border-blue-100 bg-blue-50 p-2.5">
-                        <p className="text-blue-700" style={{ fontSize: '0.72rem' }}>
-                          Map suggested address available.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setBranchForm(prev => ({
-                              ...prev,
-                              houseNo: mapSuggestedAddress.houseNo || prev.houseNo,
-                              streetBlock: mapSuggestedAddress.streetBlock || prev.streetBlock,
-                              city: mapSuggestedAddress.city || prev.city,
-                              stateProvince: mapSuggestedAddress.stateProvince || prev.stateProvince,
-                              country: mapSuggestedAddress.country || prev.country,
-                            }));
-                            setBranchErrors(prev => ({
-                              ...prev,
-                              houseNo: '',
-                              streetBlock: '',
-                              city: '',
-                              stateProvince: '',
-                              country: '',
-                            }));
-                            setAddressEditedManually(false);
-                          }}
-                          className="text-blue-700 mt-1 underline"
-                          style={{ fontSize: '0.72rem', fontWeight: 600 }}
-                        >
-                          Use map address
-                        </button>
-                      </div>
-                    )}
-                  </div>
 
                   <button
                     onClick={handleCreateBranch}
