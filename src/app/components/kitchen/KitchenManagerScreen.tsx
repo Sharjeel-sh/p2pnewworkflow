@@ -12,7 +12,6 @@ interface ManagerForm {
   managerImage: string;
   managerPhone: string;
   managerPassword: string;
-  confirmManagerPassword: string;
 }
 
 const EMPTY_FORM: ManagerForm = {
@@ -21,7 +20,23 @@ const EMPTY_FORM: ManagerForm = {
   managerImage: '',
   managerPhone: '',
   managerPassword: '',
-  confirmManagerPassword: '',
+};
+
+const generateOneTimePassword = () => {
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const numbers = '0123456789';
+  const symbols = '!@#$%^&*';
+  const allChars = uppercase + lowercase + numbers + symbols;
+  let password = '';
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+  password += symbols[Math.floor(Math.random() * symbols.length)];
+  for (let i = password.length; i < 12; i++) {
+    password += allChars[Math.floor(Math.random() * allChars.length)];
+  }
+  return password.split('').sort(() => Math.random() - 0.5).join('');
 };
 
 export function KitchenManagerScreen() {
@@ -44,7 +59,7 @@ export function KitchenManagerScreen() {
 
   const openAdd = () => {
     setEditingBranchId(null);
-    setIsPasswordUpdateEnabled(true);
+    setIsPasswordUpdateEnabled(false);
     setErrors({});
     setForm({
       ...EMPTY_FORM,
@@ -65,27 +80,18 @@ export function KitchenManagerScreen() {
       managerImage: branch.managerImage || '',
       managerPhone: branch.managerPhone || '',
       managerPassword: branch.managerPassword || '',
-      confirmManagerPassword: branch.managerPassword || '',
     });
     setShowModal(true);
   };
 
   const handleSave = () => {
     const nextErrors: Partial<ManagerForm> = {};
-    const shouldValidatePassword = !editingBranchId || isPasswordUpdateEnabled;
     if (!form.branchId) nextErrors.branchId = 'Branch is required';
     if (!form.managerName.trim()) nextErrors.managerName = 'Manager name is required';
     if (!form.managerImage.trim()) nextErrors.managerImage = 'Manager image is required';
     if (!form.managerPhone.trim()) nextErrors.managerPhone = 'Phone is required';
-    if (shouldValidatePassword && !form.managerPassword.trim()) nextErrors.managerPassword = 'Password is required';
-    if (shouldValidatePassword && !form.confirmManagerPassword.trim()) nextErrors.confirmManagerPassword = 'Confirm password is required';
-    if (shouldValidatePassword && (
-      form.managerPassword.trim() &&
-      form.confirmManagerPassword.trim() &&
-      form.managerPassword.trim() !== form.confirmManagerPassword.trim()
-    )) {
-      nextErrors.confirmManagerPassword = 'Passwords do not match';
-    }
+    if (!form.managerPassword.trim()) nextErrors.managerPassword = 'Password is required';
+    
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
@@ -383,31 +389,28 @@ export function KitchenManagerScreen() {
               )}
 
               {(!editingBranchId || isPasswordUpdateEnabled) && (
-                <>
-                  <div>
-                    <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Password *</label>
-                    <input
-                      type="password"
-                      value={form.managerPassword}
-                      onChange={e => { setForm(prev => ({ ...prev, managerPassword: e.target.value })); if (errors.managerPassword) setErrors(prev => ({ ...prev, managerPassword: '' })); }}
-                      placeholder="Manager password"
-                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.managerPassword ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
-                    />
-                    {errors.managerPassword && <p className="text-red-700 text-xs mt-0.5">{errors.managerPassword}</p>}
+                <div>
+                  <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Password *</label>
+                  <p className="text-stone-500 mb-2" style={{ fontSize: '0.72rem' }}>This is a one-time password</p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-gray-100 border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm text-stone-700 break-all min-h-10 flex items-center">
+                      {form.managerPassword ? form.managerPassword : <span className="text-stone-400">Click Generate to create password</span>}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newPassword = generateOneTimePassword();
+                        setForm(prev => ({ ...prev, managerPassword: newPassword }));
+                        if (errors.managerPassword) setErrors(prev => ({ ...prev, managerPassword: '' }));
+                      }}
+                      className="flex-shrink-0 bg-red-700 text-white px-4 py-2.5 rounded-xl hover:bg-red-800 transition-colors text-sm font-medium"
+                      aria-label="Generate password"
+                    >
+                      Generate
+                    </button>
                   </div>
-
-                  <div>
-                    <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Confirm Password *</label>
-                    <input
-                      type="password"
-                      value={form.confirmManagerPassword}
-                      onChange={e => { setForm(prev => ({ ...prev, confirmManagerPassword: e.target.value })); if (errors.confirmManagerPassword) setErrors(prev => ({ ...prev, confirmManagerPassword: '' })); }}
-                      placeholder="Confirm manager password"
-                      className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.confirmManagerPassword ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
-                    />
-                    {errors.confirmManagerPassword && <p className="text-red-700 text-xs mt-0.5">{errors.confirmManagerPassword}</p>}
-                  </div>
-                </>
+                  {errors.managerPassword && <p className="text-red-700 text-xs mt-0.5">{errors.managerPassword}</p>}
+                </div>
               )}
             </div>
 
