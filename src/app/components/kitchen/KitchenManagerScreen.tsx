@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { User, Phone, KeyRound, Pencil, Copy, Check, Plus, X, Camera, MoreVertical, Trash2 } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { TopBar } from '../shared/TopBar';
@@ -56,6 +56,21 @@ export function KitchenManagerScreen() {
   const [form, setForm] = useState<ManagerForm>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<ManagerForm>>({});
   const managerImageInputRef = useRef<HTMLInputElement>(null);
+  const phoneDigits = form.managerPhone.replace(/\D/g, '');
+  const isPhoneComplete = phoneDigits.length >= 10;
+
+  // Auto-generate password for "Create Manager" once phone is complete.
+  // For "Edit Manager", password changes are explicit via the toggle + Regenerate button.
+  useEffect(() => {
+    const isCreate = !editingBranchId;
+    if (!isCreate) return;
+    if (!isPhoneComplete) return;
+    if (form.managerPassword.trim()) return;
+    const newPassword = generateOneTimePassword();
+    setForm(prev => ({ ...prev, managerPassword: newPassword }));
+    if (errors.managerPassword) setErrors(prev => ({ ...prev, managerPassword: '' }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingBranchId, isPhoneComplete, phoneDigits]);
 
   const openAdd = () => {
     setEditingBranchId(null);
@@ -396,18 +411,20 @@ export function KitchenManagerScreen() {
                     <div className="flex-1 bg-gray-100 border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm text-stone-700 break-all min-h-10 flex items-center">
                       {form.managerPassword ? form.managerPassword : <span className="text-stone-400">Click Generate to create password</span>}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newPassword = generateOneTimePassword();
-                        setForm(prev => ({ ...prev, managerPassword: newPassword }));
-                        if (errors.managerPassword) setErrors(prev => ({ ...prev, managerPassword: '' }));
-                      }}
-                      className="flex-shrink-0 bg-red-700 text-white px-4 py-2.5 rounded-xl hover:bg-red-800 transition-colors text-sm font-medium"
-                      aria-label="Generate password"
-                    >
-                      Generate
-                    </button>
+                    {Boolean(editingBranchId) && isPhoneComplete && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newPassword = generateOneTimePassword();
+                          setForm(prev => ({ ...prev, managerPassword: newPassword }));
+                          if (errors.managerPassword) setErrors(prev => ({ ...prev, managerPassword: '' }));
+                        }}
+                        className="flex-shrink-0 bg-red-700 text-white px-4 py-2.5 rounded-xl hover:bg-red-800 transition-colors text-sm font-medium"
+                        aria-label={editingBranchId ? 'Regenerate password' : 'Generate password'}
+                      >
+                        Regenerate
+                      </button>
+                    )}
                   </div>
                   {errors.managerPassword && <p className="text-red-700 text-xs mt-0.5">{errors.managerPassword}</p>}
                 </div>
