@@ -177,6 +177,21 @@ interface AppContextType extends AppState {
 }
 
 const STORAGE_KEY = 'quickbite_app_state';
+const STORAGE_CURRENT_USER_KEY = 'quickbite_current_user';
+
+function loadCurrentUser(): CurrentUser | null {
+  try {
+    const saved = localStorage.getItem(STORAGE_CURRENT_USER_KEY);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved);
+    if (!parsed || typeof parsed !== 'object') return null;
+    // minimal validation to avoid breaking older/invalid storage
+    if (typeof parsed.role !== 'string') return null;
+    return parsed as CurrentUser;
+  } catch {
+    return null;
+  }
+}
 
 const INITIAL_ORGS: Organization[] = [
   {
@@ -369,7 +384,7 @@ function loadState(): AppState {
 const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [currentUser, setCurrentUserState] = useState<CurrentUser | null>(null);
+  const [currentUser, setCurrentUserState] = useState<CurrentUser | null>(loadCurrentUser);
   const [state, setState] = useState<AppState>(loadState);
 
   useEffect(() => {
@@ -379,6 +394,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       console.error('Failed to save state:', e);
     }
   }, [state]);
+
+  useEffect(() => {
+    try {
+      if (!currentUser) {
+        localStorage.removeItem(STORAGE_CURRENT_USER_KEY);
+      } else {
+        localStorage.setItem(STORAGE_CURRENT_USER_KEY, JSON.stringify(currentUser));
+      }
+    } catch (e) {
+      console.error('Failed to save current user:', e);
+    }
+  }, [currentUser]);
 
   const setCurrentUser = useCallback((user: CurrentUser | null) => {
     setCurrentUserState(user);
@@ -795,6 +822,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setCurrentUserState(null);
     try {
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_CURRENT_USER_KEY);
     } catch (e) {
       console.error('Failed to clear app storage:', e);
     }

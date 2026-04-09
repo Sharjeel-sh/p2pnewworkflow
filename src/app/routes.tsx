@@ -7,6 +7,11 @@ import { RiderLoginScreen } from './components/auth/RiderLoginScreen';
 import { BranchManagerLoginScreen } from './components/auth/BranchManagerLoginScreen';
 import { KitchenOnboardingScreen } from './components/auth/KitchenOnboardingScreen';
 import { KitchenOwnerLoginScreen } from './components/auth/KitchenOwnerLoginScreen';
+import { VendorRegistrationScreen } from './components/auth/VendorRegistrationScreen';
+import { VendorOTPVerificationScreen } from './components/auth/VendorOTPVerificationScreen';
+import { VendorOrganizationRegistrationScreen } from './components/auth/VendorOrganizationRegistrationScreen';
+import { VendorUploadCNICScreen } from './components/auth/VendorUploadCNICScreen';
+import { VendorUploadDocumentsScreen } from './components/auth/VendorUploadDocumentsScreen';
 import { BuyerFavorites } from './components/buyer/BuyerFavorites';
 import { BuyerHome } from './components/buyer/BuyerHome';
 import { BuyerSearch } from './components/buyer/BuyerSearch';
@@ -53,6 +58,11 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <WelcomeScreen /> },
       { path: 'signup', element: <SignupScreen /> },
+      { path: 'vendor/register', element: <VendorRegistrationScreen /> },
+      { path: 'vendor/otp-verify', element: <VendorOTPVerificationScreen /> },
+      { path: 'vendor/organization-register', element: <VendorOrganizationRegistrationScreen /> },
+      { path: 'vendor/upload-cnic', element: <VendorUploadCNICScreen /> },
+      { path: 'vendor/upload-documents', element: <VendorUploadDocumentsScreen /> },
       { path: 'kitchen/onboarding', element: <KitchenOnboardingScreen /> },
       { path: 'kitchen/login', element: <KitchenOwnerLoginScreen /> },
       { path: 'rider/login', element: <RiderLoginScreen /> },
