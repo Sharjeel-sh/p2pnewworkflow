@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ChevronDown, Utensils, Bike, ShoppingBag, Heart } from 'lucide-react';
+import { Utensils, Bike, ShoppingBag, Heart, ArrowRight } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { useApp } from '../../context/AppContext';
 import type { UserRole } from '../../context/AppContext';
@@ -16,17 +16,16 @@ const FOOD_IMGS = [
   'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=200&h=260&fit=crop', // biryani right bot
 ];
 
-const ROLE_OPTIONS: { value: UserRole; label: string; icon: React.ReactNode; desc: string }[] = [
-  { value: 'buyer', label: 'Buyer', icon: <ShoppingBag size={20} />, desc: 'Browse & order food' },
-  { value: 'kitchen', label: 'Kitchen', icon: <Utensils size={20} />, desc: 'Manage your restaurant' },
-  { value: 'rider', label: 'Rider', icon: <Bike size={20} />, desc: 'Deliver orders' },
+const ROLE_OPTIONS: { value: UserRole; label: string; icon: React.ReactNode; desc: string; color: string }[] = [
+  { value: 'buyer', label: 'Buyer', icon: <ShoppingBag size={24} />, desc: 'Browse & order food', color: 'from-amber-50 to-orange-50' },
+  { value: 'kitchen', label: 'Kitchen', icon: <Utensils size={24} />, desc: 'Manage your restaurant', color: 'from-red-50 to-pink-50' },
+  { value: 'rider', label: 'Rider', icon: <Bike size={24} />, desc: 'Deliver orders', color: 'from-blue-50 to-cyan-50' },
 ];
 
 export function WelcomeScreen() {
   const [selectedRole, setSelectedRole] = useState<UserRole>('buyer');
-  const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
-  const { setCurrentUser, createApplicationMockData, resetApplicationData } = useApp();
+  const { setCurrentUser } = useApp();
 
   const selectedOption = ROLE_OPTIONS.find(r => r.value === selectedRole)!;
 
@@ -43,163 +42,158 @@ export function WelcomeScreen() {
 
   return (
     <MobileLayout>
-      <div className="min-h-full bg-red-800 flex flex-col overflow-y-auto">
+      <div className="min-h-full bg-gradient-to-br from-white via-slate-50 to-slate-100 flex flex-col overflow-y-auto">
 
-        {/* Food Image Grid */}
-        <div className="px-5 pt-10 pb-8">
-          <div className="grid grid-cols-3 gap-2" style={{ height: '17rem' }}>
-            {/* Left column — 3 equal rows */}
-            <div className="flex flex-col gap-2">
-              <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[0]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+        {/* Food Image Grid with Overlay */}
+        <div className="relative px-5 pt-8 pb-12">
+          <div className="relative">
+            <div className="grid grid-cols-3 gap-2.5" style={{ height: '16rem' }}>
+              {/* Left column — 3 equal rows */}
+              <div className="flex flex-col gap-2.5">
+                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+                  <img src={FOOD_IMGS[0]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                </div>
+                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+                  <img src={FOOD_IMGS[3]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                </div>
+                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+                  <img src={FOOD_IMGS[5]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                </div>
               </div>
-              <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[3]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
-              </div>
-              <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[5]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
-              </div>
-            </div>
 
-            {/* Center column — tall / heart / tall */}
-            <div className="flex flex-col gap-2">
-              <div className="rounded-2xl overflow-hidden" style={{ flex: 2.2 }}>
-                <img src={FOOD_IMGS[1]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+              {/* Center column — tall / heart / tall */}
+              <div className="flex flex-col gap-2.5">
+                <div className="rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-shadow" style={{ flex: 2.2 }}>
+                  <img src={FOOD_IMGS[1]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex items-center justify-center bg-gradient-to-br from-red-600 to-red-700 rounded-3xl shadow-md">
+                  <Heart size={28} color="white" strokeWidth={1.5} className="drop-shadow-lg" />
+                </div>
+                <div className="rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-shadow" style={{ flex: 2.2 }}>
+                  <img src={FOOD_IMGS[6]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                </div>
               </div>
-              <div className="flex items-center justify-center" style={{ flex: 0.7 }}>
-                <Heart size={26} color="white" strokeWidth={1.5} />
-              </div>
-              <div className="rounded-2xl overflow-hidden" style={{ flex: 2.2 }}>
-              </div>
-            </div>
 
-            {/* Right column — 3 equal rows */}
-            <div className="flex flex-col gap-2">
-              <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[2]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
-              </div>
-              <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[4]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
-              </div>
-              <div className="rounded-2xl overflow-hidden flex-1">
-                <img src={FOOD_IMGS[7]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+              {/* Right column — 3 equal rows */}
+              <div className="flex flex-col gap-2.5">
+                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+                  <img src={FOOD_IMGS[2]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                </div>
+                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+                  <img src={FOOD_IMGS[4]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                </div>
+                <div className="rounded-3xl overflow-hidden flex-1 shadow-md hover:shadow-lg transition-shadow">
+                  <img src={FOOD_IMGS[7]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Branding */}
-        <div className="text-center px-25 pt-25 pb-10">
-          <h1 className="text-white" style={{ fontSize: '2.0rem', fontWeight: 800, letterSpacing: '-1px', lineHeight: 1 }}>
-            P2P
-          </h1>
-          <p className="text-white mt-1" style={{ fontSize: '0.9rem', fontWeight: 700 }}>
-            Food Delivery App
-          </p>
+        {/* Branding Section */}
+        <div className="px-6 pb-8">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-600 to-red-700 rounded-2xl mb-4 shadow-lg">
+              <span className="text-white text-2xl font-bold">P2P</span>
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">P2P Delivery</h1>
+            <p className="text-slate-600 font-medium">Connecting kitchens, riders, and hungry customers</p>
+          </div>
         </div>
 
-        {/* Role Selector */}
-        <div className="px-6 py-6">
-          <div className="relative">
-            <button
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="w-full rounded-2xl px-4 py-3.5 flex items-center justify-between"
-              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-white">{selectedOption.icon}</span>
-                <div className="text-left">
-                  <p className="text-white" style={{ fontWeight: 600 }}>{selectedOption.label}</p>
-                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.78rem' }}>{selectedOption.desc}</p>
-                </div>
-              </div>
-              <ChevronDown
-                size={20}
-                color="rgba(255,255,255,0.8)"
-                className={`transition-transform ${showDropdown ? 'rotate-180' : ''}`}
-              />
-            </button>
-
-            {showDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl z-20 overflow-hidden">
-                {ROLE_OPTIONS.map(opt => (
-                  <button
-                    key={opt.value}
-                    onClick={() => { setSelectedRole(opt.value); setShowDropdown(false); }}
-                    className={`w-full px-4 py-3.5 flex items-center gap-3 transition-colors ${selectedRole === opt.value ? 'bg-red-50' : 'hover:bg-gray-50'}`}
-                  >
-                    <span className={selectedRole === opt.value ? 'text-red-700' : 'text-stone-400'}>
-                      {opt.icon}
-                    </span>
-                    <div className="text-left">
-                      <p className={selectedRole === opt.value ? 'text-red-800' : 'text-stone-800'} style={{ fontWeight: 600 }}>
+        {/* Role Selection Cards */}
+        <div className="px-6 pb-8">
+          <div className="mb-2">
+            <p className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Choose Your Role</p>
+          </div>
+          <div className="grid grid-cols-1 gap-3">
+            {ROLE_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setSelectedRole(opt.value)}
+                className={`group relative p-4 rounded-2xl text-left transition-all duration-300 transform ${
+                  selectedRole === opt.value 
+                    ? 'ring-2 ring-red-600 shadow-lg scale-100' 
+                    : 'hover:shadow-md hover:scale-102'
+                }`}
+                style={{
+                  background: selectedRole === opt.value
+                    ? 'linear-gradient(135deg, rgba(255,255,255,1), rgba(254,242,242,1))'
+                    : `linear-gradient(135deg, rgba(255,255,255,0.8), rgba(249,250,251,0.8))`
+                }}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className={`p-3 rounded-xl transition-colors ${
+                      selectedRole === opt.value
+                        ? 'bg-gradient-to-br from-red-600 to-red-700'
+                        : 'bg-gradient-to-br from-slate-100 to-slate-200'
+                    }`}>
+                      <span className={selectedRole === opt.value ? 'text-white' : 'text-slate-700'}>
+                        {opt.icon}
+                      </span>
+                    </div>
+                    <div>
+                      <p className={`font-bold text-lg transition-colors ${
+                        selectedRole === opt.value ? 'text-red-700' : 'text-slate-900'
+                      }`}>
                         {opt.label}
                       </p>
-                      <p className="text-stone-400" style={{ fontSize: '0.78rem' }}>{opt.desc}</p>
+                      <p className="text-sm text-slate-600 mt-0.5">{opt.desc}</p>
                     </div>
-                    {selectedRole === opt.value && (
-                      <div className="ml-auto w-2 h-2 bg-red-700 rounded-full" />
-                    )}
-                  </button>
-                ))}
-              </div>
+                  </div>
+                  {selectedRole === opt.value && (
+                    <div className="text-red-600 animate-pulse">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-600" />
+                    </div>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div className="px-6 mb-8">
+          <div className={`rounded-2xl p-4 backdrop-blur-sm border-2 transition-all ${
+            selectedRole === 'buyer' 
+              ? 'border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50' 
+              : selectedRole === 'kitchen'
+              ? 'border-red-200 bg-gradient-to-br from-red-50 to-pink-50'
+              : 'border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50'
+          }`}>
+            {selectedRole === 'buyer' && (
+              <p className="text-sm font-medium text-amber-900">
+                ✨ Browse restaurants, customize orders, and track deliveries <strong>instantly</strong> without signup.
+              </p>
+            )}
+            {selectedRole === 'kitchen' && (
+              <p className="text-sm font-medium text-red-900">
+                🏪 Register your organization, manage multiple branches, menus, and real-time orders.
+              </p>
+            )}
+            {selectedRole === 'rider' && (
+              <p className="text-sm font-medium text-blue-900">
+                🚴 Accept deliveries, track earnings, and build your reputation on the platform.
+              </p>
             )}
           </div>
         </div>
 
-        {/* Info box */}
-        <div className="px-6 ">
-          {selectedRole === 'buyer' && (
-            <div className="rounded-2xl p-3.5" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
-              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.82rem' }}>
-                As a <strong>Buyer</strong>, you can browse restaurants and place orders without signing up.
-              </p>
-            </div>
-          )}
-          {selectedRole === 'kitchen' && (
-            <div className="rounded-2xl p-3.5" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
-              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.82rem' }}>
-                As a <strong>Kitchen</strong>, register your organization to manage branches, menus, and orders.
-              </p>
-            </div>
-          )}
-          {selectedRole === 'rider' && (
-            <div className="rounded-2xl p-3.5" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
-              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.82rem' }}>
-                As a <strong>Rider</strong>, log in using credentials provided by your kitchen manager.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="px-6 mb-5">
-          {/* <button
-            onClick={createApplicationMockData}
-            className="w-full mb-3 py-3 rounded-2xl transition-colors"
-            style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', fontWeight: 700, fontSize: '0.9rem' }}
-          >
-            Load Full Mock Data
-          </button>
-          <button
-            onClick={resetApplicationData}
-            className="w-full mb-4 py-3 rounded-2xl transition-colors"
-            style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', fontWeight: 700, fontSize: '0.9rem' }}
-          >
-            Clear All Data
-          </button> */}
+        {/* Action Button */}
+        <div className="px-6 pb-8 flex-1 flex flex-col justify-end">
           <button
             onClick={handleGetStarted}
-            className="w-full py-4 rounded-full bg-white active:scale-95 transition-all shadow-lg"
-            style={{ fontWeight: 800, fontSize: '1.1rem', color: '#dc2626' }}
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-600 to-red-700 text-white font-bold text-lg transition-all duration-300 transform hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shadow-lg"
           >
             Get Started
+            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </button>
-        </div>
-
-        {/* Terms */}
-        <div className="text-center py-5">
-          <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.82rem' }}>Terms &amp; Conditions</p>
+          
+          {/* Secondary Info */}
+          <p className="text-center text-xs text-slate-500 font-medium mt-4 uppercase tracking-widest">
+            Terms & Conditions Apply
+          </p>
         </div>
 
       </div>
