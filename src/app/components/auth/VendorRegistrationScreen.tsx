@@ -151,12 +151,14 @@ export function VendorRegistrationScreen() {
                 }}
                 placeholder="3001234567"
                 inputMode="numeric"
+                minLength={10}
                 maxLength={10}
                 className={`w-full px-4 py-3 rounded-2xl border-2 focus:outline-none transition-colors ${
                   errors.phone ? 'border-red-400 bg-red-50' : 'border-gray-300 focus:border-red-700'
                 }`}
                 style={{ fontSize: '0.95rem' }}
               />
+              <p className="text-gray-500 text-xs mt-1">Phone number must be 10 digits</p>
               {errors.phone && (
                 <p className="text-red-600 text-xs mt-1">{errors.phone}</p>
               )}

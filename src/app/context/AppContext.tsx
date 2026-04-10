@@ -340,6 +340,18 @@ function slugify(value: string, fallback: string): string {
   return cleaned || fallback;
 }
 
+function normalizePhoneForLogin(value: string): string {
+  const digits = value.replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.length > 11 && digits.startsWith('92')) {
+    return `0${digits.slice(-10)}`;
+  }
+  if (digits.length === 10) {
+    return `0${digits}`;
+  }
+  return digits.slice(-11);
+}
+
 function loadState(): AppState {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -870,8 +882,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const loginKitchenOwner = useCallback((phone: string, password: string): Organization | null => {
+    const normalizedInputPhone = normalizePhoneForLogin(phone);
     const found = state.organizations.find(
-      o => o.phone === phone && o.ownerPassword === password,
+      o => normalizePhoneForLogin(o.phone) === normalizedInputPhone && o.ownerPassword === password,
     );
     return found ?? null;
   }, [state.organizations]);

@@ -47,10 +47,15 @@ export function KitchenManagerScreen() {
     () => orgBranches.filter(b => b.managerName || b.managerPhone || b.managerPassword || b.managerImage),
     [orgBranches],
   );
+  const createEligibleBranches = useMemo(
+    () => orgBranches.filter(b => !(b.managerName || b.managerPhone || b.managerPassword || b.managerImage)),
+    [orgBranches],
+  );
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [openMenuBranchId, setOpenMenuBranchId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showReplaceConfirmSheet, setShowReplaceConfirmSheet] = useState(false);
   const [editingBranchId, setEditingBranchId] = useState<string | null>(null);
   const [isPasswordUpdateEnabled, setIsPasswordUpdateEnabled] = useState(false);
   const [form, setForm] = useState<ManagerForm>(EMPTY_FORM);
@@ -78,9 +83,10 @@ export function KitchenManagerScreen() {
     setErrors({});
     setForm({
       ...EMPTY_FORM,
-      branchId: orgBranches[0]?.id || '',
+      branchId: createEligibleBranches[0]?.id || '',
     });
     setShowModal(true);
+    setShowReplaceConfirmSheet(false);
   };
 
   const openEdit = (branchId: string) => {
@@ -97,6 +103,29 @@ export function KitchenManagerScreen() {
       managerPassword: branch.managerPassword || '',
     });
     setShowModal(true);
+    setShowReplaceConfirmSheet(false);
+  };
+
+  const completeSave = () => {
+    const targetBranchId = form.branchId.trim();
+
+    const managerPayload = {
+      managerName: form.managerName.trim(),
+      managerImage: form.managerImage.trim(),
+      managerPhone: form.managerPhone.trim(),
+      managerPassword: form.managerPassword.trim(),
+    };
+
+    // Do not clear/remove any previously assigned manager block.
+    // Only assign/update the selected branch.
+    updateBranch(targetBranchId, managerPayload);
+
+    setShowReplaceConfirmSheet(false);
+    setShowModal(false);
+    setEditingBranchId(null);
+    setIsPasswordUpdateEnabled(false);
+    setForm(EMPTY_FORM);
+    setErrors({});
   };
 
   const handleSave = () => {
@@ -112,27 +141,20 @@ export function KitchenManagerScreen() {
       return;
     }
 
-    if (editingBranchId && editingBranchId !== form.branchId) {
-      updateBranch(editingBranchId, {
-        managerName: '',
-        managerImage: '',
-        managerPhone: '',
-        managerPassword: '',
-      });
+    const targetBranch = orgBranches.find(b => b.id === form.branchId);
+    const targetBranchHasManager = Boolean(
+      targetBranch?.managerName || targetBranch?.managerPhone || targetBranch?.managerPassword || targetBranch?.managerImage,
+    );
+    const sourceBranchId = editingBranchId?.trim() || '';
+    const targetBranchId = form.branchId.trim();
+    const isReplacingExistingManager = Boolean(sourceBranchId && targetBranchHasManager && sourceBranchId !== targetBranchId);
+
+    if (isReplacingExistingManager) {
+      setShowReplaceConfirmSheet(true);
+      return;
     }
 
-    updateBranch(form.branchId, {
-      managerName: form.managerName.trim(),
-      managerImage: form.managerImage.trim(),
-      managerPhone: form.managerPhone.trim(),
-      managerPassword: form.managerPassword.trim(),
-    });
-
-    setShowModal(false);
-    setEditingBranchId(null);
-    setIsPasswordUpdateEnabled(false);
-    setForm(EMPTY_FORM);
-    setErrors({});
+    completeSave();
   };
 
   const handleManagerImagePick: React.ChangeEventHandler<HTMLInputElement> = event => {
@@ -354,14 +376,21 @@ export function KitchenManagerScreen() {
                 <label className="block text-stone-600 mb-1" style={{ fontSize: '0.82rem', fontWeight: 500 }}>Branch *</label>
                 <select
                   value={form.branchId}
-                  onChange={e => { setForm(prev => ({ ...prev, branchId: e.target.value })); if (errors.branchId) setErrors(prev => ({ ...prev, branchId: '' })); }}
+                  onChange={e => {
+                    setForm(prev => ({ ...prev, branchId: e.target.value }));
+                    if (showReplaceConfirmSheet) setShowReplaceConfirmSheet(false);
+                    if (errors.branchId) setErrors(prev => ({ ...prev, branchId: '' }));
+                  }}
                   className={`w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 ${errors.branchId ? 'border-red-300' : 'border-gray-200 focus:border-red-600'}`}
                 >
                   <option value="">Select Branch</option>
-                  {orgBranches.map(branch => (
+                  {(editingBranchId ? orgBranches : createEligibleBranches).map(branch => (
                     <option key={branch.id} value={branch.id}>{branch.name}</option>
                   ))}
                 </select>
+                {!editingBranchId && createEligibleBranches.length === 0 && (
+                  <p className="text-amber-700 text-xs mt-1">All branches already have managers assigned.</p>
+                )}
                 {errors.branchId && <p className="text-red-700 text-xs mt-0.5">{errors.branchId}</p>}
               </div>
 
@@ -439,6 +468,38 @@ export function KitchenManagerScreen() {
               {editingBranchId ? 'Update Manager' : 'Create Manager'}
             </button>
           </div>
+
+          {showReplaceConfirmSheet && (
+            <div className="absolute inset-0 bg-black/30 z-40 flex items-end">
+              <div className="w-full bg-white rounded-t-3xl p-5 border-t border-gray-200 shadow-2xl">
+                <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
+                <h4 className="text-stone-800 mb-2" style={{ fontWeight: 700, fontSize: '1rem' }}>
+                  Branch Already Has Manager
+                </h4>
+                <p className="text-stone-600 mb-4" style={{ fontSize: '0.88rem', lineHeight: 1.5 }}>
+                  This branch already has a manager assigned. Assigning a new manager will remove the previous manager from this branch. Do you want to continue?
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowReplaceConfirmSheet(false)}
+                    className="flex-1 py-3 rounded-xl border border-gray-300 text-stone-700 hover:bg-gray-50"
+                    style={{ fontWeight: 600 }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={completeSave}
+                    className="flex-1 py-3 rounded-xl bg-red-700 text-white hover:bg-red-800"
+                    style={{ fontWeight: 700 }}
+                  >
+                    Yes, Replace
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </MobileLayout>
