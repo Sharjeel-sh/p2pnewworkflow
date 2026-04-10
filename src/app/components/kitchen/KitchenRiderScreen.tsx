@@ -59,6 +59,23 @@ export function KitchenRiderScreen() {
   const [openMenuRiderId, setOpenMenuRiderId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(8);
   const riderImageInputRef = useRef<HTMLInputElement>(null);
+  const riderPhoneDigits = form.phone.replace(/\D/g, '');
+  const isRiderPhoneComplete = riderPhoneDigits.length >= 10;
+
+  // Auto-generate password for create flow once phone is complete.
+  // For edit flow, password changes are controlled by the toggle + Regenerate button.
+  useEffect(() => {
+    const isCreate = !editingRiderId;
+    if (!isCreate) return;
+    if (!isRiderPhoneComplete) return;
+    if (form.password.trim()) return;
+    const newPassword = generateOneTimePassword();
+    setForm(prev => ({ ...prev, password: newPassword, confirmPassword: newPassword }));
+    if (errors.password || errors.confirmPassword) {
+      setErrors(prev => ({ ...prev, password: '', confirmPassword: '' }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingRiderId, isRiderPhoneComplete, riderPhoneDigits]);
 
   const deliveredCountMap = useMemo(() => {
     const map: Record<string, number> = {};
@@ -228,7 +245,6 @@ export function KitchenRiderScreen() {
             style={{ fontWeight: 700, fontSize: '0.82rem' }}
           >
             <Plus size={15} />
-            Add Rider
           </button>
         </div>
 
@@ -451,19 +467,21 @@ export function KitchenRiderScreen() {
                     <div className="flex-1 bg-gray-100 border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm text-stone-700 break-all min-h-10 flex items-center">
                       {form.password ? form.password : <span className="text-stone-400">Click Generate to create password</span>}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newPassword = generateOneTimePassword();
-                        setForm(prev => ({ ...prev, password: newPassword, confirmPassword: newPassword }));
-                        if (errors.password) setErrors(prev => ({ ...prev, password: '' }));
-                        if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: '' }));
-                      }}
-                      className="flex-shrink-0 bg-red-700 text-white px-4 py-2.5 rounded-xl hover:bg-red-800 transition-colors text-sm font-medium"
-                      aria-label="Generate password"
-                    >
-                      Generate
-                    </button>
+                    {isRiderPhoneComplete && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newPassword = generateOneTimePassword();
+                          setForm(prev => ({ ...prev, password: newPassword, confirmPassword: newPassword }));
+                          if (errors.password) setErrors(prev => ({ ...prev, password: '' }));
+                          if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: '' }));
+                        }}
+                        className="flex-shrink-0 bg-red-700 text-white px-4 py-2.5 rounded-xl hover:bg-red-800 transition-colors text-sm font-medium"
+                        aria-label="Regenerate password"
+                      >
+                        Regenerate
+                      </button>
+                    )}
                   </div>
                   {errors.password && <p className="text-red-700 text-xs mt-0.5">{errors.password}</p>}
                 </div>

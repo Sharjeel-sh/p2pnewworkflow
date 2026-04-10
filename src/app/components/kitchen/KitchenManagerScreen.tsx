@@ -440,7 +440,7 @@ export function KitchenManagerScreen() {
                     <div className="flex-1 bg-gray-100 border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm text-stone-700 break-all min-h-10 flex items-center">
                       {form.managerPassword ? form.managerPassword : <span className="text-stone-400">Click Generate to create password</span>}
                     </div>
-                    {Boolean(editingBranchId) && isPhoneComplete && (
+                    {isPhoneComplete && (
                       <button
                         type="button"
                         onClick={() => {
