@@ -11,7 +11,7 @@ export function SignupScreen() {
 
   const handleDemoKitchen = (orgId: string) => {
     setCurrentUser({ role: 'kitchen', orgId });
-    navigate('/kitchen');
+    navigate('/kitchen/dashboard');
   };
 
   return (

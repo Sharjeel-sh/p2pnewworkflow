@@ -36,7 +36,7 @@ export function KitchenProfile() {
       <div className="flex-1 overflow-y-auto px-5 py-5">
         <div className="space-y-3">
           {([
-            { icon: User,     label: 'Edit profile information', action: () => navigate('/kitchen/profile/edit') },
+            { icon: User,     label: 'Edit Organization', action: () => navigate('/kitchen/profile/edit') },
             { icon: GitBranch, label: 'Edit branch details', action: () => navigate('/kitchen/profile/branch-edit') },
             { icon: FileText, label: 'Coupons',                action: () => navigate('/kitchen/profile/coupons') },
             { icon: FileText, label: 'Discounts',              action: () => navigate('/kitchen/profile/discounts') },           

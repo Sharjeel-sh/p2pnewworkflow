@@ -9,6 +9,8 @@ export function OrgProfile() {
   const { currentUser, organizations, updateOrganization, setCurrentUser } = useApp();
   const navigate = useNavigate();
   const org = organizations.find(o => o.id === currentUser?.orgId);
+  const isVerified = Boolean(org?.verified) || org?.verificationStatus === 'verified';
+  const isPendingReview = org?.verificationStatus === 'pending' || !isVerified;
   const isBranchManager = Boolean(currentUser?.branchId);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
@@ -100,8 +102,13 @@ export function OrgProfile() {
       </div>
       <div className="flex justify-end items-start px-5 mt-2">
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md">
-          {org?.verified ? <ShieldCheck size={18} className="text-green-500" /> : <AlertTriangle size={18} className="text-yellow-500" />}
+          {isVerified ? <ShieldCheck size={18} className="text-green-500" /> : <AlertTriangle size={18} className="text-yellow-500" />}
         </div>
+      </div>
+      <div className="px-5 mt-2 flex justify-end">
+        <span className={`text-xs px-2.5 py-1 rounded-full ${isVerified ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+          {isVerified ? 'Verified' : isPendingReview ? 'Under Review' : 'Unverified'}
+        </span>
       </div>
       
       
@@ -112,8 +119,7 @@ export function OrgProfile() {
         <div className="space-y-3">
           {([
                 { icon: FileText, label: 'Organization Registration Details', action: () => navigate('/kitchen/profile/info') },
-              { icon: Building2, label: 'Change Organization Logo', action: () => navigate('/kitchen/profile/org-edit') },
-              { icon: Building2, label: 'Edit owner profile information', action: () => navigate('/kitchen/profile/edit') },
+              { icon: Building2, label: 'Edit Organization', action: () => navigate('/kitchen/profile/edit') },
               { icon: BarChart2, label: 'App Setting', action: () => navigate('/kitchen/profile/app-setting') },
               { icon: UserCog,   label: 'Manager',                       action: () => navigate('/kitchen/manager') },
               { icon: Bike,      label: 'Rider',                         action: () => navigate('/kitchen/rider') },
@@ -244,12 +250,21 @@ export function OrgEdit() {
   const { currentUser, organizations, updateOrganization } = useApp();
   const navigate = useNavigate();
   const org = organizations.find(o => o.id === currentUser?.orgId);
+  const cnicFrontInputRef = useRef<HTMLInputElement>(null);
+  const cnicBackInputRef = useRef<HTMLInputElement>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
-    ownerName: org?.ownerName || '',
+    phone: org?.phone || '',
+    orgName: org?.orgName || '',
     ownerEmail: org?.ownerEmail || '',
-    password: '',
-    confirmPassword: '',
+    cnic: org?.cnic || '',
+    cnicFrontPhoto: org?.cnicFrontPhoto || '',
+    cnicBackPhoto: org?.cnicBackPhoto || '',
+    legalAgreementDoc: org?.legalAgreementDoc || '',
+    logoUrl: org?.profilePicture || org?.logoUrl || '',
   });
+  const [showReviewPopup, setShowReviewPopup] = useState(false);
 
   if (!org) {
     return (
@@ -260,19 +275,41 @@ export function OrgEdit() {
     );
   }
 
+  const handleFilePick =
+    (key: 'cnicFrontPhoto' | 'cnicBackPhoto' | 'legalAgreementDoc' | 'logoUrl'): React.ChangeEventHandler<HTMLInputElement> =>
+    e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result;
+        if (typeof result === 'string') {
+          setForm(prev => ({ ...prev, [key]: result }));
+        }
+      };
+      reader.readAsDataURL(file);
+    };
+
   const handleSave = () => {
-    // validate password only if provided
-    if (form.password && form.password !== form.confirmPassword) {
-      return;
-    }
     if (form.ownerEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.ownerEmail)) {
       return;
     }
-    const updates: any = { ownerName: form.ownerName.trim() };
-    if (form.ownerEmail) updates.ownerEmail = form.ownerEmail.trim();
-    if (form.password) updates.ownerPassword = form.password.trim();
+    const updates: any = {
+      phone: form.phone.trim(),
+      orgName: form.orgName.trim(),
+      ownerEmail: form.ownerEmail.trim(),
+      cnic: form.cnic.trim(),
+      cnicFrontPhoto: form.cnicFrontPhoto,
+      cnicBackPhoto: form.cnicBackPhoto,
+      legalAgreementDoc: form.legalAgreementDoc,
+      profilePicture: form.logoUrl,
+      logoUrl: form.logoUrl,
+      verificationStatus: 'pending',
+      verified: false,
+    };
+
     updateOrganization(org.id, updates);
-    navigate('/kitchen/profile');
+    setShowReviewPopup(true);
   };
 
   return (
@@ -287,17 +324,53 @@ export function OrgEdit() {
       </div>
       <div className="flex-1 overflow-y-auto px-5 py-5">
         <div className="space-y-4">
-          <div>
-            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Owner Name</label>
+          <div className="flex flex-col items-center gap-2">
+            <div className="relative w-24 h-24 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => logoInputRef.current?.click()}
+                className="absolute inset-0 z-10"
+              />
+              {form.logoUrl ? (
+                <img src={form.logoUrl} alt="Organization logo" className="w-full h-full object-cover" />
+              ) : (
+                <Camera size={32} className="text-gray-400" />
+              )}
+              <div className="absolute bottom-0 right-0 bg-white rounded-full p-1.5 shadow-md">
+                <Camera size={14} className="text-red-700" />
+              </div>
+            </div>
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFilePick('logoUrl')}
+            />
+            <p className="text-xs text-stone-500">Tap image icon to update logo</p>
+          </div>
+                    <div>
+            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Organization Name</label>
             <input
               type="text"
-              value={form.ownerName}
-              onChange={e => setForm(prev => ({ ...prev, ownerName: e.target.value }))}
+              value={form.orgName}
+              onChange={e => setForm(prev => ({ ...prev, orgName: e.target.value }))}
               className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-gray-50"
             />
           </div>
+
           <div>
-            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Email</label>
+            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Phone Number</label>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={e => setForm(prev => ({ ...prev, phone: e.target.value }))}
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-gray-50"
+            />
+          </div>
+
+          <div>
+            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Email Address</label>
             <input
               type="email"
               value={form.ownerEmail}
@@ -306,23 +379,76 @@ export function OrgEdit() {
             />
           </div>
           <div>
-            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>New Password</label>
+            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>CNIC Number</label>
             <input
-              type="password"
-              value={form.password}
-              onChange={e => setForm(prev => ({ ...prev, password: e.target.value }))}
+              type="text"
+              value={form.cnic}
+              onChange={e => setForm(prev => ({ ...prev, cnic: e.target.value }))}
               className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-gray-50"
             />
           </div>
-          <div>
-            <label className="block text-stone-600 mb-1 text-sm" style={{ fontWeight: 500 }}>Confirm Password</label>
-            <input
-              type="password"
-              value={form.confirmPassword}
-              onChange={e => setForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-gray-50"
-            />
+
+          <div className="pt-2">
+            <p className="text-stone-700 text-sm mb-3" style={{ fontWeight: 600 }}>Document &amp; Image Update Options</p>
+
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => cnicFrontInputRef.current?.click()}
+                className="w-full text-left p-3 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                <p className="text-sm text-stone-800" style={{ fontWeight: 600 }}>CNIC Upload Option - Front Side Image</p>
+                <p className="text-xs text-stone-500 mt-1">{form.cnicFrontPhoto ? 'Front image selected' : 'Tap to upload/update front side image'}</p>
+              </button>
+              <input
+                ref={cnicFrontInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFilePick('cnicFrontPhoto')}
+              />
+
+              <button
+                type="button"
+                onClick={() => cnicBackInputRef.current?.click()}
+                className="w-full text-left p-3 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                <p className="text-sm text-stone-800" style={{ fontWeight: 600 }}>CNIC Upload Option - Back Side Image</p>
+                <p className="text-xs text-stone-500 mt-1">{form.cnicBackPhoto ? 'Back image selected' : 'Tap to upload/update back side image'}</p>
+              </button>
+              <input
+                ref={cnicBackInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFilePick('cnicBackPhoto')}
+              />
+
+              <button
+                type="button"
+                onClick={() => documentInputRef.current?.click()}
+                className="w-full text-left p-3 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                <p className="text-sm text-stone-800" style={{ fontWeight: 600 }}>Document Upload Option</p>
+                <p className="text-xs text-stone-500 mt-1">{form.legalAgreementDoc ? 'Document selected' : 'Tap to upload/update required documents'}</p>
+              </button>
+              <input
+                ref={documentInputRef}
+                type="file"
+                accept="image/*,.pdf,.doc,.docx"
+                className="hidden"
+                onChange={handleFilePick('legalAgreementDoc')}
+              />
+            </div>
+
           </div>
+
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5">
+            <p className="text-[12px] text-amber-800" style={{ fontWeight: 500 }}>
+              Disclaimer: When you update organization details, your organization status becomes unverified and is sent for a new review. It will be verified again after successful checking.
+            </p>
+          </div>
+
           <button
             onClick={handleSave}
             className="w-full bg-red-700 text-white py-3.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-red-800 transition-colors"
@@ -332,7 +458,30 @@ export function OrgEdit() {
           </button>
         </div>
       </div>
-      <KitchenBottomNav />
+
+      {showReviewPopup && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4">
+          <div className="w-full max-w-sm bg-white rounded-2xl p-5 shadow-xl">
+            <h3 className="text-stone-900 text-lg mb-2" style={{ fontWeight: 700 }}>
+              Update Submitted
+            </h3>
+            <p className="text-sm text-stone-600">
+              Your updated organization details were submitted. Organization status is now unverified and pending review until verified again.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setShowReviewPopup(false);
+                navigate('/kitchen/profile/organization');
+              }}
+              className="w-full mt-4 bg-red-700 text-white py-2.5 rounded-xl hover:bg-red-800 transition-colors"
+              style={{ fontWeight: 700 }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </MobileLayout>
   );
 }

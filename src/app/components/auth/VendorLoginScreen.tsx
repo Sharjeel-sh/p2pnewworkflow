@@ -5,21 +5,8 @@ import { MobileLayout } from '../shared/MobileLayout';
 import { TopBar } from '../shared/TopBar';
 import { useApp } from '../../context/AppContext';
 
-function normalizePhone(value: string): string {
-  const digits = value.replace(/\D/g, '');
-  if (digits.length > 11 && digits.startsWith('92')) {
-    return `0${digits.slice(-10)}`;
-  }
-  if (digits.length === 10) {
-    return `0${digits}`;
-  }
-  return digits.slice(0, 11);
-}
-
 function formatPhoneInput(value: string): string {
-  const digits = value.replace(/\D/g, '').slice(0, 11);
-  if (digits.length <= 4) return digits;
-  return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+  return value.replace(/\D/g, '').slice(0, 11);
 }
 
 export function VendorLoginScreen() {
@@ -37,8 +24,8 @@ export function VendorLoginScreen() {
       setError('Please enter phone number and password.');
       return;
     }
-    if (phoneDigits.length < 10) {
-      setError('Please enter a valid phone number.');
+    if (phoneDigits.length < 10 || phoneDigits.length > 11) {
+      setError('Please enter a valid 10 or 11-digit phone number.');
       return;
     }
 
@@ -46,7 +33,7 @@ export function VendorLoginScreen() {
     setError('');
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    const org = loginKitchenOwner(normalizePhone(phoneDigits), password.trim());
+    const org = loginKitchenOwner(phoneDigits, password.trim());
     setLoading(false);
 
     if (!org) {
@@ -99,13 +86,13 @@ export function VendorLoginScreen() {
                 setPhone(formatPhoneInput(e.target.value));
                 if (error) setError('');
               }}
-              placeholder="03XX-XXXXXXX"
+              placeholder="3001234567"
               inputMode="numeric"
-              maxLength={12}
+              maxLength={11}
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-red-600 bg-gray-50"
               style={{ fontSize: '0.95rem' }}
             />
-            <p className="text-gray-500 text-xs mt-1">Use 10 to 11 digits</p>
+            <p className="text-gray-500 text-xs mt-1">Enter 10 or 11 digits</p>
           </div>
 
           <div>

@@ -185,6 +185,13 @@ export function WelcomeScreen() {
         {/* Action Buttons */}
         <div className="px-6 mb-5 space-y-3">
           <button
+            onClick={() => navigate('/kitchen/register')}
+            className="w-full py-3 rounded-2xl transition-all"
+            style={{ background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', fontWeight: 700, fontSize: '0.95rem' }}
+          >
+            Organization Screen
+          </button>
+          <button
             onClick={() => {
               resetApplicationData();
               createApplicationMockData();

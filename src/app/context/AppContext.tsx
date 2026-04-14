@@ -223,18 +223,51 @@ const INITIAL_ORGS: Organization[] = [
     profilePicture: '',
     notificationsEnabled: true,
   },
+  {
+    id: 'org-003',
+    ownerName: 'Hassan Qureshi',
+    ownerEmail: 'hassan@lahorebbq.pk',
+    ownerPassword: 'owner123',
+    orgName: 'Lahore BBQ House',
+    address: 'MM Alam Road, Gulberg, Lahore',
+    phone: '0322-4455667',
+    type: 'restaurant',
+    verificationStatus: 'verified',
+    ntn: '2233445-6',
+    cnic: '35202-2233445-6',
+    profilePicture: '',
+    notificationsEnabled: true,
+  },
+  {
+    id: 'org-004',
+    ownerName: 'Sadia Noor',
+    ownerEmail: 'sadia@freshtiffin.pk',
+    ownerPassword: 'owner123',
+    orgName: 'Fresh Tiffin by Sadia',
+    address: 'Satellite Town, Rawalpindi',
+    phone: '0345-7788990',
+    type: 'homemade',
+    verificationStatus: 'verified',
+    cnic: '37405-7788990-1',
+    profilePicture: '',
+    notificationsEnabled: true,
+  },
 ];
 
 const INITIAL_BRANCHES: Branch[] = [
   { id: 'branch-001', orgId: 'org-001', name: 'Clifton Branch', address: 'Block 5, Clifton, Karachi', managerName: 'Usman Ali', managerPhone: '0321-7654321', managerUsername: 'usman_ali', managerPassword: 'manager123' },
   { id: 'branch-002', orgId: 'org-001', name: 'DHA Branch', address: 'Phase 6, DHA, Karachi', managerName: 'Farrukh Ahmed', managerPhone: '0335-1234567', managerUsername: 'farrukh_ahmed', managerPassword: 'manager123' },
   { id: 'branch-003', orgId: 'org-002', name: "Amna's Home Kitchen", address: 'Street 4, Gulshan-e-Iqbal, Karachi', managerName: 'Amna Bibi', managerPhone: '0300-9876543', managerUsername: 'amna_bibi', managerPassword: 'manager123' },
+  { id: 'branch-004', orgId: 'org-003', name: 'Gulberg Branch', address: 'MM Alam Road, Gulberg, Lahore', managerName: 'Rizwan Malik', managerPhone: '0321-4455667', managerUsername: 'rizwan_malik', managerPassword: 'manager123' },
+  { id: 'branch-005', orgId: 'org-004', name: 'Sadia Main Kitchen', address: 'Satellite Town, Rawalpindi', managerName: 'Sadia Noor', managerPhone: '0345-7788990', managerUsername: 'sadia_noor', managerPassword: 'manager123' },
 ];
 
 const INITIAL_RIDERS: Rider[] = [
   { id: 'rider-001', orgId: 'org-001', branchId: 'branch-001', name: 'jerry', phone: '0312-9876543', password: 'pass123', isAvailable: true },
   { id: 'rider-002', orgId: 'org-001', branchId: 'branch-002', name: 'Bilal Sheikh', phone: '0333-2345678', password: 'pass123', isAvailable: true },
   { id: 'rider-003', orgId: 'org-002', branchId: 'branch-003', name: 'Zubair Ahmad', phone: '0344-5678901', password: 'pass123', isAvailable: true },
+  { id: 'rider-004', orgId: 'org-003', branchId: 'branch-004', name: 'Hamza Tariq', phone: '0315-1122334', password: 'pass123', isAvailable: true },
+  { id: 'rider-005', orgId: 'org-004', branchId: 'branch-005', name: 'Adeel Khan', phone: '0305-6677889', password: 'pass123', isAvailable: true },
 ];
 
 const INITIAL_DISHES: Dish[] = [
@@ -248,6 +281,10 @@ const INITIAL_DISHES: Dish[] = [
   { id: 'dish-008', orgId: 'org-002', name: 'Daal Chawal', price: 180, description: 'Comfort food - masoor daal with steamed basmati rice', category: 'Main Course', isAvailable: true },
   { id: 'dish-009', orgId: 'org-002', name: 'Kheer', price: 100, description: 'Classic creamy rice pudding topped with pistachios', category: 'Desserts', isAvailable: true },
   { id: 'dish-010', orgId: 'org-002', name: 'Rooh Afza Sharbat', price: 60, description: 'Refreshing rose syrup drink with milk', category: 'Drinks', isAvailable: true },
+  { id: 'dish-011', orgId: 'org-003', name: 'Chicken Tikka Platter', price: 820, description: 'Chargrilled chicken tikka platter with chutney and naan', category: 'Main Course', isAvailable: true },
+  { id: 'dish-012', orgId: 'org-003', name: 'Reshmi Kabab', price: 560, description: 'Creamy and tender reshmi kabab served with mint raita', category: 'Starters', isAvailable: true },
+  { id: 'dish-013', orgId: 'org-004', name: 'Homestyle Aloo Gosht', price: 540, description: 'Traditional aloo gosht cooked with desi spices', category: 'Main Course', isAvailable: true },
+  { id: 'dish-014', orgId: 'org-004', name: 'Dahi Bhallay', price: 220, description: 'Soft lentil dumplings topped with yogurt and chutneys', category: 'Snacks', isAvailable: true },
 ];
 
 const INITIAL_ORDERS: Order[] = [
