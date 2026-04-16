@@ -1,0 +1,407 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R 8 0 R 10 0 R 12 0 R 14 0 R 16 0 R] /Count 7 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 2940 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 50 782 Tm (P2P FOOD APP ? STEP-BY-STEP WORKFLOW TESTING DOCUMENT) Tj
+1 0 0 1 50 767 Tm () Tj
+1 0 0 1 50 752 Tm (1\) SCOPE AND OBJECTIVE) Tj
+1 0 0 1 50 737 Tm (This testing guide converts the app workflow into executable QA steps for Buyer, Seller, ) Tj
+1 0 0 1 50 722 Tm (Organization, Rider, and Shared modules.) Tj
+1 0 0 1 50 707 Tm () Tj
+1 0 0 1 50 692 Tm (OBJECTIVE) Tj
+1 0 0 1 50 677 Tm (- Validate role-based navigation and startup routing.) Tj
+1 0 0 1 50 662 Tm (- Validate end-to-end order lifecycle \(browse ? cart ? checkout ? order tracking\).) Tj
+1 0 0 1 50 647 Tm (- Validate onboarding and authentication paths for Organization and Rider.) Tj
+1 0 0 1 50 632 Tm (- Validate seller-side catalog/order operations and chat handoffs.) Tj
+1 0 0 1 50 617 Tm (- Validate shared modules \(notifications, settings, deep links, back button behavior\).) Tj
+1 0 0 1 50 602 Tm () Tj
+1 0 0 1 50 587 Tm (2\) TEST ENVIRONMENT & PRECONDITIONS) Tj
+1 0 0 1 50 572 Tm (- Build: Latest QA build of the app.) Tj
+1 0 0 1 50 557 Tm (- Devices: Android \(required for hardware back-button checks\), iOS optional.) Tj
+1 0 0 1 50 542 Tm (- Test data:) Tj
+1 0 0 1 50 527 Tm (  - At least one buyer account) Tj
+1 0 0 1 50 512 Tm (  - At least one seller/organization account with active kitchen and dishes) Tj
+1 0 0 1 50 497 Tm (  - At least one rider account) Tj
+1 0 0 1 50 482 Tm (- Network: Stable internet connection.) Tj
+1 0 0 1 50 467 Tm (- App state: Ability to clear AsyncStorage between selected scenarios.) Tj
+1 0 0 1 50 452 Tm () Tj
+1 0 0 1 50 437 Tm (3\) EXECUTION RULES) Tj
+1 0 0 1 50 422 Tm (- For each case, execute steps in order and capture screenshots/logs for failures.) Tj
+1 0 0 1 50 407 Tm (- Use this expectation format:) Tj
+1 0 0 1 50 392 Tm (  - Expected: what must happen) Tj
+1 0 0 1 50 377 Tm (  - Fail if: failure condition) Tj
+1 0 0 1 50 362 Tm (- Record route transitions when validating navigation.) Tj
+1 0 0 1 50 347 Tm (- When validating edge cases, verify both UI message and API behavior \(if logs are ) Tj
+1 0 0 1 50 332 Tm (available\).) Tj
+1 0 0 1 50 317 Tm () Tj
+1 0 0 1 50 302 Tm (---) Tj
+1 0 0 1 50 287 Tm () Tj
+1 0 0 1 50 272 Tm (4\) ROLE INITIALIZATION & NAVIGATION BOOTSTRAP) Tj
+1 0 0 1 50 257 Tm () Tj
+1 0 0 1 50 242 Tm (TC-INIT-01: UNAUTHENTICATED LAUNCH) Tj
+1 0 0 1 50 227 Tm (1. Clear app storage.) Tj
+1 0 0 1 50 212 Tm (2. Launch app.) Tj
+1 0 0 1 50 197 Tm (- Expected: WelcomeScreen appears.) Tj
+1 0 0 1 50 182 Tm (- Fail if: app opens directly on any role dashboard.) Tj
+1 0 0 1 50 167 Tm () Tj
+1 0 0 1 50 152 Tm (TC-INIT-02: CUSTOMER PERSISTENCE) Tj
+1 0 0 1 50 137 Tm (1. On WelcomeScreen, select role Customer.) Tj
+1 0 0 1 50 122 Tm (2. Tap Get Started and complete terms consent.) Tj
+1 0 0 1 50 107 Tm (3. Close and relaunch app.) Tj
+1 0 0 1 50 92 Tm (- Expected: app opens on HomeScreen.) Tj
+1 0 0 1 50 77 Tm (- Fail if: role is lost or user is redirected to incorrect flow.) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 2700 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 50 782 Tm () Tj
+1 0 0 1 50 767 Tm (TC-INIT-03: VENDOR STARTUP ROUTING) Tj
+1 0 0 1 50 752 Tm (1. Select Vendor on WelcomeScreen.) Tj
+1 0 0 1 50 737 Tm (2. Continue through AgreeAndContinue.) Tj
+1 0 0 1 50 722 Tm (- Expected: user is routed to vendor onboarding/sign-in flow \(organization path\).) Tj
+1 0 0 1 50 707 Tm (- Fail if: app opens buyer/rider flow.) Tj
+1 0 0 1 50 692 Tm () Tj
+1 0 0 1 50 677 Tm (TC-INIT-04: RIDER STARTUP ROUTING) Tj
+1 0 0 1 50 662 Tm (1. Select Rider on WelcomeScreen.) Tj
+1 0 0 1 50 647 Tm (2. Continue through AgreeAndContinue.) Tj
+1 0 0 1 50 632 Tm (- Expected: user is routed to RiderSignin.) Tj
+1 0 0 1 50 617 Tm (- Fail if: wrong role flow opens.) Tj
+1 0 0 1 50 602 Tm () Tj
+1 0 0 1 50 587 Tm (TC-INIT-05: DEEP-LINK ROUTING) Tj
+1 0 0 1 50 572 Tm (1. Open app using supported deep links for:) Tj
+1 0 0 1 50 557 Tm (   - SelectedFoodScreen) Tj
+1 0 0 1 50 542 Tm (   - KitchenScreen) Tj
+1 0 0 1 50 527 Tm (   - AddFoodScreen) Tj
+1 0 0 1 50 512 Tm (2. Observe resulting route.) Tj
+1 0 0 1 50 497 Tm (- Expected: app opens target route after nav initialization.) Tj
+1 0 0 1 50 482 Tm (- Fail if: app ignores link or crashes.) Tj
+1 0 0 1 50 467 Tm () Tj
+1 0 0 1 50 452 Tm (---) Tj
+1 0 0 1 50 437 Tm () Tj
+1 0 0 1 50 422 Tm (5\) BUYER WORKFLOW TESTING) Tj
+1 0 0 1 50 407 Tm () Tj
+1 0 0 1 50 392 Tm (TC-BUY-01: KITCHEN DISCOVERY) Tj
+1 0 0 1 50 377 Tm (1. Login as buyer and open HomeScreen.) Tj
+1 0 0 1 50 362 Tm (2. Enter search term in search bar.) Tj
+1 0 0 1 50 347 Tm (3. Open SearchScreen and select suggestion/recent item.) Tj
+1 0 0 1 50 332 Tm (- Expected: selected kitchen opens in KitchenScreen.) Tj
+1 0 0 1 50 317 Tm (- Fail if: mismatch between selected item and opened kitchen.) Tj
+1 0 0 1 50 302 Tm () Tj
+1 0 0 1 50 287 Tm (TC-BUY-02: DISH SELECTION AND REQUIRED OPTIONS) Tj
+1 0 0 1 50 272 Tm (1. From KitchenScreen, open a dish on SelectedFoodScreen.) Tj
+1 0 0 1 50 257 Tm (2. Attempt add-to-cart without selecting required options.) Tj
+1 0 0 1 50 242 Tm (3. Select required options and quantity >= 1.) Tj
+1 0 0 1 50 227 Tm (4. Tap Add to Cart.) Tj
+1 0 0 1 50 212 Tm (- Expected: validation blocks incomplete selection; valid payload adds item.) Tj
+1 0 0 1 50 197 Tm (- Fail if: incomplete option set is accepted.) Tj
+1 0 0 1 50 182 Tm () Tj
+1 0 0 1 50 167 Tm (TC-BUY-03: CART CONSTRAINTS) Tj
+1 0 0 1 50 152 Tm (1. Open CartScreen.) Tj
+1 0 0 1 50 137 Tm (2. Increase quantity repeatedly beyond stock.) Tj
+1 0 0 1 50 122 Tm (- Expected: app blocks increase and shows stock constraint error.) Tj
+1 0 0 1 50 107 Tm (- Fail if: quantity exceeds available stock.) Tj
+1 0 0 1 50 92 Tm () Tj
+1 0 0 1 50 77 Tm (TC-BUY-04: MULTI-CART BEHAVIOR) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 2773 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 50 782 Tm (1. Add items from Kitchen A.) Tj
+1 0 0 1 50 767 Tm (2. Add items from Kitchen B.) Tj
+1 0 0 1 50 752 Tm (3. Open all-cart listing.) Tj
+1 0 0 1 50 737 Tm (- Expected: AllCartScreen shows separate carts and allows switching.) Tj
+1 0 0 1 50 722 Tm (- Fail if: carts merge incorrectly.) Tj
+1 0 0 1 50 707 Tm () Tj
+1 0 0 1 50 692 Tm (TC-BUY-05: CHECKOUT WITH COUPON) Tj
+1 0 0 1 50 677 Tm (1. From CartScreen, tap Checkout to open ConfirmOrderScreen.) Tj
+1 0 0 1 50 662 Tm (2. Apply valid coupon from BuyerCouponScreen.) Tj
+1 0 0 1 50 647 Tm (3. Confirm totals update.) Tj
+1 0 0 1 50 632 Tm (4. Apply invalid/expired coupon.) Tj
+1 0 0 1 50 617 Tm (- Expected: valid coupon updates total; invalid coupon shows explicit error.) Tj
+1 0 0 1 50 602 Tm (- Fail if: totals don?t change correctly or invalid coupon is accepted.) Tj
+1 0 0 1 50 587 Tm () Tj
+1 0 0 1 50 572 Tm (TC-BUY-06: DELIVERY ADDRESS ENFORCEMENT) Tj
+1 0 0 1 50 557 Tm (1. In ConfirmOrderScreen, enable delivery toggle.) Tj
+1 0 0 1 50 542 Tm (2. Try placing order without selecting address.) Tj
+1 0 0 1 50 527 Tm (3. Select address and place order.) Tj
+1 0 0 1 50 512 Tm (- Expected: address is mandatory for delivery; successful flow lands on ) Tj
+1 0 0 1 50 497 Tm (OrderDetailsScreen.) Tj
+1 0 0 1 50 482 Tm (- Fail if: delivery order is placed without address.) Tj
+1 0 0 1 50 467 Tm () Tj
+1 0 0 1 50 452 Tm (TC-BUY-07: GUEST CART PENDING FLOW) Tj
+1 0 0 1 50 437 Tm (1. Log out / use guest state.) Tj
+1 0 0 1 50 422 Tm (2. Attempt add-to-cart on SelectedFoodScreen.) Tj
+1 0 0 1 50 407 Tm (- Expected: pending cart/login prompt flow appears and data is preserved for continuation.) Tj
+1 0 0 1 50 392 Tm (- Fail if: item silently disappears or no prompt is shown.) Tj
+1 0 0 1 50 377 Tm () Tj
+1 0 0 1 50 362 Tm (TC-BUY-08: REVIEW PROMPT TRIGGER) Tj
+1 0 0 1 50 347 Tm (1. Prepare a recently delivered order.) Tj
+1 0 0 1 50 332 Tm (2. Open HomeScreen.) Tj
+1 0 0 1 50 317 Tm (- Expected: rating prompt appears via order-review logic.) Tj
+1 0 0 1 50 302 Tm (- Fail if: no prompt for eligible delivered order.) Tj
+1 0 0 1 50 287 Tm () Tj
+1 0 0 1 50 272 Tm (---) Tj
+1 0 0 1 50 257 Tm () Tj
+1 0 0 1 50 242 Tm (6\) SELLER WORKFLOW TESTING) Tj
+1 0 0 1 50 227 Tm () Tj
+1 0 0 1 50 212 Tm (TC-SEL-01: SELLER DASHBOARD ACCESS) Tj
+1 0 0 1 50 197 Tm (1. Login as seller.) Tj
+1 0 0 1 50 182 Tm (2. Open SellerHomeScreen.) Tj
+1 0 0 1 50 167 Tm (- Expected: dashboard renders tabs/metrics without crash.) Tj
+1 0 0 1 50 152 Tm (- Fail if: role lands on incorrect dashboard.) Tj
+1 0 0 1 50 137 Tm () Tj
+1 0 0 1 50 122 Tm (TC-SEL-02: RECIPE CREATE AND EDIT) Tj
+1 0 0 1 50 107 Tm (1. Go to SellerRecipeScreen.) Tj
+1 0 0 1 50 92 Tm (2. Tap add dish and fill required fields.) Tj
+1 0 0 1 50 77 Tm (3. Save.) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 11 0 R >>
+endobj
+11 0 obj
+<< /Length 2795 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 50 782 Tm (4. Reopen same dish and edit details.) Tj
+1 0 0 1 50 767 Tm (- Expected: dish appears in list and updates persist.) Tj
+1 0 0 1 50 752 Tm (- Fail if: missing-field validation is bypassed or save fails silently.) Tj
+1 0 0 1 50 737 Tm () Tj
+1 0 0 1 50 722 Tm (TC-SEL-03: COUPON MANAGEMENT) Tj
+1 0 0 1 50 707 Tm (1. Open coupon module.) Tj
+1 0 0 1 50 692 Tm (2. Create coupon with valid fields.) Tj
+1 0 0 1 50 677 Tm (3. Create coupon with invalid format/dates.) Tj
+1 0 0 1 50 662 Tm (- Expected: valid coupon saved; invalid input blocked with clear message.) Tj
+1 0 0 1 50 647 Tm (- Fail if: invalid coupon is accepted.) Tj
+1 0 0 1 50 632 Tm () Tj
+1 0 0 1 50 617 Tm (TC-SEL-04: DISCOUNT LIFECYCLE) Tj
+1 0 0 1 50 602 Tm (1. Create discount campaign.) Tj
+1 0 0 1 50 587 Tm (2. Verify active/inactive behavior by date range.) Tj
+1 0 0 1 50 572 Tm (- Expected: discount status reflects configured dates.) Tj
+1 0 0 1 50 557 Tm (- Fail if: incorrect activation window.) Tj
+1 0 0 1 50 542 Tm () Tj
+1 0 0 1 50 527 Tm (TC-SEL-05: ORDER OPERATIONS) Tj
+1 0 0 1 50 512 Tm (1. Open SellerOrderScreen and select order.) Tj
+1 0 0 1 50 497 Tm (2. View in OrderViewScreen.) Tj
+1 0 0 1 50 482 Tm (3. Attempt valid status update.) Tj
+1 0 0 1 50 467 Tm (- Expected: order details load and update succeeds with refreshed status.) Tj
+1 0 0 1 50 452 Tm (- Fail if: status remains stale or wrong transition allowed.) Tj
+1 0 0 1 50 437 Tm () Tj
+1 0 0 1 50 422 Tm (---) Tj
+1 0 0 1 50 407 Tm () Tj
+1 0 0 1 50 392 Tm (7\) ORGANIZATION WORKFLOW TESTING) Tj
+1 0 0 1 50 377 Tm () Tj
+1 0 0 1 50 362 Tm (TC-ORG-01: REGISTRATION VALIDATION) Tj
+1 0 0 1 50 347 Tm (1. Open OrganizationSignup.) Tj
+1 0 0 1 50 332 Tm (2. Submit empty form.) Tj
+1 0 0 1 50 317 Tm (3. Submit duplicate phone \(if available\).) Tj
+1 0 0 1 50 302 Tm (- Expected: required and availability validations block progression.) Tj
+1 0 0 1 50 287 Tm (- Fail if: invalid form proceeds.) Tj
+1 0 0 1 50 272 Tm () Tj
+1 0 0 1 50 257 Tm (TC-ORG-02: OTP VERIFICATION CONTROL) Tj
+1 0 0 1 50 242 Tm (1. Complete signup initiation.) Tj
+1 0 0 1 50 227 Tm (2. Enter wrong OTP.) Tj
+1 0 0 1 50 212 Tm (3. Wait for resend timer and request resend.) Tj
+1 0 0 1 50 197 Tm (4. Enter correct OTP.) Tj
+1 0 0 1 50 182 Tm (- Expected: wrong OTP blocked; resend gated by timer; correct OTP proceeds.) Tj
+1 0 0 1 50 167 Tm (- Fail if: timer enforcement fails.) Tj
+1 0 0 1 50 152 Tm () Tj
+1 0 0 1 50 137 Tm (TC-ORG-03: KITCHEN PROFILE ONBOARDING) Tj
+1 0 0 1 50 122 Tm (1. Complete OrganizationKitchenSignup including logo upload.) Tj
+1 0 0 1 50 107 Tm (2. Validate kitchen type behavior.) Tj
+1 0 0 1 50 92 Tm (- Expected: required fields enforced with proper formatting \(phone, CNIC, email\).) Tj
+1 0 0 1 50 77 Tm (- Fail if: malformed data accepted.) Tj
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 13 0 R >>
+endobj
+13 0 obj
+<< /Length 2685 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 50 782 Tm () Tj
+1 0 0 1 50 767 Tm (TC-ORG-04: CNIC IMAGE ENFORCEMENT) Tj
+1 0 0 1 50 752 Tm (1. On OrganizationVendorCNIC, upload only one side.) Tj
+1 0 0 1 50 737 Tm (2. Try continue.) Tj
+1 0 0 1 50 722 Tm (3. Upload both sides and continue.) Tj
+1 0 0 1 50 707 Tm (- Expected: both images required before proceeding.) Tj
+1 0 0 1 50 692 Tm (- Fail if: single-image progression allowed.) Tj
+1 0 0 1 50 677 Tm () Tj
+1 0 0 1 50 662 Tm (TC-ORG-05: BUSINESS DOC CONDITIONAL REQUIREMENT) Tj
+1 0 0 1 50 647 Tm (1. Select Restaurant and skip business doc.) Tj
+1 0 0 1 50 632 Tm (2. Select HOMECHEF and skip business doc.) Tj
+1 0 0 1 50 617 Tm (- Expected: document required for restaurant; optional for home chef.) Tj
+1 0 0 1 50 602 Tm (- Fail if: requirement does not vary by type.) Tj
+1 0 0 1 50 587 Tm () Tj
+1 0 0 1 50 572 Tm (TC-ORG-06: VERIFICATION COMPLETION) Tj
+1 0 0 1 50 557 Tm (1. Complete onboarding and land on VerificationScreen.) Tj
+1 0 0 1 50 542 Tm (2. Tap continue.) Tj
+1 0 0 1 50 527 Tm (- Expected: user reaches OrganizationHomeScreen.) Tj
+1 0 0 1 50 512 Tm (- Fail if: dead-end or incorrect route.) Tj
+1 0 0 1 50 497 Tm () Tj
+1 0 0 1 50 482 Tm (---) Tj
+1 0 0 1 50 467 Tm () Tj
+1 0 0 1 50 452 Tm (8\) RIDER WORKFLOW TESTING) Tj
+1 0 0 1 50 437 Tm () Tj
+1 0 0 1 50 422 Tm (TC-RID-01: RIDER SIGN-IN VALIDATION) Tj
+1 0 0 1 50 407 Tm (1. Open RiderSignin.) Tj
+1 0 0 1 50 392 Tm (2. Submit empty/invalid fields.) Tj
+1 0 0 1 50 377 Tm (3. Submit valid credentials.) Tj
+1 0 0 1 50 362 Tm (- Expected: invalid input blocked; valid login opens RiderHomeScreen.) Tj
+1 0 0 1 50 347 Tm (- Fail if: malformed credentials pass client validation.) Tj
+1 0 0 1 50 332 Tm () Tj
+1 0 0 1 50 317 Tm (TC-RID-02: FORGOT PASSWORD FLOW) Tj
+1 0 0 1 50 302 Tm (1. Trigger RiderForgotPassword.) Tj
+1 0 0 1 50 287 Tm (2. Submit phone and receive OTP.) Tj
+1 0 0 1 50 272 Tm (3. Verify OTP in RiderOtpVerify.) Tj
+1 0 0 1 50 257 Tm (4. Reset password in RiderResetPassword.) Tj
+1 0 0 1 50 242 Tm (- Expected: successful reset returns user to RiderSignin.) Tj
+1 0 0 1 50 227 Tm (- Fail if: reset accepts mismatched passwords.) Tj
+1 0 0 1 50 212 Tm () Tj
+1 0 0 1 50 197 Tm (TC-RID-03: ORDER FILTERING AND UPDATE) Tj
+1 0 0 1 50 182 Tm (1. In RiderHomeScreen, switch status pills.) Tj
+1 0 0 1 50 167 Tm (2. Open an assigned order and update lifecycle status.) Tj
+1 0 0 1 50 152 Tm (- Expected: list filters correctly; status update persists.) Tj
+1 0 0 1 50 137 Tm (- Fail if: filters do not change data set.) Tj
+1 0 0 1 50 122 Tm () Tj
+1 0 0 1 50 107 Tm (TC-RID-04: RIDER CHAT HANDOFF) Tj
+1 0 0 1 50 92 Tm (1. Open chat from rider order context.) Tj
+1 0 0 1 50 77 Tm (2. Send message.) Tj
+ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 15 0 R >>
+endobj
+15 0 obj
+<< /Length 2453 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 50 782 Tm (- Expected: message appears in conversation history.) Tj
+1 0 0 1 50 767 Tm (- Fail if: message send appears successful but history does not update.) Tj
+1 0 0 1 50 752 Tm () Tj
+1 0 0 1 50 737 Tm (---) Tj
+1 0 0 1 50 722 Tm () Tj
+1 0 0 1 50 707 Tm (9\) SHARED MODULE TESTING) Tj
+1 0 0 1 50 692 Tm () Tj
+1 0 0 1 50 677 Tm (TC-SHARED-01: APP SETTINGS LINKS) Tj
+1 0 0 1 50 662 Tm (1. Open AppSetting.) Tj
+1 0 0 1 50 647 Tm (2. Tap policy/delete-account links.) Tj
+1 0 0 1 50 632 Tm (- Expected: DeleteAccountWebViewScreen opens with provided URL.) Tj
+1 0 0 1 50 617 Tm (- Fail if: screen opens blank without URL handling.) Tj
+1 0 0 1 50 602 Tm () Tj
+1 0 0 1 50 587 Tm (TC-SHARED-02: NOTIFICATIONS) Tj
+1 0 0 1 50 572 Tm (1. Open notifications screen.) Tj
+1 0 0 1 50 557 Tm (2. Select notification item \(if applicable\).) Tj
+1 0 0 1 50 542 Tm (- Expected: list loads and item navigation follows notification type.) Tj
+1 0 0 1 50 527 Tm (- Fail if: screen fails to render list.) Tj
+1 0 0 1 50 512 Tm () Tj
+1 0 0 1 50 497 Tm (TC-SHARED-03: ANDROID ROOT BACK BEHAVIOR) Tj
+1 0 0 1 50 482 Tm (1. Open each role home root screen.) Tj
+1 0 0 1 50 467 Tm (2. Press hardware back.) Tj
+1 0 0 1 50 452 Tm (- Expected: app exits when no previous route exists.) Tj
+1 0 0 1 50 437 Tm (- Fail if: app loops or pops to invalid state.) Tj
+1 0 0 1 50 422 Tm () Tj
+1 0 0 1 50 407 Tm (---) Tj
+1 0 0 1 50 392 Tm () Tj
+1 0 0 1 50 377 Tm (10\) REGRESSION MATRIX \(MINIMUM SMOKE SET\)) Tj
+1 0 0 1 50 362 Tm (Run these before release candidate sign-off:) Tj
+1 0 0 1 50 347 Tm (1. TC-INIT-01 Unauthenticated launch) Tj
+1 0 0 1 50 332 Tm (2. TC-INIT-05 Deep-link routing) Tj
+1 0 0 1 50 317 Tm (3. TC-BUY-02 Dish required options) Tj
+1 0 0 1 50 302 Tm (4. TC-BUY-05 Coupon totals) Tj
+1 0 0 1 50 287 Tm (5. TC-BUY-06 Delivery address enforcement) Tj
+1 0 0 1 50 272 Tm (6. TC-SEL-02 Recipe create/edit) Tj
+1 0 0 1 50 257 Tm (7. TC-ORG-02 OTP flow) Tj
+1 0 0 1 50 242 Tm (8. TC-RID-03 Rider status update) Tj
+1 0 0 1 50 227 Tm (9. TC-SHARED-03 Android back-button exit) Tj
+1 0 0 1 50 212 Tm () Tj
+1 0 0 1 50 197 Tm (11\) DEFECT LOGGING TEMPLATE) Tj
+1 0 0 1 50 182 Tm (- Test Case ID:) Tj
+1 0 0 1 50 167 Tm (- Build/Version:) Tj
+1 0 0 1 50 152 Tm (- Role:) Tj
+1 0 0 1 50 137 Tm (- Device/OS:) Tj
+1 0 0 1 50 122 Tm (- Precondition:) Tj
+1 0 0 1 50 107 Tm (- Steps to Reproduce:) Tj
+1 0 0 1 50 92 Tm (- Actual Result:) Tj
+1 0 0 1 50 77 Tm (- Expected Result:) Tj
+ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 17 0 R >>
+endobj
+17 0 obj
+<< /Length 440 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 50 782 Tm (- Severity/Priority:) Tj
+1 0 0 1 50 767 Tm (- Evidence: screenshot/video/log reference) Tj
+1 0 0 1 50 752 Tm () Tj
+1 0 0 1 50 737 Tm (12\) SIGN-OFF CRITERIA) Tj
+1 0 0 1 50 722 Tm (- No blocker/critical defects in checkout, login, order state transitions, or onboarding.) Tj
+1 0 0 1 50 707 Tm (- All smoke tests pass.) Tj
+1 0 0 1 50 692 Tm (- Known medium/low defects documented with workaround/impact.) Tj
+ET
+endstream
+endobj
+xref
+0 18
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000155 00000 n 
+0000000225 00000 n 
+0000000351 00000 n 
+0000003343 00000 n 
+0000003469 00000 n 
+0000006221 00000 n 
+0000006347 00000 n 
+0000009172 00000 n 
+0000009300 00000 n 
+0000012148 00000 n 
+0000012276 00000 n 
+0000015014 00000 n 
+0000015142 00000 n 
+0000017648 00000 n 
+0000017776 00000 n 
+trailer
+<< /Size 18 /Root 1 0 R >>
+startxref
+18268
+%%EOF
