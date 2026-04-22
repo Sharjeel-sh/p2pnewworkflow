@@ -38,7 +38,7 @@ export function BuyerProfile() {
         <div className="space-y-3">
           {[
             { icon: User,     label: 'Edit my profile information', action: () => navigate('/buyer/profile/edit') },
-            { icon: FileText, label: 'Order history',              action: () => navigate('/buyer/orders') },
+            { icon: FileText, label: 'Order history',              action: () => navigate('/buyer/orders', { state: { historyOnly: true } }) },
             { icon: FileText, label: 'Terms & Conditions',         action: () => navigate('/terms') },
             { icon: Bell,     label: 'Help & Support',             action: () => navigate('/help') },
             { icon: Settings, label: 'App Settings',               action: () => navigate('/settings') },

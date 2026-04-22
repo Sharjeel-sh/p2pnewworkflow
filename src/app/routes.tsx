@@ -17,6 +17,7 @@ import { BuyerFavorites } from './components/buyer/BuyerFavorites';
 import { BuyerHome } from './components/buyer/BuyerHome';
 import { BuyerSearch } from './components/buyer/BuyerSearch';
 import { BuyerProfile } from './components/buyer/BuyerProfile';
+import { ActiveOrders } from './components/buyer/ActiveOrders';
 import { RestaurantDetail } from './components/buyer/RestaurantDetail';
 import { DishDetail } from './components/buyer/DishDetail';
 import { CartScreen } from './components/buyer/CartScreen';
@@ -70,6 +71,7 @@ export const router = createBrowserRouter([
       { path: 'rider/login', element: <RiderLoginScreen /> },
       { path: 'kitchen/manager/login', element: <BranchManagerLoginScreen /> },
       { path: 'buyer', element: <BuyerHome /> },
+      { path: 'buyer/orders', element: <ActiveOrders /> },
       { path: 'buyer/favorites', element: <BuyerFavorites /> },
       { path: 'buyer/search', element: <BuyerSearch /> },
       { path: 'buyer/profile', element: <BuyerProfile /> },

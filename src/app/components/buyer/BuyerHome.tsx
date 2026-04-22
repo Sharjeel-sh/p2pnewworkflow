@@ -101,7 +101,7 @@ export function BuyerHome() {
         {activeOrders.length > 0 && (
           <div className="mx-5 mt-4">
             <button
-              onClick={() => navigate(`/buyer/order/${activeOrders[0].id}`)}
+              onClick={() => navigate(`/buyer/orders`)}
               className="w-full bg-red-50 border border-red-200 rounded-2xl p-3.5 flex items-center gap-3"
             >
               <div className="w-8 h-8 bg-red-700 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
@@ -112,7 +112,10 @@ export function BuyerHome() {
                   You have an active order!
                 </p>
                 <p className="text-red-700" style={{ fontSize: '0.75rem' }}>
-                  Tap to track order #{activeOrders[0].id.slice(-6).toUpperCase()}
+                  {activeOrders.length > 1 
+                    ? `${activeOrders.length} active orders`
+                    : `Tap to track order #${activeOrders[0].id.slice(-6).toUpperCase()}`
+                  }
                 </p>
               </div>
               <div className="text-red-600">›</div>
