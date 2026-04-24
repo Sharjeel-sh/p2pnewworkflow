@@ -38,12 +38,21 @@ export function KitchenOrders() {
     (!managedBranchId || r.branchId === managedBranchId),
   );
 
+  const assignAvailableRiderIfNeeded = (order: Order) => {
+    if (order.deliveryMethod === 'pickup') return;
+    if (order.riderId) return;
+    const rider = orgRiders[0];
+    if (!rider) return;
+    assignRiderToOrder(order.id, rider.id, rider.name, rider.branchId);
+  };
+
   const handleStartPreparing = (order: Order) => {
     updateOrderStatus(order.id, 'preparing');
   };
 
   const handleMarkReady = (order: Order) => {
     updateOrderStatus(order.id, 'ready');
+    assignAvailableRiderIfNeeded(order);
   };
 
   const handleReadyForPickup = (order: Order) => {
@@ -203,7 +212,11 @@ export function KitchenOrders() {
         ) : (
           <div className="space-y-3">
             {displayOrders.map(order => (
-              <div key={order.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-md">
+              <div
+                key={order.id}
+                onClick={() => navigate(`/kitchen/orders/${order.id}`)}
+                className="bg-white border border-gray-100 rounded-2xl p-4 shadow-md cursor-pointer"
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <p className="text-stone-800" style={{ fontWeight: 700 }}>#{order.id.slice(-6).toUpperCase()}</p>
@@ -256,7 +269,7 @@ export function KitchenOrders() {
                     if (act) {
                       return (
                         <button
-                          onClick={act.handler}
+                          onClick={(e) => { e.stopPropagation(); act.handler(); }}
                           className="flex-1 bg-red-700 text-white py-2 rounded-xl text-xs hover:bg-red-800 transition-colors flex items-center justify-center gap-1"
                           style={{ fontWeight: 600 }}
                         >
@@ -269,7 +282,7 @@ export function KitchenOrders() {
                   })()}
                   {order.deliveryMethod !== 'pickup' && order.status !== 'delivered' && (
                     <button
-                      onClick={() => openAssignModal(order)}
+                      onClick={(e) => { e.stopPropagation(); openAssignModal(order); }}
                       className="bg-red-50 text-red-800 py-2 px-3 rounded-xl hover:bg-red-100 transition-colors flex items-center gap-1"
                       style={{ fontSize: '0.78rem', fontWeight: 600 }}
                     >
@@ -279,7 +292,7 @@ export function KitchenOrders() {
                   )}
                   {order.deliveryMethod !== 'pickup' && order.status !== 'delivered' && order.riderId && (
                     <button
-                      onClick={() => handleUnassignRider(order.id)}
+                      onClick={(e) => { e.stopPropagation(); handleUnassignRider(order.id); }}
                       className="bg-red-50 text-red-800 py-2 px-3 rounded-xl hover:bg-red-100 transition-colors flex items-center gap-1"
                       style={{ fontSize: '0.78rem', fontWeight: 600 }}
                     >
@@ -289,7 +302,7 @@ export function KitchenOrders() {
                   )}
                   {isChatOpen(order) && (
                     <button
-                      onClick={() => navigate(`/chat/${order.id}`)}
+                      onClick={(e) => { e.stopPropagation(); navigate(`/chat/${order.id}`); }}
                       className="bg-blue-50 text-blue-600 py-2 px-3 rounded-xl hover:bg-blue-100 transition-colors flex items-center gap-1"
                       style={{ fontSize: '0.78rem', fontWeight: 600 }}
                     >

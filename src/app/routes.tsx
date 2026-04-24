@@ -41,10 +41,13 @@ import { OrgInfo } from './components/kitchen/OrgInfo';
 import { OrgDashboard } from './components/kitchen/OrgDashboard';
 import { KitchenBranchEdit } from './components/kitchen/KitchenBranchEdit';
 import { KitchenOrderDashboard } from './components/kitchen/KitchenOrderDashboard';
+import { KitchenOrderDetails } from './components/kitchen/KitchenOrderDetails';
 import { KitchenProfile } from './components/kitchen/KitchenProfile';
 import { KitchenCoupons } from './components/kitchen/KitchenCoupons';
 import { KitchenDiscounts } from './components/kitchen/KitchenDiscounts';
 import { KitchenSettings } from './components/kitchen/KitchenSettings';
+import { KitchenCustomerInfo } from './components/kitchen/KitchenCustomerInfo';
+import { KitchenRiderInfo } from './components/kitchen/KitchenRiderInfo';
 import { RiderDashboard } from './components/rider/RiderDashboard';
 import { RiderOrders } from './components/rider/RiderOrders';
 import { RiderProfile } from './components/rider/RiderProfile';
@@ -95,6 +98,9 @@ export const router = createBrowserRouter([
       { path: 'kitchen/dishes', element: <DishesList /> },
       { path: 'kitchen/branch/:branchId', element: <BranchManager /> },
       { path: 'kitchen/orders', element: <KitchenOrders /> },
+      { path: 'kitchen/orders/:orderId', element: <KitchenOrderDetails /> },
+      { path: 'kitchen/orders/:orderId/customer', element: <KitchenCustomerInfo /> },
+      { path: 'kitchen/orders/:orderId/rider', element: <KitchenRiderInfo /> },
       { path: 'kitchen/chat-list', element: <KitchenChatListScreen /> },
       { path: 'kitchen/profile', element: <KitchenProfile /> },
       { path: 'kitchen/notifications', element: <KitchenNotificationsScreen /> },
@@ -107,7 +113,7 @@ export const router = createBrowserRouter([
       { path: 'kitchen/profile/coupons', element: <KitchenCoupons /> },
       { path: 'kitchen/profile/discounts', element: <KitchenDiscounts /> },
       { path: 'kitchen/profile/kitchen-info', element: <KitchenSettings /> },
-      { path: 'rider', element: <RiderDashboard /> },
+      { path: 'rider', element: <RiderOrders /> },
       { path: 'rider/dashboard', element: <RiderDashboard /> },
       { path: 'rider/orders', element: <RiderOrders /> },
       { path: 'rider/order/:orderId', element: <RiderOrderDetails /> },

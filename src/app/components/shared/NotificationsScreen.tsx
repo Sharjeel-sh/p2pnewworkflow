@@ -90,6 +90,30 @@ const kitchenNotifications: SimpleNotification[] = [
   },
 ];
 
+const riderNotifications: SimpleNotification[] = [
+  {
+    id: 'r1',
+    title: 'New Order',
+    message: 'A new delivery order has been assigned to you.',
+    time: '1 min ago',
+    unread: true,
+  },
+  {
+    id: 'r2',
+    title: 'Kitchen Message',
+    message: 'Kitchen says order is ready for pickup.',
+    time: '3 min ago',
+    unread: true,
+  },
+  {
+    id: 'r3',
+    title: 'Customer Message',
+    message: 'Customer shared delivery instructions.',
+    time: '5 min ago',
+    unread: true,
+  },
+];
+
 const backPathByRole: Record<Role, string> = {
   buyer: '/buyer/profile',
   kitchen: '/kitchen/profile',
@@ -99,7 +123,12 @@ const backPathByRole: Record<Role, string> = {
 function NotificationsScreen({ role }: { role: Role }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const defaultByRole = role === 'kitchen' ? kitchenNotifications : buyerNotifications;
+  const defaultByRole =
+    role === 'kitchen'
+      ? kitchenNotifications
+      : role === 'rider'
+      ? riderNotifications
+      : buyerNotifications;
   const [notifications, setNotifications] = useState<SimpleNotification[]>(defaultByRole);
   const backPath =
     role === 'kitchen' && typeof location.state?.from === 'string'

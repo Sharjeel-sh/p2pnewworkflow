@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { CheckCircle, MapPin, MessageCircle } from 'lucide-react';
+import { CheckCircle, MapPin, MessageCircle, Phone, User } from 'lucide-react';
 import { MobileLayout } from '../shared/MobileLayout';
 import { TopBar } from '../shared/TopBar';
 import { StatusBadge } from '../shared/StatusBadge';
@@ -14,6 +14,7 @@ export function KitchenOrderDetails() {
   const {
     currentUser,
     orders,
+    riders,
     updateOrderStatus,
     assignRiderToOrder,
     unassignRiderFromOrder,
@@ -31,7 +32,7 @@ export function KitchenOrderDetails() {
   if (!order) {
     return (
       <MobileLayout>
-        <TopBar title="Order Details" backTo="/kitchen/order/dashboard" />
+        <TopBar title="Order Details" backTo="/kitchen/orders" />
         <div className="flex-1 flex items-center justify-center">
           <p className="text-stone-500">Order not found.</p>
         </div>
@@ -56,6 +57,21 @@ export function KitchenOrderDetails() {
     );
   };
 
+  const managedRiders = riders.filter(r =>
+    r.orgId === currentUser?.orgId &&
+    r.isAvailable &&
+    (!managedBranchId || r.branchId === managedBranchId),
+  );
+  const assignedRider = riders.find(r => r.id === order.riderId);
+
+  const assignAvailableRiderIfNeeded = (targetOrder: Order) => {
+    if (targetOrder.deliveryMethod === 'pickup') return;
+    if (targetOrder.riderId) return;
+    const rider = managedRiders[0];
+    if (!rider) return;
+    assignRiderToOrder(targetOrder.id, rider.id, rider.name, rider.branchId);
+  };
+
   const getPrimaryAction = (order: Order) => {
     const isPickup = order.deliveryMethod === 'pickup';
     if (isPickup) {
@@ -78,7 +94,13 @@ export function KitchenOrderDetails() {
       case 'accepted':
         return { label: 'Start Preparing', handler: () => updateOrderStatus(order.id, 'preparing') };
       case 'preparing':
-        return { label: 'Mark as Ready', handler: () => updateOrderStatus(order.id, 'ready') };
+        return {
+          label: 'Mark as Ready',
+          handler: () => {
+            updateOrderStatus(order.id, 'ready');
+            assignAvailableRiderIfNeeded(order);
+          },
+        };
       case 'ready':
         return { label: 'Ready for Pickup', handler: () => updateOrderStatus(order.id, 'picked_up') };
       default:
@@ -89,7 +111,7 @@ export function KitchenOrderDetails() {
 
   return (
     <MobileLayout>
-      <TopBar title="Order Details" backTo="/kitchen/order/dashboard" />
+      <TopBar title="Order Details" backTo="/kitchen/orders" />
 
       <div className="flex-1 overflow-y-auto px-5 py-4">
         <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm mb-3">
@@ -105,18 +127,59 @@ export function KitchenOrderDetails() {
             <StatusBadge status={order.status} size="sm" />
           </div>
 
-          <div className="bg-gray-50 rounded-xl p-3">
-            <p className="text-stone-700 text-sm" style={{ fontWeight: 600 }}>
-              {order.buyerName}
-            </p>
-            <p className="text-stone-400 text-xs">{order.buyerPhone}</p>
-            {order.deliveryMethod !== 'pickup' && (
-              <div className="flex items-start gap-1 mt-1">
-                <MapPin size={11} className="text-stone-400 mt-0.5 flex-shrink-0" />
-                <p className="text-stone-400 text-xs">{order.buyerAddress}</p>
+          <button
+            type="button"
+            onClick={() => navigate(`/kitchen/orders/${order.id}/customer`)}
+            className="w-full bg-gray-50 rounded-xl p-3 text-left"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                <User size={16} className="text-stone-500" />
               </div>
-            )}
-          </div>
+              <div className="flex-1">
+                <p className="text-stone-700 text-sm" style={{ fontWeight: 600 }}>
+                  {order.buyerName}
+                </p>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <Phone size={11} className="text-stone-400" />
+                  <p className="text-stone-400 text-xs">{order.buyerPhone}</p>
+                </div>
+                {order.deliveryMethod !== 'pickup' && (
+                  <div className="flex items-start gap-1 mt-1">
+                    <MapPin size={11} className="text-stone-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-stone-400 text-xs">{order.buyerAddress}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </button>
+
+          {order.deliveryMethod !== 'pickup' && (
+            <button
+              type="button"
+              onClick={() => navigate(`/kitchen/orders/${order.id}/rider`)}
+              className="w-full mt-2 bg-gray-50 rounded-xl p-3 text-left"
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 overflow-hidden flex items-center justify-center">
+                  {assignedRider?.profilePicture ? (
+                    <img src={assignedRider.profilePicture} alt={assignedRider.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <User size={16} className="text-stone-500" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-stone-700 text-sm" style={{ fontWeight: 600 }}>
+                    {assignedRider?.name || 'Rider not assigned'}
+                  </p>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <Phone size={11} className="text-stone-400" />
+                    <p className="text-stone-400 text-xs">{assignedRider?.phone || 'No phone available'}</p>
+                  </div>
+                </div>
+              </div>
+            </button>
+          )}
         </div>
 
         <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">

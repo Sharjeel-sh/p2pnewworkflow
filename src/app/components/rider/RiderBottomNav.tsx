@@ -1,9 +1,8 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { Home, ClipboardList, UserCircle } from 'lucide-react';
+import { ClipboardList, UserCircle } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { path: '/rider', label: 'Home', icon: Home },
   { path: '/rider/orders', label: 'Orders', icon: ClipboardList },
   { path: '/rider/profile', label: 'Profile', icon: UserCircle },
 ];
