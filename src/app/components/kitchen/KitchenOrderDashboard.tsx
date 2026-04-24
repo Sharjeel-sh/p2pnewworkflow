@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import {
   Bell, TrendingUp, Clock, ChefHat, Users, ShoppingBag,
   Eye, DollarSign, Calendar, Filter, Printer, Download,
@@ -237,6 +238,7 @@ const generateMockOrders = () => {
 
 export function KitchenOrderDashboard() {
   const { currentUser, orders: contextOrders, dishes, riders: contextRiders } = useApp();
+  const navigate = useNavigate();
   const orgId = currentUser?.orgId;
   const branchId = currentUser?.branchId;
   
@@ -700,7 +702,10 @@ export function KitchenOrderDashboard() {
               >
                 <RefreshCw size={20} className={`text-gray-600 ${isRefreshing ? 'animate-spin' : ''}`} />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
+              <button
+                onClick={() => navigate('/kitchen/notifications', { state: { from: '/kitchen/order/dashboard' } })}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors relative"
+              >
                 <Bell size={20} className="text-gray-600" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>

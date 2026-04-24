@@ -67,7 +67,14 @@ export function RiderProfile() {
             <h1 className="text-white text-lg font-bold">Profile</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Bell size={20} className="text-white" />
+            <button
+              type="button"
+              onClick={() => navigate('/rider/notifications')}
+              className="text-white"
+              aria-label="Open notifications"
+            >
+              <Bell size={20} className="text-white" />
+            </button>
           </div>
         </div>
       </div>

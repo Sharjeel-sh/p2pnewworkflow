@@ -20,7 +20,14 @@ export function KitchenProfile() {
       <div className="bg-red-700 px-5 pt-9 pb-4 flex items-center justify-between">
         <div className="w-8" />
         <h2 className="text-white text-lg font-bold">Profile Settings</h2>
-        <Bell size={24} className="text-white" />
+        <button
+          type="button"
+          onClick={() => navigate('/kitchen/notifications')}
+          className="text-white"
+          aria-label="Open notifications"
+        >
+          <Bell size={24} className="text-white" />
+        </button>
       </div>
 
       {/* avatar */}

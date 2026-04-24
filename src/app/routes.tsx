@@ -50,6 +50,7 @@ import { RiderOrders } from './components/rider/RiderOrders';
 import { RiderProfile } from './components/rider/RiderProfile';
 import { RiderOrderDetails } from './components/rider/RiderOrderDetails';
 import { ChatScreen } from './components/chat/ChatScreen';
+import { BuyerNotificationsScreen, KitchenNotificationsScreen, RiderNotificationsScreen } from './components/shared/NotificationsScreen';
 import { NotFoundError } from './NotFoundError';
 
 export const router = createBrowserRouter([
@@ -75,6 +76,7 @@ export const router = createBrowserRouter([
       { path: 'buyer/favorites', element: <BuyerFavorites /> },
       { path: 'buyer/search', element: <BuyerSearch /> },
       { path: 'buyer/profile', element: <BuyerProfile /> },
+      { path: 'buyer/notifications', element: <BuyerNotificationsScreen /> },
       { path: 'buyer/restaurant/:orgId', element: <RestaurantDetail /> },
       { path: 'buyer/restaurant/:orgId/dish/:dishId', element: <DishDetail /> },
       { path: 'buyer/cart', element: <CartScreen /> },
@@ -95,6 +97,7 @@ export const router = createBrowserRouter([
       { path: 'kitchen/orders', element: <KitchenOrders /> },
       { path: 'kitchen/chat-list', element: <KitchenChatListScreen /> },
       { path: 'kitchen/profile', element: <KitchenProfile /> },
+      { path: 'kitchen/notifications', element: <KitchenNotificationsScreen /> },
       { path: 'kitchen/profile/organization', element: <OrgProfile /> },
       { path: 'kitchen/profile/info', element: <OrgInfo /> },
       { path: 'kitchen/profile/org-edit', element: <OrgOrgEdit /> },
@@ -109,6 +112,7 @@ export const router = createBrowserRouter([
       { path: 'rider/orders', element: <RiderOrders /> },
       { path: 'rider/order/:orderId', element: <RiderOrderDetails /> },
       { path: 'rider/profile', element: <RiderProfile /> },
+      { path: 'rider/notifications', element: <RiderNotificationsScreen /> },
       { path: 'chat/:orderId', element: <ChatScreen /> },
     ],
   },
